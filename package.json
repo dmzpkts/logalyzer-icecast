@@ -1,9 +1,14 @@
 {
-  "name": "icecast-logalizer",
+  "name": "logalizer-icecast",
   "version": "1.0.0",
   "description": "Icecast Log Analyzer.",
   "main": "logalyze.js",
   "scripts": {
+    "build": "npm run build-umd && npm run build-cjs",
+    "build-umd": "BABEL_ENV=umd babel -d build/umd/ src/entity-js/",
+    "build-cjs": "BABEL_ENV=cjs babel -d build/cjs/ src/entity-js/",
+    "watch-umd": "BABEL_ENV=umd babel --watch -d build/umd/ src/entity-js/",
+    "watch-cjs": "BABEL_ENV=cjs babel --watch -d build/cjs/ src/entity-js/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,6 +23,15 @@
   "dependencies": {
     "minimist": "^1.2.0",
     "nymph-client": "^1.6.1",
-    "nymph-client-node": "0.0.1-alpha1"
+    "nymph-client-node": "0.0.1-alpha2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-stage-3": "^6.24.1",
+    "babel-watch": "^2.0.7"
   }
 }
