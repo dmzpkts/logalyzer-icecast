@@ -1,0 +1,15 @@
+{
+    "name": "hperrin/icecast-logalizer",
+    "description": "Icecast Log Analyzer.",
+    "type": "project",
+    "require": {
+        "sciactive/nymph-server": "^1.6"
+    },
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Hunter Perrin",
+            "email": "hperrin@gmail.com"
+        }
+    ]
+}

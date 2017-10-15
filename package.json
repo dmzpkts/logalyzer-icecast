@@ -1,0 +1,23 @@
+{
+  "name": "icecast-logalizer",
+  "version": "1.0.0",
+  "description": "Icecast Log Analyzer.",
+  "main": "logalyze.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "icecast",
+    "log",
+    "logs",
+    "analyze",
+    "analyzer"
+  ],
+  "author": "Hunter Perrin <hperrin@gmail.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "minimist": "^1.2.0",
+    "nymph-client": "^1.6.1",
+    "nymph-client-node": "0.0.1-alpha1"
+  }
+}
