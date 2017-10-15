@@ -1,5 +1,5 @@
 {
-  "name": "logalizer-icecast",
+  "name": "logalyzer-icecast",
   "version": "1.0.0",
   "description": "Icecast Log Analyzer.",
   "main": "logalyze.js",
