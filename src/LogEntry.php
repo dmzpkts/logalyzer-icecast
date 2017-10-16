@@ -31,7 +31,11 @@ class LogEntry extends \Nymph\Entity {
     'responseBytes',
     'referer',
     'userAgent',
-    'duration'];
+    'duration',
+    'time',
+    'method',
+    'resource',
+    'protocol'];
   protected $protectedTags = ['archived'];
   protected $whitelistTags = [];
 
