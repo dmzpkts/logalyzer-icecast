@@ -13,6 +13,9 @@
  * @property string $userAgent
  * @property int $duration
  * @property int $time Unix timestamp of the request in milliseconds.
+ * @property string $method
+ * @property string $resource
+ * @property string $protocol
  */
 class LogEntry extends \Nymph\Entity {
   const ETYPE = 'logentry';

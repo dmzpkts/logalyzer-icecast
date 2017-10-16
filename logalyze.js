@@ -32,8 +32,6 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
       let i = 0, liner;
       while (liner = lineReader.next()) {
         const line = liner.toString('utf-8');
-        // Wait 10 msec between each request, to not overload the server.
-        await new Promise((r) => {setTimeout(() => r(), 10)})
 
         // 198.199.105.67 - - [05/Sep/2017:15:57:17 -0700] "GET /admin/metadata HTTP/1.0" 200 335 "-" "libshout/2.3.1" 0
 
@@ -95,6 +93,11 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
         responseBytes = parseInt(responseBytes, 10);
         duration = parseInt(duration, 10);
         let time = Date.parse(timeString.replace(/\//g, '-').replace(/:/, ' '));
+        let [method, resource, protocol] = requestLine.substr(1, requestLine.length-2).split(' ');
+        if (!argv['dont-skip-status'] && resource === '/status.xsl') {
+          continue;
+        }
+        console.log([method, resource, protocol]);
 
         // Save the entry to the DB.
         const entry = new LogEntry();
@@ -110,13 +113,20 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
           referer,
           userAgent,
           duration,
-          time
+          time,
+          method,
+          resource,
+          protocol
         });
-        console.log('Saving log entry: ', ++i);
-        await entry.save();
-        if (!entry.guid) {
-          console.log('\nCouldn\'t save log entry: ', entry, '\n');
-        }
+
+        // console.log('Saving log entry: ', ++i);
+        // await entry.save();
+        // if (!entry.guid) {
+        //   console.log('\nCouldn\'t save log entry: ', entry, '\n');
+        // }
+
+        // Wait 10 msec between each request, to not overload the server.
+        await new Promise((r) => {setTimeout(() => r(), 10)})
       }
       break;
     case 'prune':
@@ -142,11 +152,12 @@ Once you've done that, you can run this script file and give it an action.
 
 Actions are:
 
-  node logalyzer.js add -f <file> [--skip-dupe-check]
+  node logalyzer.js add -f <file> [--skip-dupe-check] [--dont-skip-status]
     Reads the log file <file> and adds all the entries to the database.
     --skip-dupe-check will cause Logalyzer to skip the duplicate entry check it
       does for each entry. (Use this if you know you've never imported these
       entries before.)
+    --dont-skip-status will cause Logalizer to not skip status.xsl requests.
 
   node logalyzer.js remove -f <file>
     Reads the log file <file> and removes all the matching entries from the
