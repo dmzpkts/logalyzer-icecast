@@ -2,16 +2,17 @@
 
 /**
  * @property string $line The log entry's original log line.
-* @property string $remoteHost,
-* @property string $userIdentity,
-* @property string $userName,
-* @property string $timeString,
-* @property string $requestLine,
-* @property int $statusCode,
-* @property int $responseBytes,
-* @property string $referer,
-* @property string $userAgent,
-* @property int $duration
+ * @property string $remoteHost
+ * @property string $userIdentity
+ * @property string $userName
+ * @property string $timeString
+ * @property string $requestLine
+ * @property int $statusCode
+ * @property int $responseBytes
+ * @property string $referer
+ * @property string $userAgent
+ * @property int $duration
+ * @property int $time Unix timestamp of the request in milliseconds.
  */
 class LogEntry extends \Nymph\Entity {
   const ETYPE = 'logentry';
