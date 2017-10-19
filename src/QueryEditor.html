@@ -54,8 +54,18 @@
     {{/each}}
     <pre>}</pre>
   </div>
-  {{#each selectors as selector}}
-  {{/each}}
+  <h3>Selectors</h3>
+  <div class="selector-editor">
+    <div>
+      Add Selector:
+      <button on:click="addSelector()">Add Empty Selector</button>
+    </div>
+    [
+    {{#each selectors as selector, index}}
+      <SelectorEditor bind:selector on:remove="removeSelector(index)"></SelectorEditor>
+    {{/each}}
+    ]
+  </div>
   {{#if showQuery}}
     <h3>Query</h3>
     <div class="query-result">
@@ -65,6 +75,8 @@
 </div>
 
 <script>
+  import SelectorEditor from './SelectorEditor.html';
+
   export default {
     data () {
       return {
@@ -137,7 +149,23 @@
             }
             return "";
         }
+      },
+
+      addSelector () {
+        const selectors = this.get("selectors");
+        selectors.push({type: '&'});
+        this.set({selectors});
+      },
+
+      removeSelector (index) {
+        const selectors = this.get("selectors");
+        selectors.splice(index, 1);
+        this.set({selectors});
       }
+    },
+
+    components: {
+      SelectorEditor
     }
   };
 </script>
@@ -147,12 +175,12 @@
     font-family: monospace;
   }
 
-  .options-editor {
+  .options-editor, .selector-editor, .selector-editor .selector {
     padding-left: 2em;
     display: flex;
     flex-direction: column;
   }
-  .options-editor .option {
+  .options-editor .option, .selector-editor .selector .clause {
     padding: .5em 2em;
     display: flex;
     flex-direction: row;

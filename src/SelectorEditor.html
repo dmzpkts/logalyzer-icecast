@@ -1,0 +1,273 @@
+<div class="selector">
+  {{#if remainingClauses.length}}
+    <div>
+      Add Clause:
+      <select bind:value="__newClause" on:change="addClause()">
+        <option selected value="">
+          - Select a Clause -
+        </option>
+        {{#each remainingClauses as clause}}
+          <option value="{{clause}}">
+            {{clause}}
+          </option>
+        {{/each}}
+      </select>
+    </div>
+  {{/if}}
+  {
+  <div class="clause">
+    <div class="name">
+      type:
+    </div>
+    <div class="value">
+      <select bind:value="selector.type">
+        <option value="&amp;">
+          &amp; (All values in the selector must be true.)
+        </option>
+        <option value="|">
+          | (At least one value in the selector must be true.)
+        </option>
+        <option value="!&amp;">
+          !&amp; (All values in the selector must be false.)
+        </option>
+        <option value="!|">
+          !| (At least one value in the selector must be false.)
+        </option>
+      </select>
+    </div>
+    <div class="remove">
+      <button on:click="fire('remove')">Remove Entire Selector</button>
+    </div>
+  </div>
+  {{#each clausesKeysTypes as clause}}
+    <div class="clause">
+      <div class="name">
+        {{clause.key}}:
+      </div>
+      <div class="value">
+        [
+        {{#if clause.type.vector}}
+          {{#each selector[clause.key] as clauseEntry}}
+            <div class="clause-entry">
+              {{#if clause.type.type === "int"}}
+                [<input type="text" bind:value="clauseEntry[0]" placeholder="property name" />, <input type="number" bind:value="clauseEntry[1]" />]
+              {{elseif clause.type.type === "string"}}
+                [<input type="text" bind:value="clauseEntry[0]" placeholder="property name" />, <input type="text" bind:value="clauseEntry[1]" />]
+              {{/if}}
+            </div>
+          {{/each}}
+        {{else}}
+          {{#each selector[clause.key] as clauseEntry}}
+            <div class="clause-entry">
+              {{#if clause.type.type === "int"}}
+                <input type="number" bind:value="clauseEntry" />
+              {{elseif clause.type.type === "string"}}
+                <input type="text" bind:value="clauseEntry" />
+              {{/if}}
+            </div>
+          {{/each}}
+        {{/if}}
+        ]
+      </div>
+      <div class="remove">
+        <button on:click="removeClause(clause.key)">Remove</button>
+      </div>
+    </div>
+  {{/each}}
+  }
+</div>
+
+<script>
+  export default {
+    data () {
+      return {
+        __newClause: "",
+        supportedClauses: {
+          "guid": {
+            type: "int",
+            vector: false,
+          },
+          "!guid": {
+            type: "int",
+            vector: false,
+          },
+          "tag": {
+            type: "string",
+            vector: false,
+          },
+          "!tag": {
+            type: "string",
+            vector: false,
+          },
+          "isset": {
+            type: "string",
+            vector: false,
+          },
+          "!isset": {
+            type: "string",
+            vector: false,
+          },
+          "data": {
+            type: "string",
+            vector: true,
+          },
+          "!data": {
+            type: "string",
+            vector: true,
+          },
+          "strict": {
+            type: "string",
+            vector: true,
+          },
+          "!strict": {
+            type: "string",
+            vector: true,
+          },
+          "array": {
+            type: "string",
+            vector: true,
+          },
+          "!array": {
+            type: "string",
+            vector: true,
+          },
+          "match": {
+            type: "string",
+            vector: true,
+          },
+          "!match": {
+            type: "string",
+            vector: true,
+          },
+          "pmatch": {
+            type: "string",
+            vector: true,
+          },
+          "!pmatch": {
+            type: "string",
+            vector: true,
+          },
+          "ipmatch": {
+            type: "string",
+            vector: true,
+          },
+          "!ipmatch": {
+            type: "string",
+            vector: true,
+          },
+          "like": {
+            type: "string",
+            vector: true,
+          },
+          "!like": {
+            type: "string",
+            vector: true,
+          },
+          "ilike": {
+            type: "string",
+            vector: true,
+          },
+          "!ilike": {
+            type: "string",
+            vector: true,
+          },
+          "gt": {
+            type: "int",
+            vector: true,
+          },
+          "!gt": {
+            type: "int",
+            vector: true,
+          },
+          "gte": {
+            type: "int",
+            vector: true,
+          },
+          "!gte": {
+            type: "int",
+            vector: true,
+          },
+          "lt": {
+            type: "int",
+            vector: true,
+          },
+          "!lt": {
+            type: "int",
+            vector: true,
+          },
+          "lte": {
+            type: "int",
+            vector: true,
+          },
+          "!lte": {
+            type: "int",
+            vector: true,
+          },
+          "ref": {
+            type: "int",
+            vector: true,
+          },
+          "!ref": {
+            type: "int",
+            vector: true,
+          }
+        },
+        selector: {type: '&'}
+      }
+    },
+
+    computed: {
+      remainingClauses: (selector, supportedClauses) => Object.keys(supportedClauses).filter((i) => !selector.hasOwnProperty(i)),
+      clausesKeysTypes: (selector, supportedClauses) => Object.keys(selector).filter((i) => i !== "type").map((key) => ({key, type: supportedClauses[key]}))
+    },
+
+    methods: {
+      addClause () {
+        const selector = this.get("selector");
+        const newClause = this.get("__newClause");
+        const supportedClauses = this.get("supportedClauses");
+
+        if (newClause === "") {
+          return;
+        }
+
+        if (!(newClause in selector)) {
+          selector[newClause] = this.getDefaultValue(supportedClauses[newClause]);
+        }
+
+        this.set({
+          selector,
+          __newClause: ""
+        });
+      },
+
+      removeClause (clause) {
+        const selector = this.get("selector");
+        delete selector[clause];
+        this.set({selector});
+      },
+
+      getDefaultValue (typeObj) {
+        switch (typeObj.type) {
+          case "int":
+            return typeObj.vector ? [["", 0]] : [0];
+          case "string":
+            return typeObj.vector ? [["", ""]] : [""];
+        }
+      }
+    }
+  };
+</script>
+
+<style>
+  .selector {
+    padding-left: 2em;
+    display: flex;
+    flex-direction: column;
+  }
+  .selector .clause, .selector .clause .clause-entry {
+    padding: .5em 2em;
+    display: flex;
+    flex-direction: row;
+  }
+</style>

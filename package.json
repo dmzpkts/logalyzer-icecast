@@ -8,9 +8,10 @@
     "build-entities": "npm run build-umd && npm run build-cjs",
     "build-umd": "BABEL_ENV=umd babel -d build/umd/ src/entity-js/",
     "build-cjs": "BABEL_ENV=cjs babel -d build/cjs/ src/entity-js/",
-    "build-svelte": "npm run build-LogalyzerApp && npm run build-QueryEditor",
+    "build-svelte": "npm run build-LogalyzerApp && npm run build-QueryEditor && npm run build-SelectorEditor",
     "build-LogalyzerApp": "svelte compile --format iife src/LogalyzerApp.html > build/LogalyzerApp.js",
     "build-QueryEditor": "svelte compile --format iife src/QueryEditor.html > build/QueryEditor.js",
+    "build-SelectorEditor": "svelte compile --format iife src/SelectorEditor.html > build/SelectorEditor.js",
     "watch-umd": "BABEL_ENV=umd babel --watch -d build/umd/ src/entity-js/",
     "watch-cjs": "BABEL_ENV=cjs babel --watch -d build/cjs/ src/entity-js/",
     "test": "echo \"Error: no test specified\" && exit 1"
