@@ -31,12 +31,8 @@
                 </option>
               {{/each}}
             </select>
-          {{elseif option.type === "int"}}
-            <input type="number" bind:value="options[option.key]" />
-          {{elseif option.type === "bool"}}
-            <input type="checkbox" bind:checked="options[option.key]" />
-          {{elseif option.type === "string"}}
-            <input type="text" bind:value="options[option.key]" />
+          {{elseif option.type === "int" || option.type === "boolean" || option.type === "string"}}
+            <ValueEditor bind:value="options[option.key]" valueTypeCurrent="{{option.type}}" strictType="true"></ValueEditor>
           {{else}}
             <select bind:value="options[option.key]">
               {{#each option.type as enumVal}}
@@ -57,8 +53,7 @@
   <h3>Selectors</h3>
   <div class="selector-editor">
     <div>
-      Add Selector:
-      <button on:click="addSelector()">Add Empty Selector</button>
+      <button on:click="addSelector()">Add Selector</button>
     </div>
     [
     {{#each selectors as selector, index}}
@@ -76,6 +71,7 @@
 
 <script>
   import SelectorEditor from './SelectorEditor.html';
+  import ValueEditor from './ValueEditor.html';
 
   export default {
     data () {
@@ -86,9 +82,9 @@
           "class": "class",
           "limit": "int",
           "offset": "int",
-          "reverse": "bool",
+          "reverse": "boolean",
           "sort": ["cdate", "mdate", "guid"],
-          "skip_ac": "bool"
+          "skip_ac": "boolean"
         },
         options: {},
         selectors: [],
@@ -99,7 +95,7 @@
     computed: {
       remainingOptions: (options, supportedOptions) => Object.keys(supportedOptions).filter((i) => !options.hasOwnProperty(i)),
       optionsKeysTypes: (options, supportedOptions) => Object.keys(options).map((key) => ({key, type: supportedOptions[key]})),
-      queryText: (options, selectors) => "Nymph.getEntities("+JSON.stringify([options, ...selectors]).slice(1, -1)+")"
+      queryText: (options, selectors) => "Nymph.getEntities("+JSON.stringify([options, ...selectors], null, 2).replace(/\[\s+("[^"]*"),\s+("[^"]*")\s+\]/g, "[$1, $2]").slice(1, -1)+")"
     },
 
     methods: {
@@ -137,7 +133,7 @@
             return 0;
           case "float":
             return 0.0;
-          case "bool":
+          case "boolean":
             return true;
           case "string":
             return "";
@@ -165,7 +161,8 @@
     },
 
     components: {
-      SelectorEditor
+      SelectorEditor,
+      ValueEditor
     }
   };
 </script>
@@ -193,5 +190,7 @@
     font-family: monospace;
     margin: 0;
     padding: 2em;
+    overflow: auto;
+    max-height: 200px;
   }
 </style>

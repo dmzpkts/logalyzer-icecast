@@ -45,25 +45,22 @@
         {{clause.key}}:
       </div>
       <div class="value">
+        <div>
+          <button on:click="addClauseEntry(clause.key)">Add Entry</button>
+        </div>
         [
         {{#if clause.type.vector}}
-          {{#each selector[clause.key] as clauseEntry}}
+          {{#each selector[clause.key] as clauseEntry, index}}
             <div class="clause-entry">
-              {{#if clause.type.type === "int"}}
-                [<input type="text" bind:value="clauseEntry[0]" placeholder="property name" />, <input type="number" bind:value="clauseEntry[1]" />]
-              {{elseif clause.type.type === "string"}}
-                [<input type="text" bind:value="clauseEntry[0]" placeholder="property name" />, <input type="text" bind:value="clauseEntry[1]" />]
-              {{/if}}
+              [<input type="text" bind:value="clauseEntry[0]" placeholder="property name" />, <ValueEditor bind:value="clauseEntry[1]" valueTypeCurrent="{{clause.type.type}}" strictType="{{clause.type.type !== null}}"></ValueEditor>]
+              <button on:click="removeClauseEntry(clause.key, index)">Remove</button>
             </div>
           {{/each}}
         {{else}}
-          {{#each selector[clause.key] as clauseEntry}}
+          {{#each selector[clause.key] as clauseEntry, index}}
             <div class="clause-entry">
-              {{#if clause.type.type === "int"}}
-                <input type="number" bind:value="clauseEntry" />
-              {{elseif clause.type.type === "string"}}
-                <input type="text" bind:value="clauseEntry" />
-              {{/if}}
+              <ValueEditor bind:value="clauseEntry" valueTypeCurrent="{{clause.type.type}}" strictType="{{clause.type.type !== null}}"></ValueEditor>
+              <button on:click="removeClauseEntry(clause.key, index)">Remove</button>
             </div>
           {{/each}}
         {{/if}}
@@ -78,6 +75,8 @@
 </div>
 
 <script>
+  import ValueEditor from './ValueEditor.html';
+
   export default {
     data () {
       return {
@@ -108,27 +107,27 @@
             vector: false,
           },
           "data": {
-            type: "string",
+            type: null,
             vector: true,
           },
           "!data": {
-            type: "string",
+            type: null,
             vector: true,
           },
           "strict": {
-            type: "string",
+            type: null,
             vector: true,
           },
           "!strict": {
-            type: "string",
+            type: null,
             vector: true,
           },
           "array": {
-            type: "string",
+            type: null,
             vector: true,
           },
           "!array": {
-            type: "string",
+            type: null,
             vector: true,
           },
           "match": {
@@ -172,35 +171,35 @@
             vector: true,
           },
           "gt": {
-            type: "int",
+            type: "float",
             vector: true,
           },
           "!gt": {
-            type: "int",
+            type: "float",
             vector: true,
           },
           "gte": {
-            type: "int",
+            type: "float",
             vector: true,
           },
           "!gte": {
-            type: "int",
+            type: "float",
             vector: true,
           },
           "lt": {
-            type: "int",
+            type: "float",
             vector: true,
           },
           "!lt": {
-            type: "int",
+            type: "float",
             vector: true,
           },
           "lte": {
-            type: "int",
+            type: "float",
             vector: true,
           },
           "!lte": {
-            type: "int",
+            type: "float",
             vector: true,
           },
           "ref": {
@@ -247,14 +246,48 @@
         this.set({selector});
       },
 
+      addClauseEntry (clause) {
+        const selector = this.get("selector");
+        const supportedClauses = this.get("supportedClauses");
+
+        if (clause in selector) {
+          selector[clause].push(this.getDefaultValue(supportedClauses[clause])[0]);
+        }
+
+        this.set({
+          selector
+        });
+      },
+
+      removeClauseEntry (clause, index) {
+        const selector = this.get("selector");
+
+        if (clause in selector) {
+          selector[clause].splice(index, 1);
+        }
+
+        this.set({
+          selector
+        });
+      },
+
       getDefaultValue (typeObj) {
         switch (typeObj.type) {
           case "int":
-            return typeObj.vector ? [["", 0]] : [0];
+            return typeObj.vector ? [["", 1]] : [1];
+          case "float":
+            return typeObj.vector ? [["", 0.1]] : [0.1];
+          case "boolean":
+            return typeObj.vector ? [["", true]] : [true];
           case "string":
+          default:
             return typeObj.vector ? [["", ""]] : [""];
         }
       }
+    },
+
+    components: {
+      ValueEditor
     }
   };
 </script>

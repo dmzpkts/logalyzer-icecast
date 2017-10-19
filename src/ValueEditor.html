@@ -1,0 +1,94 @@
+<span>
+  {{#if !strictType}}
+    (Type: <select bind:value="valueTypeCurrent" on:change="changeValueType()">
+      <option value="string">
+        String
+      </option>
+      <option value="int">
+        Integer
+      </option>
+      <option value="float">
+        Float
+      </option>
+      <option value="boolean">
+        Boolean
+      </option>
+    </select>)
+    Value:
+  {{/if}}
+  {{#if valueType === "string"}}
+    <input type="text" bind:value="value" />
+  {{elseif valueType === "int"}}
+    <input type="number" bind:value="value" on:input="makeInt()" />
+  {{elseif valueType === "float"}}
+    <input type="number" bind:value="value" />
+  {{elseif valueType === "boolean"}}
+    <label><input type="checkbox" bind:checked="value" /> ({{#if value}}True{{else}}False{{/if}})</label>
+  {{/if}}
+</span>
+
+<script>
+  export default {
+    oncreate () {
+      this.set({valueTypeCurrent: this.get("valueType")});
+    },
+
+    data () {
+      return {
+        valueTypeCurrent: null,
+        strictType: true,
+        value: ""
+      }
+    },
+
+    computed: {
+      valueType: (value, valueTypeCurrent) => {
+        switch (typeof value) {
+          case "number":
+            if (value % 1 > 0) {
+              return valueTypeCurrent || "float";
+            } else {
+              return valueTypeCurrent || "int";
+            }
+          case "boolean":
+            return "boolean";
+          case "string":
+          default:
+            return "string";
+        }
+      }
+    },
+
+    methods: {
+      changeValueType () {
+        const valueTypeCurrent = this.get("valueTypeCurrent");
+        let value = this.get("value");
+
+        switch (valueTypeCurrent) {
+          case "string":
+            value = ""+value;
+            break;
+          case "int":
+            value = parseInt(value, 10);
+            break;
+          case "float":
+            value = parseFloat(value, 10);
+            break;
+          case "boolean":
+            value = !!value;
+            break;
+        }
+
+        this.set({
+          value
+        });
+      },
+
+      makeInt () {
+        this.set({
+          value: parseInt(this.get("value"), 10)
+        });
+      }
+    }
+  };
+</script>
