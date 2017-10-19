@@ -1,5 +1,5 @@
 {
-    "name": "hperrin/logalyzer-icecast",
+    "name": "sciactive/logalyzer-icecast",
     "description": "Icecast Log Analyzer.",
     "type": "project",
     "require": {
