@@ -4,9 +4,13 @@
   "description": "Icecast Log Analyzer.",
   "main": "logalyze.js",
   "scripts": {
-    "build": "npm run build-umd && npm run build-cjs",
+    "build": "npm run build-entities && npm run build-svelte",
+    "build-entities": "npm run build-umd && npm run build-cjs",
     "build-umd": "BABEL_ENV=umd babel -d build/umd/ src/entity-js/",
     "build-cjs": "BABEL_ENV=cjs babel -d build/cjs/ src/entity-js/",
+    "build-svelte": "npm run build-LogalyzerApp && npm run build-QueryEditor",
+    "build-LogalyzerApp": "svelte compile --format iife src/LogalyzerApp.html > build/LogalyzerApp.js",
+    "build-QueryEditor": "svelte compile --format iife src/QueryEditor.html > build/QueryEditor.js",
     "watch-umd": "BABEL_ENV=umd babel --watch -d build/umd/ src/entity-js/",
     "watch-cjs": "BABEL_ENV=cjs babel --watch -d build/cjs/ src/entity-js/",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,10 +25,13 @@
   "author": "Hunter Perrin <hperrin@gmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
+    "chart.js": "^2.7.0",
     "minimist": "^1.2.0",
+    "moment": "^2.19.1",
     "n-readlines": "^0.2.8",
     "nymph-client": "^1.6.1",
-    "nymph-client-node": "0.0.1-alpha2"
+    "nymph-client-node": "0.0.1-alpha2",
+    "svelte-cli": "^1.4.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

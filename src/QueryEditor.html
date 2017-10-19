@@ -1,0 +1,169 @@
+<div class="query-editor">
+  <h3>Options</h3>
+  <div class="options-editor">
+    {{#if remainingOptions.length}}
+      <div>
+        Add Option:
+        <select bind:value="__newOption" on:change="addOption()">
+          <option selected value="">
+            - Select an Option -
+          </option>
+          {{#each remainingOptions as option}}
+            <option value="{{option}}">
+              {{option}}
+            </option>
+          {{/each}}
+        </select>
+      </div>
+    {{/if}}
+    <pre>{</pre>
+    {{#each optionsKeysTypes as option}}
+      <div class="option">
+        <div class="name">
+          {{option.key}}:
+        </div>
+        <div class="value">
+          {{#if option.type === "class"}}
+            <select bind:value="options[option.key]">
+              {{#each supportedClasses as curClass}}
+                <option value="{{curClass.class}}">
+                  {{curClass.class}}
+                </option>
+              {{/each}}
+            </select>
+          {{elseif option.type === "int"}}
+            <input type="number" bind:value="options[option.key]" />
+          {{elseif option.type === "bool"}}
+            <input type="checkbox" bind:checked="options[option.key]" />
+          {{elseif option.type === "string"}}
+            <input type="text" bind:value="options[option.key]" />
+          {{else}}
+            <select bind:value="options[option.key]">
+              {{#each option.type as enumVal}}
+                <option value="{{enumVal}}">
+                  {{enumVal}}
+                </option>
+              {{/each}}
+            </select>
+          {{/if}}
+        </div>
+        <div class="remove">
+          <button on:click="removeOption(option.key)">Remove</button>
+        </div>
+      </div>
+    {{/each}}
+    <pre>}</pre>
+  </div>
+  {{#each selectors as selector}}
+  {{/each}}
+  {{#if showQuery}}
+    <h3>Query</h3>
+    <div class="query-result">
+      <pre class="query">{{queryText}}</pre>
+    </div>
+  {{/if}}
+</div>
+
+<script>
+  export default {
+    data () {
+      return {
+        __newOption: "",
+        supportedClasses: [],
+        supportedOptions: {
+          "class": "class",
+          "limit": "int",
+          "offset": "int",
+          "reverse": "bool",
+          "sort": ["cdate", "mdate", "guid"],
+          "skip_ac": "bool"
+        },
+        options: {},
+        selectors: [],
+        showQuery: true
+      }
+    },
+
+    computed: {
+      remainingOptions: (options, supportedOptions) => Object.keys(supportedOptions).filter((i) => !options.hasOwnProperty(i)),
+      optionsKeysTypes: (options, supportedOptions) => Object.keys(options).map((key) => ({key, type: supportedOptions[key]})),
+      queryText: (options, selectors) => "Nymph.getEntities("+JSON.stringify([options, ...selectors]).slice(1, -1)+")"
+    },
+
+    methods: {
+      addOption () {
+        const options = this.get("options");
+        const newOption = this.get("__newOption");
+        const supportedOptions = this.get("supportedOptions");
+
+        if (newOption === "") {
+          return;
+        }
+
+        if (!(newOption in options)) {
+          options[newOption] = this.getDefaultValue(supportedOptions[newOption]);
+        }
+
+        this.set({
+          options,
+          __newOption: ""
+        });
+      },
+
+      removeOption (option) {
+        const options = this.get("options");
+        delete options[option];
+        this.set({options});
+      },
+
+      getDefaultValue (type) {
+        switch (type) {
+          case "class":
+            const classes = this.get("supportedClasses");
+            return classes.length ? classes[0].class : '';
+          case "int":
+            return 0;
+          case "float":
+            return 0.0;
+          case "bool":
+            return true;
+          case "string":
+            return "";
+          case "date":
+            return Date.now();
+          default:
+            if (Array.isArray(type)) {
+              return type[0];
+            }
+            return "";
+        }
+      }
+    }
+  };
+</script>
+
+<style>
+  .query-editor {
+    font-family: monospace;
+  }
+
+  .options-editor {
+    padding-left: 2em;
+    display: flex;
+    flex-direction: column;
+  }
+  .options-editor .option {
+    padding: .5em 2em;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .query-result {
+    border: 1px solid;
+  }
+  .query-result .query {
+    font-family: monospace;
+    margin: 0;
+    padding: 2em;
+  }
+</style>

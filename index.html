@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Logalyzer for Icecast</title>
+
+  <!-- Nymph Config -->
+  <script type="text/javascript">
+    function nymphConfigSet(config) {
+      window.NymphOptions = config;
+    }
+  </script>
+  <script type="text/javascript" src="conf/config.js"></script>
+
+  <!-- Nymph JS -->
+  <script type="text/javascript" src="node_modules/nymph-client/lib/Nymph.js"></script>
+  <script type="text/javascript" src="node_modules/nymph-client/lib/Entity.js"></script>
+
+  <!-- Entity JS -->
+  <script type="text/javascript" src="build/umd/LogEntry.js"></script>
+
+  <!-- Moment -->
+  <script type="text/javascript" src="node_modules/moment/min/moment-with-locales.min.js"></script>
+
+  <!-- Chart.js -->
+  <script type="text/javascript" src="node_modules/chart.js/dist/Chart.min.js"></script>
+</head>
+<body>
+  <main></main>
+
+  <!-- App -->
+  <script type="text/javascript" src="build/QueryEditor.js"></script>
+  <script type="text/javascript" src="build/LogalyzerApp.js"></script>
+  <script type="text/javascript">
+    const logalyzerApp = new LogalyzerApp({
+      target: document.querySelector('main')
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<div>
+  <QueryEditor bind:options bind:selectors bind:supportedClasses="__supportedClasses"></QueryEditor>
+  <hr />
+  <button on:click="runQuery()">Run Query</button>
+</div>
+
+<script>
+  import QueryEditor from './QueryEditor.html';
+  import Nymph from 'Nymph';
+  import LogEntry from 'LogEntry';
+
+  export default {
+    data () {
+      return {
+        __supportedClasses: [
+          LogEntry
+        ],
+        options: {
+          'class': LogEntry.class
+        },
+        selectors: [{
+          'type': '|',
+          'strict': [
+            ['resource', '/stream'],
+            ['resource', '/stream2']
+          ]
+        }]
+      }
+    },
+
+    computed: {
+      query: (options, selectors) => [options, ...selectors]
+    },
+
+    methods: {
+      runQuery () {
+        const query = this.get('query');
+        console.log("Running query: ", query);
+        Nymph.getEntities(...query).then((entries) => {
+          console.log("Query results: ", entries);
+        }, (err) => {
+          alert("Error: "+err);
+        });
+      }
+    },
+
+    components: {
+      QueryEditor
+    }
+  };
+</script>
+
+<style></style>
