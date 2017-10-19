@@ -96,13 +96,13 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2125343406", "");
+		setAttribute(node, "svelte-115484319", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2125343406-style';
-		style.textContent = "[svelte-2125343406].query-editor,[svelte-2125343406] .query-editor{font-family:monospace}[svelte-2125343406].options-editor,[svelte-2125343406] .options-editor,[svelte-2125343406].selector-editor,[svelte-2125343406] .selector-editor,[svelte-2125343406].selector-editor .selector,[svelte-2125343406] .selector-editor .selector{padding-left:2em;display:flex;flex-direction:column}[svelte-2125343406].options-editor .option,[svelte-2125343406] .options-editor .option,[svelte-2125343406].selector-editor .selector .clause,[svelte-2125343406] .selector-editor .selector .clause{padding:.5em 2em;display:flex;flex-direction:row}[svelte-2125343406].query-result,[svelte-2125343406] .query-result{border:1px solid}[svelte-2125343406].query-result .query,[svelte-2125343406] .query-result .query{font-family:monospace;margin:0;padding:2em;overflow:auto;max-height:200px}";
+		style.id = 'svelte-115484319-style';
+		style.textContent = "[svelte-115484319].query-editor,[svelte-115484319] .query-editor{font-family:monospace}[svelte-115484319].options-editor,[svelte-115484319] .options-editor,[svelte-115484319].selector-editor,[svelte-115484319] .selector-editor,[svelte-115484319].selector-editor .selector,[svelte-115484319] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-115484319].options-editor .option,[svelte-115484319] .options-editor .option,[svelte-115484319].selector-editor .selector .clause,[svelte-115484319] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-115484319].query-result,[svelte-115484319] .query-result{border:1px solid}[svelte-115484319].query-result .query,[svelte-115484319] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}";
 		appendNode(style, document.head);
 	}
 
@@ -1087,7 +1087,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, supportedOptions: 1, selectors: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2125343406-style")) add_css();
+		if (!document.getElementById("svelte-115484319-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];

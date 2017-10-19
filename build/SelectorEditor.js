@@ -7,141 +7,45 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 	}
 
 	function clausesKeysTypes(selector, supportedClauses) {
-		return Object.keys(selector).filter((i) => i !== "type").map((key) => ({key, type: supportedClauses[key]}));
+		return Object.keys(selector).filter((i) => i !== "type").map((key) => supportedClauses.hasOwnProperty(key) ? {key, type: supportedClauses[key]} : {key, type: 'selector'});
 	}
 
 	function data() {
   return {
     __newClause: "",
     supportedClauses: {
-      "guid": {
-        type: "int",
-        vector: false,
-      },
-      "!guid": {
-        type: "int",
-        vector: false,
-      },
-      "tag": {
-        type: "string",
-        vector: false,
-      },
-      "!tag": {
-        type: "string",
-        vector: false,
-      },
-      "isset": {
-        type: "string",
-        vector: false,
-      },
-      "!isset": {
-        type: "string",
-        vector: false,
-      },
-      "data": {
-        type: null,
-        vector: true,
-      },
-      "!data": {
-        type: null,
-        vector: true,
-      },
-      "strict": {
-        type: null,
-        vector: true,
-      },
-      "!strict": {
-        type: null,
-        vector: true,
-      },
-      "array": {
-        type: null,
-        vector: true,
-      },
-      "!array": {
-        type: null,
-        vector: true,
-      },
-      "match": {
-        type: "string",
-        vector: true,
-      },
-      "!match": {
-        type: "string",
-        vector: true,
-      },
-      "pmatch": {
-        type: "string",
-        vector: true,
-      },
-      "!pmatch": {
-        type: "string",
-        vector: true,
-      },
-      "ipmatch": {
-        type: "string",
-        vector: true,
-      },
-      "!ipmatch": {
-        type: "string",
-        vector: true,
-      },
-      "like": {
-        type: "string",
-        vector: true,
-      },
-      "!like": {
-        type: "string",
-        vector: true,
-      },
-      "ilike": {
-        type: "string",
-        vector: true,
-      },
-      "!ilike": {
-        type: "string",
-        vector: true,
-      },
-      "gt": {
-        type: "float",
-        vector: true,
-      },
-      "!gt": {
-        type: "float",
-        vector: true,
-      },
-      "gte": {
-        type: "float",
-        vector: true,
-      },
-      "!gte": {
-        type: "float",
-        vector: true,
-      },
-      "lt": {
-        type: "float",
-        vector: true,
-      },
-      "!lt": {
-        type: "float",
-        vector: true,
-      },
-      "lte": {
-        type: "float",
-        vector: true,
-      },
-      "!lte": {
-        type: "float",
-        vector: true,
-      },
-      "ref": {
-        type: "int",
-        vector: true,
-      },
-      "!ref": {
-        type: "int",
-        vector: true,
-      }
+      "guid": {type: "int", vector: false},
+      "!guid": {type: "int", vector: false},
+      "tag": {type: "string", vector: false},
+      "!tag": {type: "string", vector: false},
+      "isset": {type: "string", vector: false},
+      "!isset": {type: "string", vector: false},
+      "data": {type: null, vector: true},
+      "!data": {type: null, vector: true},
+      "strict": {type: null, vector: true},
+      "!strict": {type: null, vector: true},
+      "array": {type: null, vector: true},
+      "!array": {type: null, vector: true},
+      "match": {type: "string", vector: true},
+      "!match": {type: "string", vector: true},
+      "pmatch": {type: "string", vector: true},
+      "!pmatch": {type: "string", vector: true},
+      "ipmatch": {type: "string", vector: true},
+      "!ipmatch": {type: "string", vector: true},
+      "like": {type: "string", vector: true},
+      "!like": {type: "string", vector: true},
+      "ilike": {type: "string", vector: true},
+      "!ilike": {type: "string", vector: true},
+      "gt": {type: "float", vector: true},
+      "!gt": {type: "float", vector: true},
+      "gte": {type: "float", vector: true},
+      "!gte": {type: "float", vector: true},
+      "lt": {type: "float", vector: true},
+      "!lt": {type: "float", vector: true},
+      "lte": {type: "float", vector: true},
+      "!lte": {type: "float", vector: true},
+      "ref": {type: "int", vector: true},
+      "!ref": {type: "int", vector: true}
     },
     selector: {type: '&'}
   }
@@ -181,9 +85,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
       selector[clause].push(this.getDefaultValue(supportedClauses[clause])[0]);
     }
 
-    this.set({
-      selector
-    });
+    this.set({selector});
   },
 
   removeClauseEntry (clause, index) {
@@ -193,9 +95,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
       selector[clause].splice(index, 1);
     }
 
-    this.set({
-      selector
-    });
+    this.set({selector});
   },
 
   getDefaultValue (typeObj) {
@@ -210,22 +110,51 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
       default:
         return typeObj.vector ? [["", ""]] : [""];
     }
+  },
+
+  addSelector () {
+    const selector = this.get("selector");
+
+    // Find the first number that's not taken.
+    let i = 1;
+    while (selector.hasOwnProperty(""+i)) {
+      i++;
+    }
+    selector[""+i] = {"type": "&"};
+
+    this.set({selector});
+  },
+
+  removeSelector (key) {
+    const selector = this.get("selector");
+
+    // Delete the keyed selector.
+    delete selector[key];
+    // Rearrange all the following selectors.
+    let i = parseInt(key, 10) + 1;
+    while (selector.hasOwnProperty(""+i)) {
+      selector[""+(i-1)] = selector[""+i];
+      delete selector[""+i];
+      i++;
+    }
+
+    this.set({selector});
   }
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2333839390", "");
+		setAttribute(node, "svelte-3654834229", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2333839390-style';
-		style.textContent = "[svelte-2333839390].selector,[svelte-2333839390] .selector{padding-left:2em;display:flex;flex-direction:column}[svelte-2333839390].selector .clause,[svelte-2333839390] .selector .clause,[svelte-2333839390].selector .clause .clause-entry,[svelte-2333839390] .selector .clause .clause-entry{padding:.5em 2em;display:flex;flex-direction:row}";
+		style.id = 'svelte-3654834229-style';
+		style.textContent = "[svelte-3654834229].selector,[svelte-3654834229] .selector{margin:.5em;padding:.5em;display:flex;flex-direction:column;border:1px dotted}[svelte-3654834229].selector .clause,[svelte-3654834229] .selector .clause,[svelte-3654834229].selector .clause .clause-entry,[svelte-3654834229] .selector .clause .clause-entry{padding:.5em 1em;display:flex;flex-direction:row}";
 		appendNode(style, document.head);
 	}
 
 	function create_main_fragment(state, component) {
-		var div, text, div_1, div_2, text_2, div_3, select, option, option_1, option_2, option_3, select_updating = false, text_8, div_4, button, text_12, text_13;
+		var div, text, div_1, div_2, text_2, div_3, select, option, option_1, option_2, option_3, select_updating = false, text_9, text_10;
 
 		var if_block = (state.remainingClauses.length) && create_if_block(state, component);
 
@@ -236,10 +165,6 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 			state.selector.type = selectedOption && selectedOption.__value;
 			component.set({ selector: state.selector });
 			select_updating = false;
-		}
-
-		function click_handler(event) {
-			component.fire('remove');
 		}
 
 		var clausesKeysTypes_1 = state.clausesKeysTypes;
@@ -269,17 +194,13 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				option_2.textContent = "!& (All values in the selector must be false.)";
 				option_3 = createElement("option");
 				option_3.textContent = "!| (At least one value in the selector must be false.)";
-				text_8 = createText("\n    ");
-				div_4 = createElement("div");
-				button = createElement("button");
-				button.textContent = "Remove Entire Selector";
-				text_12 = createText("\n  ");
+				text_9 = createText("\n  ");
 
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
 
-				text_13 = createText("\n  }");
+				text_10 = createText("\n  }");
 				this.h();
 			},
 
@@ -301,8 +222,6 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				if (!('selector' in state)) component._root._beforecreate.push(select_change_handler);
 
 				addListener(select, "change", select_change_handler);
-				div_4.className = "remove";
-				addListener(button, "click", click_handler);
 			},
 
 			m: function mount(target, anchor) {
@@ -329,16 +248,13 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 					}
 				}
 
-				appendNode(text_8, div_1);
-				appendNode(div_4, div_1);
-				appendNode(button, div_4);
-				appendNode(text_12, div);
+				appendNode(text_9, div);
 
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].m(div, null);
 				}
 
-				appendNode(text_13, div);
+				appendNode(text_10, div);
 			},
 
 			p: function update(changed, state) {
@@ -377,7 +293,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 						} else {
 							each_blocks[i] = create_each_block_1(state, clausesKeysTypes_1, clausesKeysTypes_1[i], i, component);
 							each_blocks[i].c();
-							each_blocks[i].m(div, text_13);
+							each_blocks[i].m(div, text_10);
 						}
 					}
 
@@ -401,7 +317,6 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 			d: function destroy() {
 				if (if_block) if_block.d();
 				removeListener(select, "change", select_change_handler);
-				removeListener(button, "click", click_handler);
 
 				destroyEach(each_blocks);
 			}
@@ -450,7 +365,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 
 	// (2:2) {{#if remainingClauses.length}}
 	function create_if_block(state, component) {
-		var div, text, select, option, select_updating = false;
+		var div, text, select, option, select_updating = false, text_2, button, text_4, button_1;
 
 		var remainingClauses_1 = state.remainingClauses;
 
@@ -471,6 +386,14 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 			component.addClause();
 		}
 
+		function click_handler(event) {
+			component.addSelector();
+		}
+
+		function click_handler_1(event) {
+			component.fire('remove');
+		}
+
 		return {
 			c: function create() {
 				div = createElement("div");
@@ -482,6 +405,13 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
+
+				text_2 = createText("\n      ");
+				button = createElement("button");
+				button.textContent = "Add Selector Clause";
+				text_4 = createText("\n      ");
+				button_1 = createElement("button");
+				button_1.textContent = "Remove Selector";
 				this.h();
 			},
 
@@ -494,6 +424,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 
 				addListener(select, "change", select_change_handler);
 				addListener(select, "change", change_handler);
+				addListener(button, "click", click_handler);
+				addListener(button_1, "click", click_handler_1);
 			},
 
 			m: function mount(target, anchor) {
@@ -515,6 +447,11 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 						break;
 					}
 				}
+
+				appendNode(text_2, div);
+				appendNode(button, div);
+				appendNode(text_4, div);
+				appendNode(button_1, div);
 			},
 
 			p: function update(changed, state) {
@@ -564,16 +501,20 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 
 				removeListener(select, "change", select_change_handler);
 				removeListener(select, "change", change_handler);
+				removeListener(button, "click", click_handler);
+				removeListener(button_1, "click", click_handler_1);
 			}
 		};
 	}
 
-	// (42:2) {{#each clausesKeysTypes as clause}}
+	// (41:2) {{#each clausesKeysTypes as clause}}
 	function create_each_block_1(state, clausesKeysTypes_1, clause_1, clause_index, component) {
-		var div, div_1, text_value = clause_1.key, text, text_1, text_2, div_2, div_3, button, text_5, text_6, text_7, div_4, button_1;
+		var div, div_1, text_value = clause_1.key, text, text_1, text_2, div_2, text_4;
 
-		var current_block_type = select_block_type(state, clausesKeysTypes_1, clause_1, clause_index);
+		var current_block_type = select_block_type_1(state, clausesKeysTypes_1, clause_1, clause_index);
 		var if_block = current_block_type(state, clausesKeysTypes_1, clause_1, clause_index, component);
+
+		var if_block_1 = (clause_1.type !== "selector") && create_if_block_5(state, clausesKeysTypes_1, clause_1, clause_index, component);
 
 		return {
 			c: function create() {
@@ -583,16 +524,9 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				text_1 = createText(":");
 				text_2 = createText("\n      ");
 				div_2 = createElement("div");
-				div_3 = createElement("div");
-				button = createElement("button");
-				button.textContent = "Add Entry";
-				text_5 = createText("\n        [\n        ");
 				if_block.c();
-				text_6 = createText("\n        ]");
-				text_7 = createText("\n      ");
-				div_4 = createElement("div");
-				button_1 = createElement("button");
-				button_1.textContent = "Remove";
+				text_4 = createText("\n      ");
+				if (if_block_1) if_block_1.c();
 				this.h();
 			},
 
@@ -600,22 +534,6 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				div.className = "clause";
 				div_1.className = "name";
 				div_2.className = "value";
-				addListener(button, "click", click_handler);
-
-				button._svelte = {
-					component: component,
-					clausesKeysTypes_1: clausesKeysTypes_1,
-					clause_index: clause_index
-				};
-
-				div_4.className = "remove";
-				addListener(button_1, "click", click_handler_3);
-
-				button_1._svelte = {
-					component: component,
-					clausesKeysTypes_1: clausesKeysTypes_1,
-					clause_index: clause_index
-				};
 			},
 
 			m: function mount(target, anchor) {
@@ -625,14 +543,9 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				appendNode(text_1, div_1);
 				appendNode(text_2, div);
 				appendNode(div_2, div);
-				appendNode(div_3, div_2);
-				appendNode(button, div_3);
-				appendNode(text_5, div_2);
 				if_block.m(div_2, null);
-				appendNode(text_6, div_2);
-				appendNode(text_7, div);
-				appendNode(div_4, div);
-				appendNode(button_1, div_4);
+				appendNode(text_4, div);
+				if (if_block_1) if_block_1.m(div, null);
 			},
 
 			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index) {
@@ -640,37 +553,45 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 					text.data = text_value;
 				}
 
-				button._svelte.clausesKeysTypes_1 = clausesKeysTypes_1;
-				button._svelte.clause_index = clause_index;
-
-				if (current_block_type === (current_block_type = select_block_type(state, clausesKeysTypes_1, clause_1, clause_index)) && if_block) {
+				if (current_block_type === (current_block_type = select_block_type_1(state, clausesKeysTypes_1, clause_1, clause_index)) && if_block) {
 					if_block.p(changed, state, clausesKeysTypes_1, clause_1, clause_index);
 				} else {
 					if_block.u();
 					if_block.d();
 					if_block = current_block_type(state, clausesKeysTypes_1, clause_1, clause_index, component);
 					if_block.c();
-					if_block.m(div_2, text_6);
+					if_block.m(div_2, null);
 				}
 
-				button_1._svelte.clausesKeysTypes_1 = clausesKeysTypes_1;
-				button_1._svelte.clause_index = clause_index;
+				if (clause_1.type !== "selector") {
+					if (if_block_1) {
+						if_block_1.p(changed, state, clausesKeysTypes_1, clause_1, clause_index);
+					} else {
+						if_block_1 = create_if_block_5(state, clausesKeysTypes_1, clause_1, clause_index, component);
+						if_block_1.c();
+						if_block_1.m(div, null);
+					}
+				} else if (if_block_1) {
+					if_block_1.u();
+					if_block_1.d();
+					if_block_1 = null;
+				}
 			},
 
 			u: function unmount() {
 				detachNode(div);
 				if_block.u();
+				if (if_block_1) if_block_1.u();
 			},
 
 			d: function destroy() {
-				removeListener(button, "click", click_handler);
 				if_block.d();
-				removeListener(button_1, "click", click_handler_3);
+				if (if_block_1) if_block_1.d();
 			}
 		};
 	}
 
-	// (53:10) {{#each selector[clause.key] as clauseEntry, index}}
+	// (55:12) {{#each selector[clause.key] as clauseEntry, index}}
 	function create_each_block_2(state, clausesKeysTypes_1, clause_1, clause_index, each_value, clauseEntry, index, component) {
 		var div, text, input, input_updating = false, text_1, valueeditor_updating = {}, text_2, button;
 
@@ -740,7 +661,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				input = createElement("input");
 				text_1 = createText(", ");
 				valueeditor._fragment.c();
-				text_2 = createText("]\n              ");
+				text_2 = createText("]\n                ");
 				button = createElement("button");
 				button.textContent = "Remove";
 				this.h();
@@ -820,7 +741,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		};
 	}
 
-	// (60:10) {{#each selector[clause.key] as clauseEntry, index}}
+	// (62:12) {{#each selector[clause.key] as clauseEntry, index}}
 	function create_each_block_3(state, clausesKeysTypes_1, clause_1, clause_index, each_value, clauseEntry_1, index, component) {
 		var div, valueeditor_updating = {}, text, button;
 
@@ -876,7 +797,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 			c: function create() {
 				div = createElement("div");
 				valueeditor._fragment.c();
-				text = createText("\n              ");
+				text = createText("\n                ");
 				button = createElement("button");
 				button.textContent = "Remove";
 				this.h();
@@ -933,8 +854,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		};
 	}
 
-	// (52:8) {{#if clause.type.vector}}
-	function create_if_block_1(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+	// (54:10) {{#if clause.type.vector}}
+	function create_if_block_3(state, clausesKeysTypes_1, clause_1, clause_index, component) {
 		var each_anchor;
 
 		var each_value = state.selector[clause_1.key];
@@ -998,8 +919,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		};
 	}
 
-	// (59:8) {{else}}
-	function create_if_block_2(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+	// (61:10) {{else}}
+	function create_if_block_4(state, clausesKeysTypes_1, clause_1, clause_index, component) {
 		var each_anchor;
 
 		var each_value = state.selector[clause_1.key];
@@ -1063,6 +984,197 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		};
 	}
 
+	// (47:8) {{#if clause.type === "selector"}}
+	function create_if_block_1(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+		var selectoreditor_updating = {};
+
+		var selectoreditor_initial_data = {};
+		if (clause_1.key in state.selector) {
+			selectoreditor_initial_data.selector = state.selector[clause_1.key];
+			selectoreditor_updating.selector = true;
+		}
+		var selectoreditor = new SelectorEditor({
+			_root: component._root,
+			data: selectoreditor_initial_data,
+			_bind: function(changed, childState) {
+				var state = component.get(), newState = {};
+				if (!selectoreditor_updating.selector && changed.selector) {
+					state.selector[clause_1.key] = childState.selector;
+					newState.selector = state.selector;
+					newState.clausesKeysTypes = state.clausesKeysTypes;
+				}
+				selectoreditor_updating = assign({}, changed);
+				component._set(newState);
+				selectoreditor_updating = {};
+			}
+		});
+
+		component._root._beforecreate.push(function () {
+			var state = component.get(), childState = selectoreditor.get(), newState = {};
+			if (!childState) return;
+			if (!selectoreditor_updating.selector) {
+				state.selector[clause_1.key] = childState.selector;
+				newState.selector = state.selector;
+				newState.clausesKeysTypes = state.clausesKeysTypes;
+			}
+			selectoreditor_updating = { selector: true };
+			component._set(newState);
+			selectoreditor_updating = {};
+		});
+
+		selectoreditor.on("remove", function(event) {
+			var clausesKeysTypes_1 = selectoreditor_context.clausesKeysTypes_1, clause_index = selectoreditor_context.clause_index, clause = clausesKeysTypes_1[clause_index]
+
+			component.removeSelector(clause_1.key);
+		});
+
+		var selectoreditor_context = {
+			state: state,
+			clausesKeysTypes_1: clausesKeysTypes_1,
+			clause_index: clause_index
+		};
+
+		return {
+			c: function create() {
+				selectoreditor._fragment.c();
+			},
+
+			m: function mount(target, anchor) {
+				selectoreditor._mount(target, anchor);
+			},
+
+			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index) {
+				var selectoreditor_changes = {};
+				if (!selectoreditor_updating.selector && changed.selector || changed.clausesKeysTypes) {
+					selectoreditor_changes.selector = state.selector[clause_1.key];
+					selectoreditor_updating.selector = true;
+				}
+				selectoreditor._set( selectoreditor_changes );
+				selectoreditor_updating = {};
+
+				selectoreditor_context.state = state;
+				selectoreditor_context.clausesKeysTypes_1 = clausesKeysTypes_1;
+				selectoreditor_context.clause_index = clause_index;
+			},
+
+			u: function unmount() {
+				selectoreditor._unmount();
+			},
+
+			d: function destroy() {
+				selectoreditor.destroy(false);
+			}
+		};
+	}
+
+	// (49:8) {{else}}
+	function create_if_block_2(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+		var div, button, text_2, text_3;
+
+		var current_block_type = select_block_type(state, clausesKeysTypes_1, clause_1, clause_index);
+		var if_block = current_block_type(state, clausesKeysTypes_1, clause_1, clause_index, component);
+
+		return {
+			c: function create() {
+				div = createElement("div");
+				button = createElement("button");
+				button.textContent = "Add Entry";
+				text_2 = createText("\n          [\n          ");
+				if_block.c();
+				text_3 = createText("\n          ]");
+				this.h();
+			},
+
+			h: function hydrate() {
+				addListener(button, "click", click_handler);
+
+				button._svelte = {
+					component: component,
+					clausesKeysTypes_1: clausesKeysTypes_1,
+					clause_index: clause_index
+				};
+			},
+
+			m: function mount(target, anchor) {
+				insertNode(div, target, anchor);
+				appendNode(button, div);
+				insertNode(text_2, target, anchor);
+				if_block.m(target, anchor);
+				insertNode(text_3, target, anchor);
+			},
+
+			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index) {
+				button._svelte.clausesKeysTypes_1 = clausesKeysTypes_1;
+				button._svelte.clause_index = clause_index;
+
+				if (current_block_type === (current_block_type = select_block_type(state, clausesKeysTypes_1, clause_1, clause_index)) && if_block) {
+					if_block.p(changed, state, clausesKeysTypes_1, clause_1, clause_index);
+				} else {
+					if_block.u();
+					if_block.d();
+					if_block = current_block_type(state, clausesKeysTypes_1, clause_1, clause_index, component);
+					if_block.c();
+					if_block.m(text_3.parentNode, text_3);
+				}
+			},
+
+			u: function unmount() {
+				detachNode(div);
+				detachNode(text_2);
+				if_block.u();
+				detachNode(text_3);
+			},
+
+			d: function destroy() {
+				removeListener(button, "click", click_handler);
+				if_block.d();
+			}
+		};
+	}
+
+	// (72:6) {{#if clause.type !== "selector"}}
+	function create_if_block_5(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+		var div, button;
+
+		return {
+			c: function create() {
+				div = createElement("div");
+				button = createElement("button");
+				button.textContent = "Remove";
+				this.h();
+			},
+
+			h: function hydrate() {
+				div.className = "remove";
+				addListener(button, "click", click_handler_3);
+
+				button._svelte = {
+					component: component,
+					clausesKeysTypes_1: clausesKeysTypes_1,
+					clause_index: clause_index
+				};
+			},
+
+			m: function mount(target, anchor) {
+				insertNode(div, target, anchor);
+				appendNode(button, div);
+			},
+
+			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index) {
+				button._svelte.clausesKeysTypes_1 = clausesKeysTypes_1;
+				button._svelte.clause_index = clause_index;
+			},
+
+			u: function unmount() {
+				detachNode(div);
+			},
+
+			d: function destroy() {
+				removeListener(button, "click", click_handler_3);
+			}
+		};
+	}
+
 	function click_handler(event) {
 		var component = this._svelte.component;
 		var clausesKeysTypes_1 = this._svelte.clausesKeysTypes_1, clause_index = this._svelte.clause_index, clause_1 = clausesKeysTypes_1[clause_index];
@@ -1084,7 +1196,12 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 	}
 
 	function select_block_type(state, clausesKeysTypes_1, clause_1, clause_index) {
-		if (clause_1.type.vector) return create_if_block_1;
+		if (clause_1.type.vector) return create_if_block_3;
+		return create_if_block_4;
+	}
+
+	function select_block_type_1(state, clausesKeysTypes_1, clause_1, clause_index) {
+		if (clause_1.type === "selector") return create_if_block_1;
 		return create_if_block_2;
 	}
 
@@ -1099,7 +1216,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ selector: 1, supportedClauses: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2333839390-style")) add_css();
+		if (!document.getElementById("svelte-3654834229-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];
