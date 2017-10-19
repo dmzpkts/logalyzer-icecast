@@ -1,19 +1,32 @@
 <span>
-  {{#if !strictType}}
+  {{#if allowedTypes.length > 1}}
     (Type: <select bind:value="valueTypeCurrent" on:change="changeValueType()">
-      <option value="string">
-        String
-      </option>
-      <option value="int">
-        Integer
-      </option>
-      <option value="float">
-        Float
-      </option>
-      <option value="boolean">
-        Boolean
-      </option>
-    </select>)
+      {{#if allowedTypes.indexOf("string") > -1}}
+        <option value="string">
+          String
+        </option>
+      {{/if}}
+      {{#if allowedTypes.indexOf("int") > -1}}
+        <option value="int">
+          Integer
+        </option>
+      {{/if}}
+      {{#if allowedTypes.indexOf("float") > -1}}
+        <option value="float">
+          Float
+        </option>
+      {{/if}}
+      {{#if allowedTypes.indexOf("boolean") > -1}}
+        <option value="boolean">
+          Boolean
+        </option>
+      {{/if}}
+      {{#if allowedTypes.indexOf("date") > -1}}
+        <option value="date">
+          Date (Unix Timestamp)
+        </option>
+      {{/if}}
+    </select>{{#if valueTypeCurrent === "date"}} <button on:click="openDatePrompt()">Open Date Prompt</button>{{/if}})
     Value:
   {{/if}}
   {{#if valueType === "string"}}
@@ -25,26 +38,63 @@
   {{elseif valueType === "boolean"}}
     <label><input type="checkbox" bind:checked="value" /> ({{#if value}}True{{else}}False{{/if}})</label>
   {{/if}}
+  {{#if __showDatePrompt}}
+    <span class="date-prompt-container">
+      <span class="date-prompt">
+        <span>Enter a date below in basically any format, including things like "now", "last friday", "+1 week", and "oct 12 3:00 pm":</span>
+
+        <input type="text" bind:value="__dateInput" on:input="handleDateInput()" />
+
+        <span>The current input is being interpreted as:</span>
+
+        <span class="date-interpretation">{{__dateInputInterpretation}}</span>
+
+        <span class="actions">
+          <button on:click="closeDatePrompt()">Cancel</button>
+          <button on:click="acceptDatePrompt()" disabled="{{__dateInputTimestamp === false}}">Accept</button>
+        </span>
+      </span>
+    </span>
+  {{/if}}
 </span>
 
 <script>
+  // const moment = moment || require("moment");
+  const strtotime = window.strtotime || require("locutus/php/datetime/strtotime");
+
   export default {
     oncreate () {
-      this.set({valueTypeCurrent: this.get("valueType")});
+      const valueTypeInitial = this.get("valueTypeInitial");
+      this.set({valueTypeCurrent: valueTypeInitial === null ? this.get("valueType") : valueTypeInitial});
+
+      if (!strtotime) {
+        throw new Error("ValueEditor requires Locutus' strtotime for date interpretation.");
+      }
     },
 
     data () {
       return {
+        __showDatePrompt: false,
+        __dateInput: "",
+        __dateInputTimestamp: 0,
+        __dateInputInterpretation: "",
+        valueTypeInitial: null,
         valueTypeCurrent: null,
-        strictType: true,
+        allowedTypes: ["string", "int", "float", "boolean", "date"],
         value: ""
       }
     },
 
     computed: {
-      valueType: (value, valueTypeCurrent) => {
+      valueType: (value, valueTypeCurrent, allowedTypes) => {
+        if (allowedTypes.length === 1) {
+          return allowedTypes[0] === "date" ? "float" : allowedTypes[0];
+        }
         switch (typeof value) {
           case "number":
+            if (valueTypeCurrent === "date") {
+              return "float";
+            }
             if (value % 1 > 0) {
               return valueTypeCurrent || "float";
             } else {
@@ -77,18 +127,113 @@
           case "boolean":
             value = !!value;
             break;
+          case "date":
+            this.openDatePrompt();
+            return;
         }
 
+        this.set({value});
+      },
+
+      handleDateInput () {
+        const __dateInput = this.get("__dateInput");
+        const __dateInputTimestamp = this.interpretDate(__dateInput);
+        const __dateInputInterpretation = __dateInputTimestamp ? this.formatDate(__dateInputTimestamp) : "Unrecognized";
+
         this.set({
-          value
+          __dateInputTimestamp,
+          __dateInputInterpretation
+        });
+      },
+
+      interpretDate (input) {
+        return strtotime(""+input, Math.floor(Date.now() / 1000));
+      },
+
+      formatDate (timestamp) {
+        return new Date(timestamp * 1000).toLocaleString(undefined, {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric",
+          timeZoneName: "short"
         });
       },
 
       makeInt () {
+        this.set({value: parseInt(this.get("value"), 10)});
+      },
+
+      openDatePrompt () {
+        let value = parseInt(this.get("value"), 10);
+        if (!value) {
+          value = parseInt(Math.floor(Date.now() / 1000));
+        }
         this.set({
-          value: parseInt(this.get("value"), 10)
+          __showDatePrompt: true,
+          __dateInput: new Date(value * 1000).toString(),
+          value: value
+        });
+        this.handleDateInput();
+      },
+
+      acceptDatePrompt () {
+        const value = this.get("__dateInputTimestamp");
+        this.set({value});
+        this.closeDatePrompt();
+      },
+
+      closeDatePrompt () {
+        this.set({
+          __showDatePrompt: false,
+          __dateInput: "",
+          __dateInputTimestamp: 0,
+          __dateInputInterpretation: ""
         });
       }
     }
   };
 </script>
+
+<style>
+  .date-prompt-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  .date-prompt {
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 5px 36px 0px rgba(0,0,0,0.25);
+    background-color: #fff;
+    padding: 2em;
+  }
+  .date-prompt > * {
+    margin-bottom: 1em;
+  }
+  .date-prompt > *:last-child {
+    margin-bottom: 0;
+  }
+  .date-prompt .date-interpretation {
+    border: 1px solid;
+    padding: .2em;
+  }
+  .date-prompt .actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .date-prompt .actions > * {
+    margin-left: 1em;
+  }
+</style>

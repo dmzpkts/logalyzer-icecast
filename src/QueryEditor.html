@@ -32,7 +32,7 @@
               {{/each}}
             </select>
           {{elseif option.type === "int" || option.type === "boolean" || option.type === "string"}}
-            <ValueEditor bind:value="options[option.key]" valueTypeCurrent="{{option.type}}" strictType="true"></ValueEditor>
+            <ValueEditor bind:value="options[option.key]" valueTypeInitial="{{option.type}}" allowedTypes="{{[option.type]}}"></ValueEditor>
           {{else}}
             <select bind:value="options[option.key]">
               {{#each option.type as enumVal}}
@@ -55,11 +55,9 @@
     <div>
       <button on:click="addSelector()">Add Selector</button>
     </div>
-    [
     {{#each selectors as selector, index}}
       <SelectorEditor bind:selector on:remove="removeSelector(index)"></SelectorEditor>
     {{/each}}
-    ]
   </div>
   {{#if showQuery}}
     <h3>Query</h3>
@@ -95,7 +93,18 @@
     computed: {
       remainingOptions: (options, supportedOptions) => Object.keys(supportedOptions).filter((i) => !options.hasOwnProperty(i)),
       optionsKeysTypes: (options, supportedOptions) => Object.keys(options).map((key) => ({key, type: supportedOptions[key]})),
-      queryText: (options, selectors) => "Nymph.getEntities("+JSON.stringify([options, ...selectors], null, 2).replace(/\[\s+("[^"]*"),\s+("[^"]*")\s+\]/g, "[$1, $2]").slice(1, -1)+")"
+      queryText: (options, selectors) => {
+        let json = JSON.stringify([options, ...selectors], null, 2);
+        const regex = /\[\s*([^\[\]]*)(?:[\t\n]+|\s{2,})([^\[\]]*)\s*\]/g;
+        const regex2 = /\[\s*([^\[\]]*[^\[\]\s])\s+\]/g;
+        while (json.match(regex)) {
+          json = json.replace(regex, "[$1 $2]");
+        }
+        while (json.match(regex2)) {
+          json = json.replace(regex2, "[$1]");
+        }
+        return "Nymph.getEntities("+json.slice(1, -1)+")";
+      }
     },
 
     methods: {

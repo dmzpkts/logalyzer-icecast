@@ -12,8 +12,17 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 	}
 
 	function queryText(options, selectors) {
-		return "Nymph.getEntities("+JSON.stringify([options, ...selectors], null, 2).replace(/\[\s+("[^"]*"),\s+("[^"]*")\s+\]/g, "[$1, $2]").slice(1, -1)+")";
-	}
+  let json = JSON.stringify([options, ...selectors], null, 2);
+  const regex = /\[\s*([^\[\]]*)(?:[\t\n]+|\s{2,})([^\[\]]*)\s*\]/g;
+  const regex2 = /\[\s*([^\[\]]*[^\[\]\s])\s+\]/g;
+  while (json.match(regex)) {
+    json = json.replace(regex, "[$1 $2]");
+  }
+  while (json.match(regex2)) {
+    json = json.replace(regex2, "[$1]");
+  }
+  return "Nymph.getEntities("+json.slice(1, -1)+")";
+}
 
 	function data() {
   return {
@@ -96,18 +105,18 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-115484319", "");
+		setAttribute(node, "svelte-2302907587", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-115484319-style';
-		style.textContent = "[svelte-115484319].query-editor,[svelte-115484319] .query-editor{font-family:monospace}[svelte-115484319].options-editor,[svelte-115484319] .options-editor,[svelte-115484319].selector-editor,[svelte-115484319] .selector-editor,[svelte-115484319].selector-editor .selector,[svelte-115484319] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-115484319].options-editor .option,[svelte-115484319] .options-editor .option,[svelte-115484319].selector-editor .selector .clause,[svelte-115484319] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-115484319].query-result,[svelte-115484319] .query-result{border:1px solid}[svelte-115484319].query-result .query,[svelte-115484319] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}";
+		style.id = 'svelte-2302907587-style';
+		style.textContent = "[svelte-2302907587].query-editor,[svelte-2302907587] .query-editor{font-family:monospace}[svelte-2302907587].options-editor,[svelte-2302907587] .options-editor,[svelte-2302907587].selector-editor,[svelte-2302907587] .selector-editor,[svelte-2302907587].selector-editor .selector,[svelte-2302907587] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-2302907587].options-editor .option,[svelte-2302907587] .options-editor .option,[svelte-2302907587].selector-editor .selector .clause,[svelte-2302907587] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-2302907587].query-result,[svelte-2302907587] .query-result{border:1px solid}[svelte-2302907587].query-result .query,[svelte-2302907587] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}";
 		appendNode(style, document.head);
 	}
 
 	function create_main_fragment(state, component) {
-		var div, h3, text_1, div_1, text_2, pre, text_4, text_5, pre_1, text_8, h3_1, text_10, div_2, div_3, button, text_13, text_14, text_15;
+		var div, h3, text_1, div_1, text_2, pre, text_4, text_5, pre_1, text_8, h3_1, text_10, div_2, div_3, button, text_13, text_15;
 
 		var if_block = (state.remainingOptions.length) && create_if_block(state, component);
 
@@ -161,13 +170,12 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 				div_3 = createElement("div");
 				button = createElement("button");
 				button.textContent = "Add Selector";
-				text_13 = createText("\n    [\n    ");
+				text_13 = createText("\n    ");
 
 				for (var i = 0; i < each_1_blocks.length; i += 1) {
 					each_1_blocks[i].c();
 				}
 
-				text_14 = createText("\n    ]");
 				text_15 = createText("\n  ");
 				if (if_block_1) if_block_1.c();
 				this.h();
@@ -209,7 +217,6 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 					each_1_blocks[i].m(div_2, null);
 				}
 
-				appendNode(text_14, div_2);
 				appendNode(text_15, div);
 				if (if_block_1) if_block_1.m(div, null);
 			},
@@ -258,7 +265,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 						} else {
 							each_1_blocks[i] = create_each_block_4(state, selectors, selectors[i], i, component);
 							each_1_blocks[i].c();
-							each_1_blocks[i].m(div_2, text_14);
+							each_1_blocks[i].m(div_2, null);
 						}
 					}
 
@@ -752,8 +759,8 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		var valueeditor_updating = {};
 
 		var valueeditor_initial_data = {
-			valueTypeCurrent: option_1.type,
-			strictType: "true"
+			valueTypeInitial: option_1.type,
+			allowedTypes: [option_1.type]
 		};
 		if (option_1.key in state.options) {
 			valueeditor_initial_data.value = state.options[option_1.key];
@@ -805,7 +812,8 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 
 			p: function update(changed, state, optionsKeysTypes_1, option_1, option_index) {
 				var valueeditor_changes = {};
-				if (changed.optionsKeysTypes) valueeditor_changes.valueTypeCurrent = option_1.type;
+				if (changed.optionsKeysTypes) valueeditor_changes.valueTypeInitial = option_1.type;
+				if (changed.optionsKeysTypes) valueeditor_changes.allowedTypes = [option_1.type];
 				if (!valueeditor_updating.value && changed.options || changed.optionsKeysTypes) {
 					valueeditor_changes.value = state.options[option_1.key];
 					valueeditor_updating.value = true;
@@ -941,7 +949,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (59:4) {{#each selectors as selector, index}}
+	// (58:4) {{#each selectors as selector, index}}
 	function create_each_block_4(state, selectors, selector, index, component) {
 		var selectoreditor_updating = {};
 
@@ -1026,7 +1034,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (64:2) {{#if showQuery}}
+	// (62:2) {{#if showQuery}}
 	function create_if_block_4(state, component) {
 		var h3, text_1, div, pre, text_2;
 
@@ -1087,7 +1095,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, supportedOptions: 1, selectors: 1 }, this._state);
 
-		if (!document.getElementById("svelte-115484319-style")) add_css();
+		if (!document.getElementById("svelte-2302907587-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];

@@ -54,14 +54,14 @@
           {{#if clause.type.vector}}
             {{#each selector[clause.key] as clauseEntry, index}}
               <div class="clause-entry">
-                [<input type="text" bind:value="clauseEntry[0]" placeholder="property name" />, <ValueEditor bind:value="clauseEntry[1]" valueTypeCurrent="{{clause.type.type}}" strictType="{{clause.type.type !== null}}"></ValueEditor>]
+                [<input type="text" bind:value="clauseEntry[0]" placeholder="property name" />, <ValueEditor bind:value="clauseEntry[1]" valueTypeInitial="{{clause.type.type}}" allowedTypes="{{clause.type.allowedTypes}}"></ValueEditor>]
                 <button on:click="removeClauseEntry(clause.key, index)">Remove</button>
               </div>
             {{/each}}
           {{else}}
             {{#each selector[clause.key] as clauseEntry, index}}
               <div class="clause-entry">
-                <ValueEditor bind:value="clauseEntry" valueTypeCurrent="{{clause.type.type}}" strictType="{{clause.type.type !== null}}"></ValueEditor>
+                <ValueEditor bind:value="clauseEntry" valueTypeInitial="{{clause.type.type}}" allowedTypes="{{clause.type.allowedTypes}}"></ValueEditor>
                 <button on:click="removeClauseEntry(clause.key, index)">Remove</button>
               </div>
             {{/each}}
@@ -87,38 +87,38 @@
       return {
         __newClause: "",
         supportedClauses: {
-          "guid": {type: "int", vector: false},
-          "!guid": {type: "int", vector: false},
-          "tag": {type: "string", vector: false},
-          "!tag": {type: "string", vector: false},
-          "isset": {type: "string", vector: false},
-          "!isset": {type: "string", vector: false},
-          "data": {type: null, vector: true},
-          "!data": {type: null, vector: true},
-          "strict": {type: null, vector: true},
-          "!strict": {type: null, vector: true},
-          "array": {type: null, vector: true},
-          "!array": {type: null, vector: true},
-          "match": {type: "string", vector: true},
-          "!match": {type: "string", vector: true},
-          "pmatch": {type: "string", vector: true},
-          "!pmatch": {type: "string", vector: true},
-          "ipmatch": {type: "string", vector: true},
-          "!ipmatch": {type: "string", vector: true},
-          "like": {type: "string", vector: true},
-          "!like": {type: "string", vector: true},
-          "ilike": {type: "string", vector: true},
-          "!ilike": {type: "string", vector: true},
-          "gt": {type: "float", vector: true},
-          "!gt": {type: "float", vector: true},
-          "gte": {type: "float", vector: true},
-          "!gte": {type: "float", vector: true},
-          "lt": {type: "float", vector: true},
-          "!lt": {type: "float", vector: true},
-          "lte": {type: "float", vector: true},
-          "!lte": {type: "float", vector: true},
-          "ref": {type: "int", vector: true},
-          "!ref": {type: "int", vector: true}
+          "guid": {type: "int", vector: false, allowedTypes: ["int"]},
+          "!guid": {type: "int", vector: false, allowedTypes: ["int"]},
+          "tag": {type: "string", vector: false, allowedTypes: ["string"]},
+          "!tag": {type: "string", vector: false, allowedTypes: ["string"]},
+          "isset": {type: "string", vector: false, allowedTypes: ["string"]},
+          "!isset": {type: "string", vector: false, allowedTypes: ["string"]},
+          "data": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+          "!data": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+          "strict": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+          "!strict": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+          "array": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+          "!array": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+          "match": {type: "string", vector: true, allowedTypes: ["string"]},
+          "!match": {type: "string", vector: true, allowedTypes: ["string"]},
+          "pmatch": {type: "string", vector: true, allowedTypes: ["string"]},
+          "!pmatch": {type: "string", vector: true, allowedTypes: ["string"]},
+          "ipmatch": {type: "string", vector: true, allowedTypes: ["string"]},
+          "!ipmatch": {type: "string", vector: true, allowedTypes: ["string"]},
+          "like": {type: "string", vector: true, allowedTypes: ["string"]},
+          "!like": {type: "string", vector: true, allowedTypes: ["string"]},
+          "ilike": {type: "string", vector: true, allowedTypes: ["string"]},
+          "!ilike": {type: "string", vector: true, allowedTypes: ["string"]},
+          "gt": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+          "!gt": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+          "gte": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+          "!gte": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+          "lt": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+          "!lt": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+          "lte": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+          "!lte": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+          "ref": {type: "int", vector: true, allowedTypes: ["int"]},
+          "!ref": {type: "int", vector: true, allowedTypes: ["int"]}
         },
         selector: {type: '&'}
       }

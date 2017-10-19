@@ -14,38 +14,38 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
   return {
     __newClause: "",
     supportedClauses: {
-      "guid": {type: "int", vector: false},
-      "!guid": {type: "int", vector: false},
-      "tag": {type: "string", vector: false},
-      "!tag": {type: "string", vector: false},
-      "isset": {type: "string", vector: false},
-      "!isset": {type: "string", vector: false},
-      "data": {type: null, vector: true},
-      "!data": {type: null, vector: true},
-      "strict": {type: null, vector: true},
-      "!strict": {type: null, vector: true},
-      "array": {type: null, vector: true},
-      "!array": {type: null, vector: true},
-      "match": {type: "string", vector: true},
-      "!match": {type: "string", vector: true},
-      "pmatch": {type: "string", vector: true},
-      "!pmatch": {type: "string", vector: true},
-      "ipmatch": {type: "string", vector: true},
-      "!ipmatch": {type: "string", vector: true},
-      "like": {type: "string", vector: true},
-      "!like": {type: "string", vector: true},
-      "ilike": {type: "string", vector: true},
-      "!ilike": {type: "string", vector: true},
-      "gt": {type: "float", vector: true},
-      "!gt": {type: "float", vector: true},
-      "gte": {type: "float", vector: true},
-      "!gte": {type: "float", vector: true},
-      "lt": {type: "float", vector: true},
-      "!lt": {type: "float", vector: true},
-      "lte": {type: "float", vector: true},
-      "!lte": {type: "float", vector: true},
-      "ref": {type: "int", vector: true},
-      "!ref": {type: "int", vector: true}
+      "guid": {type: "int", vector: false, allowedTypes: ["int"]},
+      "!guid": {type: "int", vector: false, allowedTypes: ["int"]},
+      "tag": {type: "string", vector: false, allowedTypes: ["string"]},
+      "!tag": {type: "string", vector: false, allowedTypes: ["string"]},
+      "isset": {type: "string", vector: false, allowedTypes: ["string"]},
+      "!isset": {type: "string", vector: false, allowedTypes: ["string"]},
+      "data": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+      "!data": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+      "strict": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+      "!strict": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+      "array": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+      "!array": {type: null, vector: true, allowedTypes: ["string", "int", "float", "boolean", "date"]},
+      "match": {type: "string", vector: true, allowedTypes: ["string"]},
+      "!match": {type: "string", vector: true, allowedTypes: ["string"]},
+      "pmatch": {type: "string", vector: true, allowedTypes: ["string"]},
+      "!pmatch": {type: "string", vector: true, allowedTypes: ["string"]},
+      "ipmatch": {type: "string", vector: true, allowedTypes: ["string"]},
+      "!ipmatch": {type: "string", vector: true, allowedTypes: ["string"]},
+      "like": {type: "string", vector: true, allowedTypes: ["string"]},
+      "!like": {type: "string", vector: true, allowedTypes: ["string"]},
+      "ilike": {type: "string", vector: true, allowedTypes: ["string"]},
+      "!ilike": {type: "string", vector: true, allowedTypes: ["string"]},
+      "gt": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+      "!gt": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+      "gte": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+      "!gte": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+      "lt": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+      "!lt": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+      "lte": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+      "!lte": {type: "float", vector: true, allowedTypes: ["int", "float", "date"]},
+      "ref": {type: "int", vector: true, allowedTypes: ["int"]},
+      "!ref": {type: "int", vector: true, allowedTypes: ["int"]}
     },
     selector: {type: '&'}
   }
@@ -143,13 +143,13 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-3654834229", "");
+		setAttribute(node, "svelte-1543989517", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-3654834229-style';
-		style.textContent = "[svelte-3654834229].selector,[svelte-3654834229] .selector{margin:.5em;padding:.5em;display:flex;flex-direction:column;border:1px dotted}[svelte-3654834229].selector .clause,[svelte-3654834229] .selector .clause,[svelte-3654834229].selector .clause .clause-entry,[svelte-3654834229] .selector .clause .clause-entry{padding:.5em 1em;display:flex;flex-direction:row}";
+		style.id = 'svelte-1543989517-style';
+		style.textContent = "[svelte-1543989517].selector,[svelte-1543989517] .selector{margin:.5em;padding:.5em;display:flex;flex-direction:column;border:1px dotted}[svelte-1543989517].selector .clause,[svelte-1543989517] .selector .clause,[svelte-1543989517].selector .clause .clause-entry,[svelte-1543989517] .selector .clause .clause-entry{padding:.5em 1em;display:flex;flex-direction:row}";
 		appendNode(style, document.head);
 	}
 
@@ -607,8 +607,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		}
 
 		var valueeditor_initial_data = {
-			valueTypeCurrent: clause_1.type.type,
-			strictType: clause_1.type.type !== null
+			valueTypeInitial: clause_1.type.type,
+			allowedTypes: clause_1.type.allowedTypes
 		};
 		if (index in each_value) {
 			valueeditor_initial_data.value = clauseEntry[1];
@@ -711,8 +711,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				input._svelte.index = index;
 
 				var valueeditor_changes = {};
-				if (changed.clausesKeysTypes) valueeditor_changes.valueTypeCurrent = clause_1.type.type;
-				if (changed.clausesKeysTypes) valueeditor_changes.strictType = clause_1.type.type !== null;
+				if (changed.clausesKeysTypes) valueeditor_changes.valueTypeInitial = clause_1.type.type;
+				if (changed.clausesKeysTypes) valueeditor_changes.allowedTypes = clause_1.type.allowedTypes;
 				if (!valueeditor_updating.value && changed.selector || changed.clausesKeysTypes) {
 					valueeditor_changes.value = clauseEntry[1];
 					valueeditor_updating.value = true;
@@ -746,8 +746,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		var div, valueeditor_updating = {}, text, button;
 
 		var valueeditor_initial_data = {
-			valueTypeCurrent: clause_1.type.type,
-			strictType: clause_1.type.type !== null
+			valueTypeInitial: clause_1.type.type,
+			allowedTypes: clause_1.type.allowedTypes
 		};
 		if (index in each_value) {
 			valueeditor_initial_data.value = clauseEntry_1;
@@ -825,8 +825,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 
 			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index, each_value, clauseEntry_1, index) {
 				var valueeditor_changes = {};
-				if (changed.clausesKeysTypes) valueeditor_changes.valueTypeCurrent = clause_1.type.type;
-				if (changed.clausesKeysTypes) valueeditor_changes.strictType = clause_1.type.type !== null;
+				if (changed.clausesKeysTypes) valueeditor_changes.valueTypeInitial = clause_1.type.type;
+				if (changed.clausesKeysTypes) valueeditor_changes.allowedTypes = clause_1.type.allowedTypes;
 				if (!valueeditor_updating.value && changed.selector || changed.clausesKeysTypes) {
 					valueeditor_changes.value = clauseEntry_1;
 					valueeditor_updating.value = true;
@@ -1216,7 +1216,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ selector: 1, supportedClauses: 1 }, this._state);
 
-		if (!document.getElementById("svelte-3654834229-style")) add_css();
+		if (!document.getElementById("svelte-1543989517-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];
