@@ -114,18 +114,18 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-1075409419", "");
+		setAttribute(node, "svelte-3708926793", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-1075409419-style';
-		style.textContent = "[svelte-1075409419].query-editor,[svelte-1075409419] .query-editor{font-family:monospace}[svelte-1075409419].options-editor,[svelte-1075409419] .options-editor,[svelte-1075409419].selector-editor,[svelte-1075409419] .selector-editor,[svelte-1075409419].selector-editor .selector,[svelte-1075409419] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-1075409419].options-editor .option,[svelte-1075409419] .options-editor .option,[svelte-1075409419].selector-editor .selector .clause,[svelte-1075409419] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-1075409419].query-result,[svelte-1075409419] .query-result{border:1px solid}[svelte-1075409419].query-result .query,[svelte-1075409419] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}[svelte-1075409419].help-dialog-container,[svelte-1075409419] .help-dialog-container{display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;bottom:0;right:0;background-color:rgba(0, 0, 0, 0.3)}[svelte-1075409419].help-dialog,[svelte-1075409419] .help-dialog{display:flex;flex-direction:column;box-shadow:0px 5px 36px 0px rgba(0,0,0,0.25);background-color:#fff;padding:2em;max-height:80vh;max-width:80vw;overflow:auto}[svelte-1075409419].help-dialog > *,[svelte-1075409419] .help-dialog > *{margin-bottom:1em}[svelte-1075409419].help-dialog > *:last-child,[svelte-1075409419] .help-dialog > *:last-child{margin-bottom:0}[svelte-1075409419].help-dialog .actions,[svelte-1075409419] .help-dialog .actions{display:flex;flex-direction:row;justify-content:flex-end;align-items:center}[svelte-1075409419].help-dialog .actions > *,[svelte-1075409419] .help-dialog .actions > *{margin-left:1em}";
+		style.id = 'svelte-3708926793-style';
+		style.textContent = "[svelte-3708926793].query-editor,[svelte-3708926793] .query-editor{font-family:monospace}[svelte-3708926793].options-editor,[svelte-3708926793] .options-editor,[svelte-3708926793].selector-editor,[svelte-3708926793] .selector-editor,[svelte-3708926793].selector-editor .selector,[svelte-3708926793] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-3708926793].options-editor .option,[svelte-3708926793] .options-editor .option,[svelte-3708926793].selector-editor .selector .clause,[svelte-3708926793] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-3708926793].query-result,[svelte-3708926793] .query-result{border:1px solid}[svelte-3708926793].query-result .query,[svelte-3708926793] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}[svelte-3708926793].help-dialog-container,[svelte-3708926793] .help-dialog-container{display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;bottom:0;right:0;background-color:rgba(0, 0, 0, 0.3)}[svelte-3708926793].help-dialog,[svelte-3708926793] .help-dialog{display:flex;flex-direction:column;box-shadow:0px 5px 36px 0px rgba(0,0,0,0.25);background-color:#fff;padding:2em;max-height:80vh;max-width:80vw;overflow:auto}[svelte-3708926793].help-dialog > *,[svelte-3708926793] .help-dialog > *{margin-bottom:1em}[svelte-3708926793].help-dialog > *:last-child,[svelte-3708926793] .help-dialog > *:last-child{margin-bottom:0}[svelte-3708926793].help-dialog .actions,[svelte-3708926793] .help-dialog .actions{display:flex;flex-direction:row;justify-content:flex-end;align-items:center}[svelte-3708926793].help-dialog .actions > *,[svelte-3708926793] .help-dialog .actions > *{margin-left:1em}";
 		appendNode(style, document.head);
 	}
 
 	function create_main_fragment(state, component) {
-		var div, h2, text, button, text_2, h3, text_4, div_1, text_5, pre, text_7, text_8, pre_1, text_11, h3_1, text_13, div_2, div_3, button_1, text_16, text_18, text_19;
+		var div, h2, text, button, text_2, h3, text_4, div_1, text_5, pre, text_7, text_8, pre_1, text_11, h3_1, text_13, div_2, div_3, button_1, text_16, text_18, div_4, label, input, text_19, text_21, text_22;
 
 		function click_handler(event) {
 			component.openHelpDialog();
@@ -151,6 +151,10 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 
 		for (var i = 0; i < selectors.length; i += 1) {
 			each_1_blocks[i] = create_each_block_4(state, selectors, selectors[i], i, component);
+		}
+
+		function input_change_handler() {
+			component.set({ showQuery: input.checked });
 		}
 
 		var if_block_1 = (state.showQuery) && create_if_block_4(state, component);
@@ -197,8 +201,13 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 				}
 
 				text_18 = createText("\n  ");
+				div_4 = createElement("div");
+				label = createElement("label");
+				input = createElement("input");
+				text_19 = createText("Show Query Preview");
+				text_21 = createText("\n  ");
 				if (if_block_1) if_block_1.c();
-				text_19 = createText("\n  ");
+				text_22 = createText("\n  ");
 				if (if_block_2) if_block_2.c();
 				this.h();
 			},
@@ -210,6 +219,8 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 				div_1.className = "options-editor";
 				div_2.className = "selector-editor";
 				addListener(button_1, "click", click_handler_1);
+				input.type = "checkbox";
+				addListener(input, "change", input_change_handler);
 			},
 
 			m: function mount(target, anchor) {
@@ -245,8 +256,16 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 				}
 
 				appendNode(text_18, div);
+				appendNode(div_4, div);
+				appendNode(label, div_4);
+				appendNode(input, label);
+
+				input.checked = state.showQuery;
+
+				appendNode(text_19, label);
+				appendNode(text_21, div);
 				if (if_block_1) if_block_1.m(div, null);
-				appendNode(text_19, div);
+				appendNode(text_22, div);
 				if (if_block_2) if_block_2.m(div, null);
 			},
 
@@ -305,13 +324,15 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 					each_1_blocks.length = selectors.length;
 				}
 
+				input.checked = state.showQuery;
+
 				if (state.showQuery) {
 					if (if_block_1) {
 						if_block_1.p(changed, state);
 					} else {
 						if_block_1 = create_if_block_4(state, component);
 						if_block_1.c();
-						if_block_1.m(div, text_19);
+						if_block_1.m(div, text_22);
 					}
 				} else if (if_block_1) {
 					if_block_1.u();
@@ -358,6 +379,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 
 				destroyEach(each_1_blocks);
 
+				removeListener(input, "change", input_change_handler);
 				if (if_block_1) if_block_1.d();
 				if (if_block_2) if_block_2.d();
 			}
@@ -1078,7 +1100,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (63:2) {{#if showQuery}}
+	// (66:2) {{#if showQuery}}
 	function create_if_block_4(state, component) {
 		var h3, text_1, div, pre, text_2;
 
@@ -1122,7 +1144,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (69:2) {{#if __showHelp}}
+	// (72:2) {{#if __showHelp}}
 	function create_if_block_5(state, component) {
 		var div, div_1, h3, text_1, div_2, text_10, div_3, text_12, div_4, text_19, div_5, text_38, div_6, text_40, div_7, text_53, div_8, button;
 
@@ -1216,7 +1238,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, supportedOptions: 1, selectors: 1 }, this._state);
 
-		if (!document.getElementById("svelte-1075409419-style")) add_css();
+		if (!document.getElementById("svelte-3708926793-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];

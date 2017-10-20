@@ -60,6 +60,9 @@
       <SelectorEditor bind:selector on:remove="removeSelector(index)"></SelectorEditor>
     {{/each}}
   </div>
+  <div>
+    <label><input type="checkbox" bind:checked="showQuery" />Show Query Preview</label>
+  </div>
   {{#if showQuery}}
     <h3>Query</h3>
     <div class="query-result">
