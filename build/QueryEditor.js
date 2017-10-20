@@ -27,6 +27,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 	function data() {
   return {
     __newOption: "",
+    __showHelpDialog: false,
     supportedClasses: [],
     supportedOptions: {
       "class": "class",
@@ -101,22 +102,34 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
     const selectors = this.get("selectors");
     selectors.splice(index, 1);
     this.set({selectors});
+  },
+
+  openHelpDialog () {
+    this.set({__showHelp: true});
+  },
+
+  closeHelpDialog () {
+    this.set({__showHelp: false});
   }
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2302907587", "");
+		setAttribute(node, "svelte-1075409419", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2302907587-style';
-		style.textContent = "[svelte-2302907587].query-editor,[svelte-2302907587] .query-editor{font-family:monospace}[svelte-2302907587].options-editor,[svelte-2302907587] .options-editor,[svelte-2302907587].selector-editor,[svelte-2302907587] .selector-editor,[svelte-2302907587].selector-editor .selector,[svelte-2302907587] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-2302907587].options-editor .option,[svelte-2302907587] .options-editor .option,[svelte-2302907587].selector-editor .selector .clause,[svelte-2302907587] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-2302907587].query-result,[svelte-2302907587] .query-result{border:1px solid}[svelte-2302907587].query-result .query,[svelte-2302907587] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}";
+		style.id = 'svelte-1075409419-style';
+		style.textContent = "[svelte-1075409419].query-editor,[svelte-1075409419] .query-editor{font-family:monospace}[svelte-1075409419].options-editor,[svelte-1075409419] .options-editor,[svelte-1075409419].selector-editor,[svelte-1075409419] .selector-editor,[svelte-1075409419].selector-editor .selector,[svelte-1075409419] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-1075409419].options-editor .option,[svelte-1075409419] .options-editor .option,[svelte-1075409419].selector-editor .selector .clause,[svelte-1075409419] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-1075409419].query-result,[svelte-1075409419] .query-result{border:1px solid}[svelte-1075409419].query-result .query,[svelte-1075409419] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}[svelte-1075409419].help-dialog-container,[svelte-1075409419] .help-dialog-container{display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;bottom:0;right:0;background-color:rgba(0, 0, 0, 0.3)}[svelte-1075409419].help-dialog,[svelte-1075409419] .help-dialog{display:flex;flex-direction:column;box-shadow:0px 5px 36px 0px rgba(0,0,0,0.25);background-color:#fff;padding:2em;max-height:80vh;max-width:80vw;overflow:auto}[svelte-1075409419].help-dialog > *,[svelte-1075409419] .help-dialog > *{margin-bottom:1em}[svelte-1075409419].help-dialog > *:last-child,[svelte-1075409419] .help-dialog > *:last-child{margin-bottom:0}[svelte-1075409419].help-dialog .actions,[svelte-1075409419] .help-dialog .actions{display:flex;flex-direction:row;justify-content:flex-end;align-items:center}[svelte-1075409419].help-dialog .actions > *,[svelte-1075409419] .help-dialog .actions > *{margin-left:1em}";
 		appendNode(style, document.head);
 	}
 
 	function create_main_fragment(state, component) {
-		var div, h3, text_1, div_1, text_2, pre, text_4, text_5, pre_1, text_8, h3_1, text_10, div_2, div_3, button, text_13, text_15;
+		var div, h2, text, button, text_2, h3, text_4, div_1, text_5, pre, text_7, text_8, pre_1, text_11, h3_1, text_13, div_2, div_3, button_1, text_16, text_18, text_19;
+
+		function click_handler(event) {
+			component.openHelpDialog();
+		}
 
 		var if_block = (state.remainingOptions.length) && create_if_block(state, component);
 
@@ -142,83 +155,99 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 
 		var if_block_1 = (state.showQuery) && create_if_block_4(state, component);
 
+		var if_block_2 = (state.__showHelp) && create_if_block_5(state, component);
+
 		return {
 			c: function create() {
 				div = createElement("div");
+				h2 = createElement("h2");
+				text = createText("Query Editor ");
+				button = createElement("button");
+				button.textContent = "Help";
+				text_2 = createText("\n  ");
 				h3 = createElement("h3");
 				h3.textContent = "Options";
-				text_1 = createText("\n  ");
+				text_4 = createText("\n  ");
 				div_1 = createElement("div");
 				if (if_block) if_block.c();
-				text_2 = createText("\n    ");
+				text_5 = createText("\n    ");
 				pre = createElement("pre");
 				pre.textContent = "{";
-				text_4 = createText("\n    ");
+				text_7 = createText("\n    ");
 
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
 
-				text_5 = createText("\n    ");
+				text_8 = createText("\n    ");
 				pre_1 = createElement("pre");
 				pre_1.textContent = "}";
-				text_8 = createText("\n  ");
+				text_11 = createText("\n  ");
 				h3_1 = createElement("h3");
 				h3_1.textContent = "Selectors";
-				text_10 = createText("\n  ");
+				text_13 = createText("\n  ");
 				div_2 = createElement("div");
 				div_3 = createElement("div");
-				button = createElement("button");
-				button.textContent = "Add Selector";
-				text_13 = createText("\n    ");
+				button_1 = createElement("button");
+				button_1.textContent = "Add Selector";
+				text_16 = createText("\n    ");
 
 				for (var i = 0; i < each_1_blocks.length; i += 1) {
 					each_1_blocks[i].c();
 				}
 
-				text_15 = createText("\n  ");
+				text_18 = createText("\n  ");
 				if (if_block_1) if_block_1.c();
+				text_19 = createText("\n  ");
+				if (if_block_2) if_block_2.c();
 				this.h();
 			},
 
 			h: function hydrate() {
 				encapsulateStyles(div);
 				div.className = "query-editor";
+				addListener(button, "click", click_handler);
 				div_1.className = "options-editor";
 				div_2.className = "selector-editor";
-				addListener(button, "click", click_handler_1);
+				addListener(button_1, "click", click_handler_1);
 			},
 
 			m: function mount(target, anchor) {
 				insertNode(div, target, anchor);
+				appendNode(h2, div);
+				appendNode(text, h2);
+				appendNode(button, h2);
+				appendNode(text_2, div);
 				appendNode(h3, div);
-				appendNode(text_1, div);
+				appendNode(text_4, div);
 				appendNode(div_1, div);
 				if (if_block) if_block.m(div_1, null);
-				appendNode(text_2, div_1);
+				appendNode(text_5, div_1);
 				appendNode(pre, div_1);
-				appendNode(text_4, div_1);
+				appendNode(text_7, div_1);
 
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].m(div_1, null);
 				}
 
-				appendNode(text_5, div_1);
+				appendNode(text_8, div_1);
 				appendNode(pre_1, div_1);
-				appendNode(text_8, div);
+				appendNode(text_11, div);
 				appendNode(h3_1, div);
-				appendNode(text_10, div);
+				appendNode(text_13, div);
 				appendNode(div_2, div);
 				appendNode(div_3, div_2);
-				appendNode(button, div_3);
-				appendNode(text_13, div_2);
+				appendNode(button_1, div_3);
+				appendNode(text_16, div_2);
 
 				for (var i = 0; i < each_1_blocks.length; i += 1) {
 					each_1_blocks[i].m(div_2, null);
 				}
 
-				appendNode(text_15, div);
+				appendNode(text_18, div);
 				if (if_block_1) if_block_1.m(div, null);
+				appendNode(text_19, div);
+				if (if_block_2) if_block_2.m(div, null);
 			},
 
 			p: function update(changed, state) {
@@ -228,7 +257,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 					} else {
 						if_block = create_if_block(state, component);
 						if_block.c();
-						if_block.m(div_1, text_2);
+						if_block.m(div_1, text_5);
 					}
 				} else if (if_block) {
 					if_block.u();
@@ -245,7 +274,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 						} else {
 							each_blocks[i] = create_each_block_1(state, optionsKeysTypes_1, optionsKeysTypes_1[i], i, component);
 							each_blocks[i].c();
-							each_blocks[i].m(div_1, text_5);
+							each_blocks[i].m(div_1, text_8);
 						}
 					}
 
@@ -282,12 +311,24 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 					} else {
 						if_block_1 = create_if_block_4(state, component);
 						if_block_1.c();
-						if_block_1.m(div, null);
+						if_block_1.m(div, text_19);
 					}
 				} else if (if_block_1) {
 					if_block_1.u();
 					if_block_1.d();
 					if_block_1 = null;
+				}
+
+				if (state.__showHelp) {
+					if (!if_block_2) {
+						if_block_2 = create_if_block_5(state, component);
+						if_block_2.c();
+						if_block_2.m(div, null);
+					}
+				} else if (if_block_2) {
+					if_block_2.u();
+					if_block_2.d();
+					if_block_2 = null;
 				}
 			},
 
@@ -304,23 +345,26 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 				}
 
 				if (if_block_1) if_block_1.u();
+				if (if_block_2) if_block_2.u();
 			},
 
 			d: function destroy() {
+				removeListener(button, "click", click_handler);
 				if (if_block) if_block.d();
 
 				destroyEach(each_blocks);
 
-				removeListener(button, "click", click_handler_1);
+				removeListener(button_1, "click", click_handler_1);
 
 				destroyEach(each_1_blocks);
 
 				if (if_block_1) if_block_1.d();
+				if (if_block_2) if_block_2.d();
 			}
 		};
 	}
 
-	// (11:10) {{#each remainingOptions as option}}
+	// (12:10) {{#each remainingOptions as option}}
 	function create_each_block(state, remainingOptions_1, option, option_index, component) {
 		var option_1, option_1_value_value, text_value = option, text;
 
@@ -360,7 +404,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (4:4) {{#if remainingOptions.length}}
+	// (5:4) {{#if remainingOptions.length}}
 	function create_if_block(state, component) {
 		var div, text, select, option, select_updating = false;
 
@@ -480,7 +524,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (20:4) {{#each optionsKeysTypes as option}}
+	// (21:4) {{#each optionsKeysTypes as option}}
 	function create_each_block_1(state, optionsKeysTypes_1, option_1, option_index, component) {
 		var div, div_1, text_value = option_1.key, text, text_1, text_2, div_2, text_4, div_3, button;
 
@@ -561,7 +605,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (28:14) {{#each supportedClasses as curClass}}
+	// (29:14) {{#each supportedClasses as curClass}}
 	function create_each_block_2(state, optionsKeysTypes_1, option_1, option_index, supportedClasses, curClass, curClass_index, component) {
 		var option_2, option_2_value_value, text_value = curClass.class, text;
 
@@ -601,7 +645,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (38:14) {{#each option.type as enumVal}}
+	// (39:14) {{#each option.type as enumVal}}
 	function create_each_block_3(state, optionsKeysTypes_1, option_1, option_index, type, enumVal, enumVal_index, component) {
 		var option_2, option_2_value_value, text_value = enumVal, text;
 
@@ -641,7 +685,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (26:10) {{#if option.type === "class"}}
+	// (27:10) {{#if option.type === "class"}}
 	function create_if_block_1(state, optionsKeysTypes_1, option_1, option_index, component) {
 		var select, select_updating = false;
 
@@ -754,7 +798,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (34:99) 
+	// (35:99) 
 	function create_if_block_2(state, optionsKeysTypes_1, option_1, option_index, component) {
 		var valueeditor_updating = {};
 
@@ -836,7 +880,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (36:10) {{else}}
+	// (37:10) {{else}}
 	function create_if_block_3(state, optionsKeysTypes_1, option_1, option_index, component) {
 		var select, select_updating = false;
 
@@ -949,7 +993,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (58:4) {{#each selectors as selector, index}}
+	// (59:4) {{#each selectors as selector, index}}
 	function create_each_block_4(state, selectors, selector, index, component) {
 		var selectoreditor_updating = {};
 
@@ -1034,7 +1078,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
-	// (62:2) {{#if showQuery}}
+	// (63:2) {{#if showQuery}}
 	function create_if_block_4(state, component) {
 		var h3, text_1, div, pre, text_2;
 
@@ -1078,6 +1122,83 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		};
 	}
 
+	// (69:2) {{#if __showHelp}}
+	function create_if_block_5(state, component) {
+		var div, div_1, h3, text_1, div_2, text_10, div_3, text_12, div_4, text_19, div_5, text_38, div_6, text_40, div_7, text_53, div_8, button;
+
+		function click_handler_1(event) {
+			component.closeHelpDialog();
+		}
+
+		return {
+			c: function create() {
+				div = createElement("div");
+				div_1 = createElement("div");
+				h3 = createElement("h3");
+				h3.textContent = "How to Build Nymph Queries";
+				text_1 = createText("\n\n      ");
+				div_2 = createElement("div");
+				div_2.innerHTML = "options is an associative array, which contains any of the following\n        settings (in the form options['name'] = value):\n\n        <ul><li>class - (string) The class to create each entity with.</li>\n          <li>limit - (int) The limit of entities to be returned.</li>\n          <li>offset - (int) The offset from the oldest matching entity to start\n            retrieving.</li>\n          <li>reverse - (bool) If true, entities will be retrieved from newest to\n            oldest. Therefore, offset will be from the newest entity.</li>\n          <li>sort - (string) How to sort the entities. Accepts \"guid\", \"cdate\", and\n            \"mdate\". Defaults to \"cdate\".</li>\n          <li>skip_ac - (bool) If true, the user manager will not filter returned\n            entities according to access controls.</li>\n        </ul>";
+				text_10 = createText("\n\n      ");
+				div_3 = createElement("div");
+				div_3.textContent = "If a class is specified, it must have a factory() static method that\n        returns a new instance.";
+				text_12 = createText("\n\n      ");
+				div_4 = createElement("div");
+				div_4.innerHTML = "Selectors are also associative arrays. Any amount of selectors can be\n        provided. Empty selectors will be ignored. The first member of a selector\n        must be a \"type\" string. The type string can be:\n\n        <ul><li>& - (and) All values in the selector must be true.</li>\n          <li>| - (or) At least one value in the selector must be true.</li>\n          <li>!& - (not and) All values in the selector must be false.</li>\n          <li>!| - (not or) At least one value in the selector must be false.</li>\n        </ul>";
+				text_19 = createText("\n\n      ");
+				div_5 = createElement("div");
+				div_5.innerHTML = "The rest of the entries in the selector are either more selectors or\n        associative entries called selector clauses, which can be any of the\n        following (in the form selector['name'] = value, or\n        selector['name'] = [value1, value2,...]):\n\n        <ul><li>guid - A GUID. True if the entity's GUID is equal.</li>\n          <li>tag - A tag. True if the entity has the tag.</li>\n          <li>isset - A name. True if the named variable exists and is not null.</li>\n          <li>data - An array with a name, then value. True if the named variable is\n            defined and equal.</li>\n          <li>strict - An array with a name, then value. True if the named variable\n            is defined and identical.</li>\n          <li>array - An array with a name, then value. True if the named variable is\n            an array containing the value. Uses in_array().</li>\n          <li>match - An array with a name, then regular expression. True if the\n            named variable matches. Uses preg_match(). More powerful than \"pmatch\"\n            but slower. Must be surrounded by \"/\" delimiters.</li>\n          <li>pmatch - An array with a name, then regular expression. True if the\n            named variable matches. Uses POSIX RegExp. Case sensitive. Faster than\n            \"match\". Must *not* be surrounded by any delimiters.</li>\n          <li>ipmatch - An array with a name, then regular expression. True if the\n            named variable matches. Uses POSIX RegExp. Case insensitive. Faster\n            than \"match\". Must *not* be surrounded by any delimiters.</li>\n          <li>like - An array with a name, then pattern. True if the named variable\n            matches. Uses % for variable length wildcard and _ for single character\n            wildcard. Case sensitive.</li>\n          <li>ilike - An array with a name, then pattern. True if the named variable\n            matches. Uses % for variable length wildcard and _ for single character\n            wildcard. Case insensitive.</li>\n          <li>gt - An array with a name, then value. True if the named variable is\n            greater than the value.</li>\n          <li>gte - An array with a name, then value. True if the named variable is\n            greater than or equal to the value.</li>\n          <li>lt - An array with a name, then value. True if the named variable is\n            less than the value.</li>\n          <li>lte - An array with a name, then value. True if the named variable is\n            less than or equal to the value.</li>\n          <li>ref - An array with a name, then either a entity, or a GUID. True if\n            the named variable is the entity or an array containing the entity.</li>\n        </ul>";
+				text_38 = createText("\n\n      ");
+				div_6 = createElement("div");
+				div_6.textContent = "These clauses can all be negated, by prefixing them with an exclamation\n        point, such as \"!isset\".";
+				text_40 = createText("\n\n      ");
+				div_7 = createElement("div");
+				div_7.innerHTML = "This example will retrieve the last two entities where:\n\n        <ul><li>It has 'person' tag.</li>\n          <li>spouse exists and is not null.</li>\n          <li>gender is male and lname is Smith.</li>\n          <li>warnings is not an integer 0.</li>\n          <li>It has 'level1' and 'level2' tags, or it has 'access1' and 'access2'\n            tags.</li>\n          <li>It has either 'employee' or 'manager' tag.</li>\n          <li>name is either Clark, James, Chris, Christopher, Jake, or Jacob.</li>\n          <li>If age is 22 or more, then pay is not greater than 8.</li>\n        </ul>\n\n        <pre>Nymph.getEntities(\n  {\n    'reverse': true,\n    'limit': 2\n  },\n  {\n    'type': '&', // all must be true\n    'tag': 'person',\n    'isset': 'spouse',\n    'data': [\n      ['gender', 'male'],\n      ['lname', 'Smith']\n    ],\n    '!strict': ['warnings', 0]\n  },\n  {\n    'type': '|', // at least one of the selectors in this must evaluate to true\n    '1': {\n      'type': '&',\n      'tag': ['level1', 'level2']\n    },\n    '2': {\n      'type': '&',\n      'tag': ['access1', 'access2']\n    }\n  },\n  {\n    'type': '|', // at least one must be true\n    'tag': ['employee', 'manager']\n  },\n  {\n    'type': '|',\n    'data': [\n      ['name', 'Clark'],\n      ['name', 'James']\n    ],\n    'pmatch': [\n      ['name', 'Chris(topher)?'],\n      ['name', 'Ja(ke|cob)']\n    ]\n  },\n  {\n    'type': '!|', // at least one must be false\n    'gte': ['age', 22],\n    'gt': ['pay', 8]\n  }\n);</pre>";
+				text_53 = createText("\n\n      ");
+				div_8 = createElement("div");
+				button = createElement("button");
+				button.textContent = "Close";
+				this.h();
+			},
+
+			h: function hydrate() {
+				div.className = "help-dialog-container";
+				div_1.className = "help-dialog";
+				div_8.className = "actions";
+				addListener(button, "click", click_handler_1);
+			},
+
+			m: function mount(target, anchor) {
+				insertNode(div, target, anchor);
+				appendNode(div_1, div);
+				appendNode(h3, div_1);
+				appendNode(text_1, div_1);
+				appendNode(div_2, div_1);
+				appendNode(text_10, div_1);
+				appendNode(div_3, div_1);
+				appendNode(text_12, div_1);
+				appendNode(div_4, div_1);
+				appendNode(text_19, div_1);
+				appendNode(div_5, div_1);
+				appendNode(text_38, div_1);
+				appendNode(div_6, div_1);
+				appendNode(text_40, div_1);
+				appendNode(div_7, div_1);
+				appendNode(text_53, div_1);
+				appendNode(div_8, div_1);
+				appendNode(button, div_8);
+			},
+
+			u: function unmount() {
+				detachNode(div);
+			},
+
+			d: function destroy() {
+				removeListener(button, "click", click_handler_1);
+			}
+		};
+	}
+
 	function select_block_type(state, optionsKeysTypes_1, option_1, option_index) {
 		if (option_1.type === "class") return create_if_block_1;
 		if (option_1.type === "int" || option_1.type === "boolean" || option_1.type === "string") return create_if_block_2;
@@ -1095,7 +1216,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, supportedOptions: 1, selectors: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2302907587-style")) add_css();
+		if (!document.getElementById("svelte-1075409419-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];
@@ -1169,14 +1290,14 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		node.parentNode.removeChild(node);
 	}
 
+	function removeListener(node, event, handler) {
+		node.removeEventListener(event, handler, false);
+	}
+
 	function destroyEach(iterations) {
 		for (var i = 0; i < iterations.length; i += 1) {
 			if (iterations[i]) iterations[i].d();
 		}
-	}
-
-	function removeListener(node, event, handler) {
-		node.removeEventListener(event, handler, false);
 	}
 
 	function noop() {}

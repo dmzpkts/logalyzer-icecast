@@ -41,7 +41,11 @@
   {{#if __showDatePrompt}}
     <span class="date-prompt-container">
       <span class="date-prompt">
-        <span>Enter a date below in basically any format, including things like "now", "last friday", "+1 week", and "oct 12 3:00 pm":</span>
+        <span>
+          Enter a date below in basically any format, including things like "now", "last friday",
+          <br />
+          "+1 week", and "oct 12, 2017 3:00 pm":
+        </span>
 
         <input type="text" bind:value="__dateInput" on:input="handleDateInput()" />
 
@@ -216,6 +220,9 @@
     box-shadow: 0px 5px 36px 0px rgba(0,0,0,0.25);
     background-color: #fff;
     padding: 2em;
+    max-height: 80vh;
+    max-width: 80vw;
+    overflow: auto;
   }
   .date-prompt > * {
     margin-bottom: 1em;

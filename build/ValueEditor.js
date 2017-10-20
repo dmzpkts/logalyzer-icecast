@@ -136,13 +136,13 @@ function valueType(value, valueTypeCurrent, allowedTypes) {
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-817036714", "");
+		setAttribute(node, "svelte-202135697", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-817036714-style';
-		style.textContent = "[svelte-817036714].date-prompt-container,[svelte-817036714] .date-prompt-container{display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;bottom:0;right:0;background-color:rgba(0, 0, 0, 0.3)}[svelte-817036714].date-prompt,[svelte-817036714] .date-prompt{display:flex;flex-direction:column;box-shadow:0px 5px 36px 0px rgba(0,0,0,0.25);background-color:#fff;padding:2em}[svelte-817036714].date-prompt > *,[svelte-817036714] .date-prompt > *{margin-bottom:1em}[svelte-817036714].date-prompt > *:last-child,[svelte-817036714] .date-prompt > *:last-child{margin-bottom:0}[svelte-817036714].date-prompt .date-interpretation,[svelte-817036714] .date-prompt .date-interpretation{border:1px solid;padding:.2em}[svelte-817036714].date-prompt .actions,[svelte-817036714] .date-prompt .actions{display:flex;flex-direction:row;justify-content:flex-end;align-items:center}[svelte-817036714].date-prompt .actions > *,[svelte-817036714] .date-prompt .actions > *{margin-left:1em}";
+		style.id = 'svelte-202135697-style';
+		style.textContent = "[svelte-202135697].date-prompt-container,[svelte-202135697] .date-prompt-container{display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;bottom:0;right:0;background-color:rgba(0, 0, 0, 0.3)}[svelte-202135697].date-prompt,[svelte-202135697] .date-prompt{display:flex;flex-direction:column;box-shadow:0px 5px 36px 0px rgba(0,0,0,0.25);background-color:#fff;padding:2em;max-height:80vh;max-width:80vw;overflow:auto}[svelte-202135697].date-prompt > *,[svelte-202135697] .date-prompt > *{margin-bottom:1em}[svelte-202135697].date-prompt > *:last-child,[svelte-202135697] .date-prompt > *:last-child{margin-bottom:0}[svelte-202135697].date-prompt .date-interpretation,[svelte-202135697] .date-prompt .date-interpretation{border:1px solid;padding:.2em}[svelte-202135697].date-prompt .actions,[svelte-202135697] .date-prompt .actions{display:flex;flex-direction:row;justify-content:flex-end;align-items:center}[svelte-202135697].date-prompt .actions > *,[svelte-202135697] .date-prompt .actions > *{margin-left:1em}";
 		appendNode(style, document.head);
 	}
 
@@ -840,7 +840,7 @@ function valueType(value, valueTypeCurrent, allowedTypes) {
 
 	// (41:2) {{#if __showDatePrompt}}
 	function create_if_block_13(state, component) {
-		var span, span_1, span_2, text_1, input, input_updating = false, text_2, span_3, text_4, span_4, text_5, text_6, span_5, button, text_8, button_1, button_1_disabled_value;
+		var span, span_1, span_2, text_2, input, input_updating = false, text_3, span_3, text_5, span_4, text_6, text_7, span_5, button, text_9, button_1, button_1_disabled_value;
 
 		function input_input_handler() {
 			input_updating = true;
@@ -865,20 +865,20 @@ function valueType(value, valueTypeCurrent, allowedTypes) {
 				span = createElement("span");
 				span_1 = createElement("span");
 				span_2 = createElement("span");
-				span_2.textContent = "Enter a date below in basically any format, including things like \"now\", \"last friday\", \"+1 week\", and \"oct 12 3:00 pm\":";
-				text_1 = createText("\n\n        ");
-				input = createElement("input");
+				span_2.innerHTML = "Enter a date below in basically any format, including things like \"now\", \"last friday\",\n          <br>\n          \"+1 week\", and \"oct 12, 2017 3:00 pm\":";
 				text_2 = createText("\n\n        ");
+				input = createElement("input");
+				text_3 = createText("\n\n        ");
 				span_3 = createElement("span");
 				span_3.textContent = "The current input is being interpreted as:";
-				text_4 = createText("\n\n        ");
+				text_5 = createText("\n\n        ");
 				span_4 = createElement("span");
-				text_5 = createText(state.__dateInputInterpretation);
-				text_6 = createText("\n\n        ");
+				text_6 = createText(state.__dateInputInterpretation);
+				text_7 = createText("\n\n        ");
 				span_5 = createElement("span");
 				button = createElement("button");
 				button.textContent = "Cancel";
-				text_8 = createText("\n          ");
+				text_9 = createText("\n          ");
 				button_1 = createElement("button");
 				button_1.textContent = "Accept";
 				this.h();
@@ -901,20 +901,20 @@ function valueType(value, valueTypeCurrent, allowedTypes) {
 				insertNode(span, target, anchor);
 				appendNode(span_1, span);
 				appendNode(span_2, span_1);
-				appendNode(text_1, span_1);
+				appendNode(text_2, span_1);
 				appendNode(input, span_1);
 
 				input.value = state.__dateInput;
 
-				appendNode(text_2, span_1);
+				appendNode(text_3, span_1);
 				appendNode(span_3, span_1);
-				appendNode(text_4, span_1);
+				appendNode(text_5, span_1);
 				appendNode(span_4, span_1);
-				appendNode(text_5, span_4);
-				appendNode(text_6, span_1);
+				appendNode(text_6, span_4);
+				appendNode(text_7, span_1);
 				appendNode(span_5, span_1);
 				appendNode(button, span_5);
-				appendNode(text_8, span_5);
+				appendNode(text_9, span_5);
 				appendNode(button_1, span_5);
 			},
 
@@ -924,7 +924,7 @@ function valueType(value, valueTypeCurrent, allowedTypes) {
 				}
 
 				if (changed.__dateInputInterpretation) {
-					text_5.data = state.__dateInputInterpretation;
+					text_6.data = state.__dateInputInterpretation;
 				}
 
 				if ((changed.__dateInputTimestamp) && button_1_disabled_value !== (button_1_disabled_value = state.__dateInputTimestamp === false)) {
@@ -963,7 +963,7 @@ function valueType(value, valueTypeCurrent, allowedTypes) {
 		this._state = assign(data(), options.data);
 		this._recompute({ value: 1, valueTypeCurrent: 1, allowedTypes: 1 }, this._state);
 
-		if (!document.getElementById("svelte-817036714-style")) add_css();
+		if (!document.getElementById("svelte-202135697-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 

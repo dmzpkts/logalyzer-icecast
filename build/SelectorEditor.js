@@ -143,13 +143,13 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-1543989517", "");
+		setAttribute(node, "svelte-3706593811", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-1543989517-style';
-		style.textContent = "[svelte-1543989517].selector,[svelte-1543989517] .selector{margin:.5em;padding:.5em;display:flex;flex-direction:column;border:1px dotted}[svelte-1543989517].selector .clause,[svelte-1543989517] .selector .clause,[svelte-1543989517].selector .clause .clause-entry,[svelte-1543989517] .selector .clause .clause-entry{padding:.5em 1em;display:flex;flex-direction:row}";
+		style.id = 'svelte-3706593811-style';
+		style.textContent = "[svelte-3706593811].selector,[svelte-3706593811] .selector{margin:.5em;padding:.5em;display:flex;flex-direction:column;border:1px dotted}[svelte-3706593811].selector .clause,[svelte-3706593811] .selector .clause,[svelte-3706593811].selector .clause .clause-entry,[svelte-3706593811] .selector .clause .clause-entry{padding:.5em 1em;display:flex;flex-direction:row}";
 		appendNode(style, document.head);
 	}
 
@@ -187,13 +187,13 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				div_3 = createElement("div");
 				select = createElement("select");
 				option = createElement("option");
-				option.textContent = "& (All values in the selector must be true.)";
+				option.textContent = "& (All clauses in the selector must be true.)";
 				option_1 = createElement("option");
-				option_1.textContent = "| (At least one value in the selector must be true.)";
+				option_1.textContent = "| (At least one clause in the selector must be true.)";
 				option_2 = createElement("option");
-				option_2.textContent = "!& (All values in the selector must be false.)";
+				option_2.textContent = "!& (All clauses in the selector must be false.)";
 				option_3 = createElement("option");
-				option_3.textContent = "!| (At least one value in the selector must be false.)";
+				option_3.textContent = "!| (At least one clause in the selector must be false.)";
 				text_9 = createText("\n  ");
 
 				for (var i = 0; i < each_blocks.length; i += 1) {
@@ -1216,7 +1216,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ selector: 1, supportedClauses: 1 }, this._state);
 
-		if (!document.getElementById("svelte-1543989517-style")) add_css();
+		if (!document.getElementById("svelte-3706593811-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];
