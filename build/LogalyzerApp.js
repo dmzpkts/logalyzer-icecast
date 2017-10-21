@@ -4,42 +4,296 @@ var LogalyzerApp = (function(QueryEditor, Nymph, LogEntry) { "use strict";
 	Nymph = (Nymph && Nymph.__esModule) ? Nymph["default"] : Nymph;
 	LogEntry = (LogEntry && LogEntry.__esModule) ? LogEntry["default"] : LogEntry;
 
-	function query(options, selectors) {
+	const chartColors = {
+	red: 'rgb(255, 99, 132)',
+	orange: 'rgb(255, 159, 64)',
+	yellow: 'rgb(255, 205, 86)',
+	green: 'rgb(75, 192, 192)',
+	blue: 'rgb(54, 162, 235)',
+	purple: 'rgb(153, 102, 255)',
+	grey: 'rgb(201, 203, 207)'
+};
+
+const aggregateFunctions = {
+  totalListenersOverTime: {
+    name: "Total Listeners Over Time",
+    func: function (entries) {
+  		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+
+  		function newDateString(timestamp) {
+  			return moment(""+timestamp, "X").format(timeFormat);
+  		}
+
+      let earliest, latest, deltas = {}, data = [];
+
+      // Go through and save every time someone logs on and off and the
+      // earliest/latest delta.
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const timeOn = Math.floor(entry.get("time"));
+        const timeOff = Math.floor(entry.get("timeEnd"));
+
+        if (timeOn < earliest || earliest === undefined) {
+          earliest = timeOn;
+        }
+        if (timeOff > latest || latest === undefined) {
+          latest = timeOff;
+        }
+        if (deltas[timeOn]) {
+          deltas[timeOn]++;
+        } else {
+          deltas[timeOn] = 1;
+        }
+        if (deltas[timeOff]) {
+          deltas[timeOff]--;
+        } else {
+          deltas[timeOff] = -1;
+        }
+      }
+
+      // Now comes the hard part. Going through every second from earliest to
+      // latest and calculating number of listeners.
+      let currentListeners = 0;
+      for (let i = earliest; i <= latest; i++) {
+        if (deltas[i]) {
+          currentListeners += deltas[i];
+
+          data.push({
+            x: newDateString(i),
+            y: currentListeners
+          });
+        }
+      }
+
+      return data;
+    }
+  },
+
+  refererByDomain: {
+    name: "Referer By Domain",
+    func: function (entries) {
+      const referers = {
+        "Direct Request": 0,
+        "Unknown": 0
+      };
+      const refererDomainRegex = /^\w+:\/\/(?:www\.)?([A-Za-z-.]+)/g;
+      const data = [];
+
+      // Go through and parse out the domain of the referer.
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const referer = entry.get("referer");
+
+        if (!referer || referer === "-") {
+          referers["Direct Request"]++;
+        } else {
+          const match = refererDomainRegex.exec(referer);
+          if (match !== null && match.length > 1) {
+            if (referers[match[1]]) {
+              referers[match[1]]++;
+            } else {
+              referers[match[1]] = 1;
+            }
+          } else {
+            referers["Unknown"]++;
+          }
+        }
+      }
+
+      // Convert every entry to an array.
+      for (let k in referers) {
+        data.push({
+          x: k,
+          y: referers[k]
+        });
+      }
+
+      data.sort((a, b) => b.y - a.y);
+
+      return data;
+    }
+  }
+};
+
+const chartFunctions = {
+  timeSeries: {
+    name: "Time Series",
+    func: function (label, data, canvas) {
+  		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+
+  		const color = Chart.helpers.color;
+  		const config = {
+  			type: 'line',
+  			data: {
+  				labels: [],
+  				datasets: [{
+  					label: label,
+  					backgroundColor: color(chartColors.green).alpha(0.5).rgbString(),
+  					borderColor: chartColors.green,
+  					fill: false,
+  					data: data,
+  				}]
+  			},
+  			options: {
+          title:{
+              text: "Chart.js Time Scale"
+          },
+  				scales: {
+  					xAxes: [{
+  						type: "time",
+  						time: {
+  							format: timeFormat,
+  							// round: 'day'
+  							tooltipFormat: 'll HH:mm'
+  						},
+  						scaleLabel: {
+  							display: true,
+  							labelString: 'Date'
+  						}
+  					}, ],
+  					yAxes: [{
+  						scaleLabel: {
+  							display: true,
+  							labelString: 'Value'
+  						}
+  					}]
+  				},
+  			}
+  		};
+
+			const ctx = canvas.getContext("2d");
+			return {context: ctx, chart: new Chart(ctx, config)};
+    }
+  },
+
+  horizontalBar: {
+    name: "horizontalBar",
+    func: function (label, data, canvas) {
+  		const color = Chart.helpers.color;
+  		const config = {
+        type: 'horizontalBar',
+        data: {
+  				labels: data.map((v) => v.x),
+          datasets: [{
+            label: label,
+            backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
+            borderColor: chartColors.red,
+            borderWidth: 1,
+            data: data.map((v) => v.y)
+          }]
+        },
+        options: {
+          // Elements options apply to all of the options unless overridden in a dataset
+          // In this case, we are setting the border of each horizontal bar to be 2px wide
+          elements: {
+            rectangle: {
+              borderWidth: 2,
+            }
+          },
+          responsive: true,
+          legend: {
+            display: false,
+          },
+          title: {
+            display: true,
+            text: label
+          }
+        }
+      };
+
+			const ctx = canvas.getContext("2d");
+			return {context: ctx, chart: new Chart(ctx, config)};
+    }
+  }
+};
+
+function query(options, selectors) {
 		return [options, ...selectors];
 	}
 
 	function data() {
   return {
-    __supportedClasses: [
-      LogEntry
-    ],
+    __supportedClasses: [LogEntry],
+    __showQueryEditor: false,
+    __loading: false,
+    __currentChart: null,
     options: {
       'class': LogEntry.class
     },
-    selectors: [{
-      'type': '|',
-      'strict': [
-        ['resource', '/stream'],
-        ['resource', '/stream2']
-      ]
-    }]
+    selectors: [
+      {
+        'type': '|',
+        'strict': [
+          ['resource', '/stream'],
+          ['resource', '/stream2']
+        ]
+      },
+      {
+        "type": "&",
+        "gte": [
+          ["timeEnd", 1504677600]
+        ],
+        "lte": [
+          ["timeStart", 1504688400]
+        ]
+      }
+    ]
   }
 };
 
 	var methods = {
   runQuery () {
+    const __currentChart = this.get("__currentChart");
+    if (__currentChart) {
+      __currentChart.chart.destroy();
+      __currentChart.context.clearRect(0, 0, this.refs.canvas.width, this.refs.canvas.height);
+    }
+
+    this.set({__loading: true});
     const query = this.get('query');
-    console.log("Running query: ", query);
     Nymph.getEntities(...query).then((entries) => {
-      console.log("Query results: ", entries);
+      // Run the aggregator:
+      const data = aggregateFunctions.refererByDomain.func(entries);
+
+      // Create the chart:
+      this.set({
+        __currentChart: chartFunctions.horizontalBar.func(aggregateFunctions.refererByDomain.name, data, this.refs.canvas),
+        __loading: false
+      });
     }, (err) => {
       alert("Error: "+err);
     });
+  },
+
+  toggleQueryEditor () {
+    this.set({__showQueryEditor: !this.get("__showQueryEditor")});
   }
 };
 
+	function encapsulateStyles(node) {
+		setAttribute(node, "svelte-2289200441", "");
+	}
+
+	function add_css() {
+		var style = createElement("style");
+		style.id = 'svelte-2289200441-style';
+		style.textContent = "[svelte-2289200441].hidden,[svelte-2289200441] .hidden{display:none}[svelte-2289200441].loader,[svelte-2289200441] .loader,[svelte-2289200441].loader:after,[svelte-2289200441] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2289200441].loader,[svelte-2289200441] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2289200441-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2289200441]0%,[svelte-2289200441] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2289200441]100%,[svelte-2289200441] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2289200441-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		appendNode(style, document.head);
+	}
+
 	function create_main_fragment(state, component) {
-		var div, queryeditor_updating = {}, text, hr, text_1, button;
+		var div, button, text_1, button_1, text_2, text_3, div_1, div_1_class_value, queryeditor_updating = {}, text_5, hr, text_6, h1, text_8, div_2, div_3, div_3_class_value, text_9, canvas;
+
+		function click_handler(event) {
+			component.runQuery();
+		}
+
+		function click_handler_1(event) {
+			component.toggleQueryEditor();
+		}
+
+		var current_block_type = select_block_type(state);
+		var if_block = current_block_type(state, component);
 
 		var queryeditor_initial_data = {};
 		if ('options' in state) {
@@ -99,36 +353,74 @@ var LogalyzerApp = (function(QueryEditor, Nymph, LogEntry) { "use strict";
 			state: state
 		};
 
-		function click_handler(event) {
-			component.runQuery();
-		}
-
 		return {
 			c: function create() {
 				div = createElement("div");
-				queryeditor._fragment.c();
-				text = createText("\n  ");
-				hr = createElement("hr");
-				text_1 = createText("\n  ");
 				button = createElement("button");
 				button.textContent = "Run Query";
+				text_1 = createText("\n  ");
+				button_1 = createElement("button");
+				if_block.c();
+				text_2 = createText(" Query Editor");
+				text_3 = createText("\n  ");
+				div_1 = createElement("div");
+				queryeditor._fragment.c();
+				text_5 = createText("\n  ");
+				hr = createElement("hr");
+				text_6 = createText("\n\n  ");
+				h1 = createElement("h1");
+				h1.textContent = "Logalyzer Results";
+				text_8 = createText("\n\t");
+				div_2 = createElement("div");
+				div_3 = createElement("div");
+				text_9 = createText("\n\t\t");
+				canvas = createElement("canvas");
 				this.h();
 			},
 
 			h: function hydrate() {
+				encapsulateStyles(div);
 				addListener(button, "click", click_handler);
+				addListener(button_1, "click", click_handler_1);
+				div_1.className = div_1_class_value = state.__showQueryEditor ? '' : 'hidden';
+				div_3.className = div_3_class_value = "loader " + (state.__loading ? '' : 'hidden');
 			},
 
 			m: function mount(target, anchor) {
 				insertNode(div, target, anchor);
-				queryeditor._mount(div, null);
-				appendNode(text, div);
-				appendNode(hr, div);
-				appendNode(text_1, div);
 				appendNode(button, div);
+				appendNode(text_1, div);
+				appendNode(button_1, div);
+				if_block.m(button_1, null);
+				appendNode(text_2, button_1);
+				appendNode(text_3, div);
+				appendNode(div_1, div);
+				queryeditor._mount(div_1, null);
+				appendNode(text_5, div);
+				appendNode(hr, div);
+				appendNode(text_6, div);
+				appendNode(h1, div);
+				appendNode(text_8, div);
+				appendNode(div_2, div);
+				appendNode(div_3, div_2);
+				appendNode(text_9, div_2);
+				appendNode(canvas, div_2);
+				component.refs.canvas = canvas;
 			},
 
 			p: function update(changed, state) {
+				if (current_block_type !== (current_block_type = select_block_type(state))) {
+					if_block.u();
+					if_block.d();
+					if_block = current_block_type(state, component);
+					if_block.c();
+					if_block.m(button_1, text_2);
+				}
+
+				if ((changed.__showQueryEditor) && div_1_class_value !== (div_1_class_value = state.__showQueryEditor ? '' : 'hidden')) {
+					div_1.className = div_1_class_value;
+				}
+
 				var queryeditor_changes = {};
 				if (!queryeditor_updating.options && changed.options) {
 					queryeditor_changes.options = state.options ;
@@ -146,23 +438,81 @@ var LogalyzerApp = (function(QueryEditor, Nymph, LogEntry) { "use strict";
 				queryeditor_updating = {};
 
 				queryeditor_context.state = state;
+
+				if ((changed.__loading) && div_3_class_value !== (div_3_class_value = "loader " + (state.__loading ? '' : 'hidden'))) {
+					div_3.className = div_3_class_value;
+				}
 			},
 
 			u: function unmount() {
 				detachNode(div);
+				if_block.u();
 			},
 
 			d: function destroy() {
-				queryeditor.destroy(false);
 				removeListener(button, "click", click_handler);
+				removeListener(button_1, "click", click_handler_1);
+				if_block.d();
+				queryeditor.destroy(false);
+				if (component.refs.canvas === canvas) component.refs.canvas = null;
 			}
 		};
 	}
 
+	// (4:4) {{#if __showQueryEditor}}
+	function create_if_block(state, component) {
+		var text;
+
+		return {
+			c: function create() {
+				text = createText("Hide");
+			},
+
+			m: function mount(target, anchor) {
+				insertNode(text, target, anchor);
+			},
+
+			u: function unmount() {
+				detachNode(text);
+			},
+
+			d: noop
+		};
+	}
+
+	// (4:33) {{else}}
+	function create_if_block_1(state, component) {
+		var text;
+
+		return {
+			c: function create() {
+				text = createText("Show");
+			},
+
+			m: function mount(target, anchor) {
+				insertNode(text, target, anchor);
+			},
+
+			u: function unmount() {
+				detachNode(text);
+			},
+
+			d: noop
+		};
+	}
+
+	function select_block_type(state) {
+		if (state.__showQueryEditor) return create_if_block;
+		return create_if_block_1;
+	}
+
 	function LogalyzerApp(options) {
 		init(this, options);
+		this.refs = {};
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1 }, this._state);
+
+		if (!document.getElementById("svelte-2289200441-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];
@@ -203,6 +553,18 @@ var LogalyzerApp = (function(QueryEditor, Nymph, LogEntry) { "use strict";
 		}
 	}
 
+	function setAttribute(node, attribute, value) {
+		node.setAttribute(attribute, value);
+	}
+
+	function createElement(name) {
+		return document.createElement(name);
+	}
+
+	function appendNode(node, target) {
+		target.appendChild(node);
+	}
+
 	function assign(target) {
 		var k,
 			source,
@@ -214,10 +576,6 @@ var LogalyzerApp = (function(QueryEditor, Nymph, LogEntry) { "use strict";
 		}
 
 		return target;
-	}
-
-	function createElement(name) {
-		return document.createElement(name);
 	}
 
 	function createText(data) {
@@ -232,10 +590,6 @@ var LogalyzerApp = (function(QueryEditor, Nymph, LogEntry) { "use strict";
 		target.insertBefore(node, anchor);
 	}
 
-	function appendNode(node, target) {
-		target.appendChild(node);
-	}
-
 	function detachNode(node) {
 		node.parentNode.removeChild(node);
 	}
@@ -243,6 +597,8 @@ var LogalyzerApp = (function(QueryEditor, Nymph, LogEntry) { "use strict";
 	function removeListener(node, event, handler) {
 		node.removeEventListener(event, handler, false);
 	}
+
+	function noop() {}
 
 	function init(component, options) {
 		component.options = options;
@@ -360,8 +716,6 @@ var LogalyzerApp = (function(QueryEditor, Nymph, LogEntry) { "use strict";
 	function blankObject() {
 		return Object.create(null);
 	}
-
-	function noop() {}
 
 	function dispatchObservers(component, group, changed, newState, oldState) {
 		for (var key in group) {

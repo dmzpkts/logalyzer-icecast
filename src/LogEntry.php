@@ -13,6 +13,7 @@
  * @property string $userAgent
  * @property int $duration
  * @property int $time Unix timestamp of the request in milliseconds.
+ * @property int $timeStart Unix timestamp of the request in milliseconds.
  * @property int $timeEnd Unix timestamp of the termination of the request in milliseconds.
  * @property string $method
  * @property string $resource
@@ -34,6 +35,7 @@ class LogEntry extends \Nymph\Entity {
     'userAgent',
     'duration',
     'time',
+    'timeStart',
     'timeEnd',
     'method',
     'resource',

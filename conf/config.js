@@ -1,6 +1,6 @@
 // Edit the config here.
 const config = {
-  restURL: 'http://localhost:8000/logalyzer-icecast/src/rest.php'
+  restURL: 'http://localhost/logalyzer-icecast/src/rest.php'
 };
 
 // This stuff you don't need to touch.

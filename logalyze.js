@@ -9,7 +9,6 @@ if (argv._.length !== 1) {
   printHelp();
   return;
 }
-console.log(argv);
 
 // Set up Nymph.
 const nymphOptions = require('./conf/config.js').config;
@@ -84,12 +83,16 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
           userAgent,
           duration
         ] = fields;
+        duration = parseInt(duration, 10);
+        timeString = timeString.slice(1, -1);
+        requestLine = requestLine.slice(1, -1);
         statusCode = parseInt(statusCode, 10);
         responseBytes = parseInt(responseBytes, 10);
-        duration = parseInt(duration, 10);
+        referer = referer.slice(1, -1);
+        userAgent = userAgent.slice(1, -1);
         let time = Date.parse(timeString.replace(/\//g, '-').replace(/:/, ' ')) / 1000;
         let timeEnd = time + duration;
-        let [method, resource, protocol] = requestLine.substr(1, requestLine.length-2).split(' ');
+        let [method, resource, protocol] = requestLine.split(' ');
         if (!argv['dont-skip-status'] && resource === '/status.xsl') {
           continue;
         }
@@ -123,6 +126,7 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
           userAgent,
           duration,
           time,
+          timeStart: time,
           timeEnd,
           method,
           resource,

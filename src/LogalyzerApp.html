@@ -1,7 +1,18 @@
 <div>
-  <QueryEditor bind:options bind:selectors bind:supportedClasses="__supportedClasses"></QueryEditor>
-  <hr />
   <button on:click="runQuery()">Run Query</button>
+  <button on:click="toggleQueryEditor()">
+    {{#if __showQueryEditor}}Hide{{else}}Show{{/if}} Query Editor
+  </button>
+  <div class="{{__showQueryEditor ? '' : 'hidden'}}">
+    <QueryEditor bind:options bind:selectors bind:supportedClasses="__supportedClasses"></QueryEditor>
+  </div>
+  <hr />
+
+  <h1>Logalyzer Results</h1>
+	<div>
+    <div class="loader {{__loading ? '' : 'hidden'}}"></div>
+		<canvas ref:canvas></canvas>
+	</div>
 </div>
 
 <script>
@@ -9,22 +20,237 @@
   import Nymph from 'Nymph';
   import LogEntry from 'LogEntry';
 
+  const chartColors = {
+  	red: 'rgb(255, 99, 132)',
+  	orange: 'rgb(255, 159, 64)',
+  	yellow: 'rgb(255, 205, 86)',
+  	green: 'rgb(75, 192, 192)',
+  	blue: 'rgb(54, 162, 235)',
+  	purple: 'rgb(153, 102, 255)',
+  	grey: 'rgb(201, 203, 207)'
+  };
+
+  const aggregateFunctions = {
+    totalListenersOverTime: {
+      name: "Total Listeners Over Time",
+      func: function (entries) {
+    		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+
+    		function newDateString(timestamp) {
+    			return moment(""+timestamp, "X").format(timeFormat);
+    		}
+
+        let earliest, latest, deltas = {}, data = [];
+
+        // Go through and save every time someone logs on and off and the
+        // earliest/latest delta.
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const timeOn = Math.floor(entry.get("time"));
+          const timeOff = Math.floor(entry.get("timeEnd"));
+
+          if (timeOn < earliest || earliest === undefined) {
+            earliest = timeOn;
+          }
+          if (timeOff > latest || latest === undefined) {
+            latest = timeOff;
+          }
+          if (deltas[timeOn]) {
+            deltas[timeOn]++;
+          } else {
+            deltas[timeOn] = 1;
+          }
+          if (deltas[timeOff]) {
+            deltas[timeOff]--;
+          } else {
+            deltas[timeOff] = -1;
+          }
+        }
+
+        // Now comes the hard part. Going through every second from earliest to
+        // latest and calculating number of listeners.
+        let currentListeners = 0;
+        for (let i = earliest; i <= latest; i++) {
+          if (deltas[i]) {
+            currentListeners += deltas[i];
+
+            data.push({
+              x: newDateString(i),
+              y: currentListeners
+            });
+          }
+        }
+
+        return data;
+      }
+    },
+
+    refererByDomain: {
+      name: "Referer By Domain",
+      func: function (entries) {
+        const referers = {
+          "Direct Request": 0,
+          "Unknown": 0
+        };
+        const refererDomainRegex = /^\w+:\/\/(?:www\.)?([A-Za-z-.]+)/g;
+        const data = [];
+
+        // Go through and parse out the domain of the referer.
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const referer = entry.get("referer");
+
+          if (!referer || referer === "-") {
+            referers["Direct Request"]++;
+          } else {
+            const match = refererDomainRegex.exec(referer);
+            if (match !== null && match.length > 1) {
+              if (referers[match[1]]) {
+                referers[match[1]]++;
+              } else {
+                referers[match[1]] = 1;
+              }
+            } else {
+              referers["Unknown"]++;
+            }
+          }
+        }
+
+        // Convert every entry to an array.
+        for (let k in referers) {
+          data.push({
+            x: k,
+            y: referers[k]
+          });
+        }
+
+        data.sort((a, b) => b.y - a.y);
+
+        return data;
+      }
+    }
+  };
+
+  const chartFunctions = {
+    timeSeries: {
+      name: "Time Series",
+      func: function (label, data, canvas) {
+    		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+
+    		const color = Chart.helpers.color;
+    		const config = {
+    			type: 'line',
+    			data: {
+    				labels: [],
+    				datasets: [{
+    					label: label,
+    					backgroundColor: color(chartColors.green).alpha(0.5).rgbString(),
+    					borderColor: chartColors.green,
+    					fill: false,
+    					data: data,
+    				}]
+    			},
+    			options: {
+            title:{
+                text: "Chart.js Time Scale"
+            },
+    				scales: {
+    					xAxes: [{
+    						type: "time",
+    						time: {
+    							format: timeFormat,
+    							// round: 'day'
+    							tooltipFormat: 'll HH:mm'
+    						},
+    						scaleLabel: {
+    							display: true,
+    							labelString: 'Date'
+    						}
+    					}, ],
+    					yAxes: [{
+    						scaleLabel: {
+    							display: true,
+    							labelString: 'Value'
+    						}
+    					}]
+    				},
+    			}
+    		};
+
+  			const ctx = canvas.getContext("2d");
+  			return {context: ctx, chart: new Chart(ctx, config)};
+      }
+    },
+
+    horizontalBar: {
+      name: "horizontalBar",
+      func: function (label, data, canvas) {
+    		const color = Chart.helpers.color;
+    		const config = {
+          type: 'horizontalBar',
+          data: {
+    				labels: data.map((v) => v.x),
+            datasets: [{
+              label: label,
+              backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
+              borderColor: chartColors.red,
+              borderWidth: 1,
+              data: data.map((v) => v.y)
+            }]
+          },
+          options: {
+            // Elements options apply to all of the options unless overridden in a dataset
+            // In this case, we are setting the border of each horizontal bar to be 2px wide
+            elements: {
+              rectangle: {
+                borderWidth: 2,
+              }
+            },
+            responsive: true,
+            legend: {
+              display: false,
+            },
+            title: {
+              display: true,
+              text: label
+            }
+          }
+        };
+
+  			const ctx = canvas.getContext("2d");
+  			return {context: ctx, chart: new Chart(ctx, config)};
+      }
+    }
+  };
+
   export default {
     data () {
       return {
-        __supportedClasses: [
-          LogEntry
-        ],
+        __supportedClasses: [LogEntry],
+        __showQueryEditor: false,
+        __loading: false,
+        __currentChart: null,
         options: {
           'class': LogEntry.class
         },
-        selectors: [{
-          'type': '|',
-          'strict': [
-            ['resource', '/stream'],
-            ['resource', '/stream2']
-          ]
-        }]
+        selectors: [
+          {
+            'type': '|',
+            'strict': [
+              ['resource', '/stream'],
+              ['resource', '/stream2']
+            ]
+          },
+          {
+            "type": "&",
+            "gte": [
+              ["timeEnd", 1504677600]
+            ],
+            "lte": [
+              ["timeStart", 1504688400]
+            ]
+          }
+        ]
       }
     },
 
@@ -34,13 +260,30 @@
 
     methods: {
       runQuery () {
+        const __currentChart = this.get("__currentChart");
+        if (__currentChart) {
+          __currentChart.chart.destroy();
+          __currentChart.context.clearRect(0, 0, this.refs.canvas.width, this.refs.canvas.height);
+        }
+
+        this.set({__loading: true});
         const query = this.get('query');
-        console.log("Running query: ", query);
         Nymph.getEntities(...query).then((entries) => {
-          console.log("Query results: ", entries);
+          // Run the aggregator:
+          const data = aggregateFunctions.refererByDomain.func(entries);
+
+          // Create the chart:
+          this.set({
+            __currentChart: chartFunctions.horizontalBar.func(aggregateFunctions.refererByDomain.name, data, this.refs.canvas),
+            __loading: false
+          });
         }, (err) => {
           alert("Error: "+err);
         });
+      },
+
+      toggleQueryEditor () {
+        this.set({__showQueryEditor: !this.get("__showQueryEditor")});
       }
     },
 
@@ -50,4 +293,49 @@
   };
 </script>
 
-<style></style>
+<style>
+  .hidden {
+    display: none;
+  }
+  .loader,
+  .loader:after {
+    border-radius: 50%;
+    width: 3em;
+    height: 3em;
+  }
+  .loader {
+    margin: 60px auto;
+    font-size: 10px;
+    position: relative;
+    text-indent: -9999em;
+    border-top: 1.1em solid rgba(0,0,0, 0.2);
+    border-right: 1.1em solid rgba(0,0,0, 0.2);
+    border-bottom: 1.1em solid rgba(0,0,0, 0.2);
+    border-left: 1.1em solid #000000;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: load8 1.1s infinite linear;
+    animation: load8 1.1s infinite linear;
+  }
+  @-webkit-keyframes load8 {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes load8 {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+</style>
