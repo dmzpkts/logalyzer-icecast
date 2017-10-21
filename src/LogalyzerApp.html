@@ -3,6 +3,26 @@
   <button on:click="toggleQueryEditor()">
     {{#if __showQueryEditor}}Hide{{else}}Show{{/if}} Query Editor
   </button>
+  <span>
+    Aggregrate Function:
+    <select bind:value="aggregateFunction" on:change="set({chartFunction: __aggregateFunctions[aggregateFunction].defaultChartFunction})">
+      {{#each __aggregateFunctionsKeys as key}}
+        <option value="{{key}}">
+          {{__aggregateFunctions[key].name}}
+        </option>
+      {{/each}}
+    </select>
+  </span>
+  <span>
+    Chart Function:
+    <select bind:value="chartFunction">
+      {{#each __chartFunctionsKeys as key}}
+        <option value="{{key}}">
+          {{__chartFunctions[key].name}}
+        </option>
+      {{/each}}
+    </select>
+  </span>
   <div class="{{__showQueryEditor ? '' : 'hidden'}}">
     <QueryEditor bind:options bind:selectors bind:supportedClasses="__supportedClasses"></QueryEditor>
   </div>
@@ -33,6 +53,7 @@
   const aggregateFunctions = {
     totalListenersOverTime: {
       name: "Total Listeners Over Time",
+      defaultChartFunction: "timeSeries",
       func: function (entries) {
     		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
@@ -87,6 +108,7 @@
 
     refererByDomain: {
       name: "Referer By Domain",
+      defaultChartFunction: "horizontalBar",
       func: function (entries) {
         const referers = {
           "Direct Request": 0,
@@ -183,7 +205,7 @@
     },
 
     horizontalBar: {
-      name: "horizontalBar",
+      name: "Horizontal Bar Chart",
       func: function (label, data, canvas) {
     		const color = Chart.helpers.color;
     		const config = {
@@ -230,6 +252,12 @@
         __showQueryEditor: false,
         __loading: false,
         __currentChart: null,
+        __aggregateFunctions: aggregateFunctions,
+        __chartFunctions: chartFunctions,
+        __aggregateFunctionsKeys: Object.keys(aggregateFunctions),
+        __chartFunctionsKeys: Object.keys(chartFunctions),
+        aggregateFunction: "totalListenersOverTime",
+        chartFunction: "timeSeries",
         options: {
           'class': LogEntry.class
         },
@@ -255,12 +283,15 @@
     },
 
     computed: {
-      query: (options, selectors) => [options, ...selectors]
+      query: (options, selectors) => [options, ...selectors],
     },
 
     methods: {
       runQuery () {
         const __currentChart = this.get("__currentChart");
+        const aggregateFunction = this.get("aggregateFunction");
+        const chartFunction = this.get("chartFunction");
+
         if (__currentChart) {
           __currentChart.chart.destroy();
           __currentChart.context.clearRect(0, 0, this.refs.canvas.width, this.refs.canvas.height);
@@ -270,11 +301,11 @@
         const query = this.get('query');
         Nymph.getEntities(...query).then((entries) => {
           // Run the aggregator:
-          const data = aggregateFunctions.refererByDomain.func(entries);
+          const data = aggregateFunctions[aggregateFunction].func(entries);
 
           // Create the chart:
           this.set({
-            __currentChart: chartFunctions.horizontalBar.func(aggregateFunctions.refererByDomain.name, data, this.refs.canvas),
+            __currentChart: chartFunctions[chartFunction].func(aggregateFunctions[aggregateFunction].name, data, this.refs.canvas),
             __loading: false
           });
         }, (err) => {
