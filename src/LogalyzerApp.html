@@ -31,7 +31,7 @@
   <h1>Logalyzer Results</h1>
 	<div>
     <div class="loader {{__loading ? '' : 'hidden'}}"></div>
-		<canvas ref:canvas></canvas>
+		<canvas class="chart-canvas" ref:canvas></canvas>
 	</div>
 </div>
 
@@ -41,18 +41,76 @@
   import LogEntry from 'LogEntry';
 
   const chartColors = {
-  	red: 'rgb(255, 99, 132)',
-  	orange: 'rgb(255, 159, 64)',
-  	yellow: 'rgb(255, 205, 86)',
-  	green: 'rgb(75, 192, 192)',
-  	blue: 'rgb(54, 162, 235)',
-  	purple: 'rgb(153, 102, 255)',
-  	grey: 'rgb(201, 203, 207)'
+  	red: 'rgb(229,57,53)',
+    indigo: 'rgb(57,73,171)',
+    teal: 'rgb(0,137,123)',
+    yellow: 'rgb(253,216,53)',
+    pink: 'rgb(216,27,96)',
+    blue: 'rgb(30,136,229)',
+    green: 'rgb(67,160,71)',
+    amber: 'rgb(255,179,0)',
+    purple: 'rgb(142,36,170)',
+    lightBlue: 'rgb(3,155,229)',
+    lightGreen: 'rgb(124,179,66)',
+    orange: 'rgb(251,140,0)',
+    deepPurple: 'rgb(94,53,177)',
+    cyan: 'rgb(0,172,193)',
+    lime: 'rgb(192,202,51)',
+    deepOrange: 'rgb(244,81,30)',
+    brown: 'rgb(109,76,65)',
+  	grey: 'rgb(117,117,117)',
+    blueGrey: 'rgb(84,110,122)'
   };
+
+  const extractBy = function(property, unknownIsCalled, appendProperty) {
+    return function (entries) {
+      const values = {};
+      const data = [];
+
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        let value = entry.get(property);
+
+        if (!value || value === "-") {
+          if (values[unknownIsCalled]) {
+            values[unknownIsCalled]++;
+          } else {
+            values[unknownIsCalled] = 1;
+          }
+        } else {
+          if (appendProperty) {
+            let valueAppend = entry.get(appendProperty);
+            if (!valueAppend) {
+              valueAppend = '-';
+            }
+            value += ' '+valueAppend;
+          }
+          if (values[value]) {
+            values[value]++;
+          } else {
+            values[value] = 1;
+          }
+        }
+      }
+
+      // Convert every entry to an array.
+      for (let k in values) {
+        data.push({
+          x: k,
+          y: values[k]
+        });
+      }
+
+      data.sort((a, b) => b.y - a.y);
+
+      return data;
+    };
+  }
 
   const aggregateFunctions = {
     totalListenersOverTime: {
       name: "Total Listeners Over Time",
+      axisLabel: "Listeners",
       defaultChartFunction: "timeSeries",
       func: function (entries) {
     		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
@@ -106,8 +164,23 @@
       }
     },
 
+    remoteHost: {
+      name: "Remote Host (Unique Visitors)",
+      axisLabel: "Requests",
+      defaultChartFunction: "horizontalBar",
+      func: extractBy("remoteHost", "Unknown")
+    },
+
+    resources: {
+      name: "Requested Resources",
+      axisLabel: "Requests",
+      defaultChartFunction: "horizontalBar",
+      func: extractBy("resource", "Unknown")
+    },
+
     refererByDomain: {
       name: "Referer By Domain",
+      axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
       func: function (entries) {
         const referers = {
@@ -150,13 +223,104 @@
 
         return data;
       }
-    }
+    },
+
+    allReferers: {
+      name: "All Referers",
+      axisLabel: "Requests",
+      defaultChartFunction: "horizontalBar",
+      func: extractBy("referer", "Direct Request")
+    },
+
+    browser: {
+      name: "Browser",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaBrowserName", "Unknown")
+    },
+
+    browserVersion: {
+      name: "Browser Version",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaBrowserName", "Unknown", "uaBrowserVersion")
+    },
+
+    cpuArchitecture: {
+      name: "CPU Architecture",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaCpuArchitecture", "Unknown")
+    },
+
+    deviceType: {
+      name: "Device Type",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaDeviceType", "Unknown")
+    },
+
+    deviceVendor: {
+      name: "Device Vendor",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaDeviceVendor", "Unknown")
+    },
+
+    deviceModel: {
+      name: "Device Model",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaDeviceVendor", "Unknown", "uaDeviceModel")
+    },
+
+    engine: {
+      name: "Engine",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaEngineName", "Unknown")
+    },
+
+    engineVersion: {
+      name: "Engine Version",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaEngineName", "Unknown", "uaEngineVersion")
+    },
+
+    os: {
+      name: "OS",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaOsName", "Unknown")
+    },
+
+    osVersion: {
+      name: "OS Version",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("uaOsName", "Unknown", "uaOsVersion")
+    },
+
+    allUserAgents: {
+      name: "All User Agents",
+      axisLabel: "Requests",
+      defaultChartFunction: "horizontalBar",
+      func: extractBy("userAgent", "Unknown")
+    },
+
+    responseStatusCode: {
+      name: "Response Status Code",
+      axisLabel: "Requests",
+      defaultChartFunction: "horizontalBar",
+      func: extractBy("statusCode", "Unknown")
+    },
   };
 
   const chartFunctions = {
     timeSeries: {
       name: "Time Series",
-      func: function (label, data, canvas) {
+      func: function (label, axisLabel, data, canvas) {
     		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
     		const color = Chart.helpers.color;
@@ -165,16 +329,17 @@
     			data: {
     				labels: [],
     				datasets: [{
-    					label: label,
-    					backgroundColor: color(chartColors.green).alpha(0.5).rgbString(),
-    					borderColor: chartColors.green,
+    					label: axisLabel,
+    					backgroundColor: color(chartColors.indigo).alpha(0.5).rgbString(),
+    					borderColor: chartColors.indigo,
     					fill: false,
     					data: data,
     				}]
     			},
     			options: {
             title:{
-                text: "Chart.js Time Scale"
+              display: true,
+              text: label
             },
     				scales: {
     					xAxes: [{
@@ -186,16 +351,25 @@
     						},
     						scaleLabel: {
     							display: true,
-    							labelString: 'Date'
+    							labelString: 'Date / Time'
     						}
     					}, ],
     					yAxes: [{
     						scaleLabel: {
     							display: true,
-    							labelString: 'Value'
+    							labelString: axisLabel
     						}
     					}]
     				},
+          	// pan: {
+          	// 	enabled: true,
+          	// 	mode: 'x'
+          	// },
+          	zoom: {
+          		enabled: true,
+          		// drag: true,
+          		mode: 'x'
+          	}
     			}
     		};
 
@@ -206,16 +380,16 @@
 
     horizontalBar: {
       name: "Horizontal Bar Chart",
-      func: function (label, data, canvas) {
+      func: function (label, axisLabel, data, canvas) {
     		const color = Chart.helpers.color;
     		const config = {
           type: 'horizontalBar',
           data: {
     				labels: data.map((v) => v.x),
             datasets: [{
-              label: label,
+              label: axisLabel,
               backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
-              borderColor: chartColors.red,
+              borderColor: chartColors.blueGrey,
               borderWidth: 1,
               data: data.map((v) => v.y)
             }]
@@ -232,6 +406,44 @@
             legend: {
               display: false,
             },
+            title: {
+              display: true,
+              text: label
+            },
+          	pan: {
+          		enabled: true,
+          		mode: 'xy'
+          	},
+          	zoom: {
+          		enabled: true,
+          		drag: true,
+          		mode: 'xy'
+          	}
+          }
+        };
+
+  			const ctx = canvas.getContext("2d");
+  			return {context: ctx, chart: new Chart(ctx, config)};
+      }
+    },
+
+    pie: {
+      name: "Pie Chart",
+      func: function (label, axisLabel, data, canvas) {
+    		const color = Chart.helpers.color;
+        const chartColorsKeys = Object.keys(chartColors);
+    		const config = {
+          type: 'pie',
+          data: {
+    				labels: data.map((v) => v.x),
+            datasets: [{
+              label: axisLabel,
+              backgroundColor: data.map((v, i) => color(chartColors[chartColorsKeys[i % chartColorsKeys.length]]).alpha(0.5).rgbString()),
+              data: data.map((v) => v.y)
+            }]
+          },
+          options: {
+            responsive: true,
             title: {
               display: true,
               text: label
@@ -300,12 +512,14 @@
         this.set({__loading: true});
         const query = this.get('query');
         Nymph.getEntities(...query).then((entries) => {
+          const aggFuncObj = aggregateFunctions[aggregateFunction];
+          const chartFuncObj = chartFunctions[chartFunction];
           // Run the aggregator:
-          const data = aggregateFunctions[aggregateFunction].func(entries);
+          const data = aggFuncObj.func(entries);
 
           // Create the chart:
           this.set({
-            __currentChart: chartFunctions[chartFunction].func(aggregateFunctions[aggregateFunction].name, data, this.refs.canvas),
+            __currentChart: chartFuncObj.func(aggFuncObj.name, aggFuncObj.axisLabel, data, this.refs.canvas),
             __loading: false
           });
         }, (err) => {
@@ -328,6 +542,11 @@
   .hidden {
     display: none;
   }
+	.chart-canvas {
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		-ms-user-select: none;
+	}
   .loader,
   .loader:after {
     border-radius: 50%;

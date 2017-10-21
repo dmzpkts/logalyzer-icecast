@@ -1,6 +1,8 @@
 const fs = require('fs');
 const nReadlines = require('n-readlines');
 const argv = require('minimist')(process.argv.slice(2));
+const uaParser = require('ua-parser-js');
+
 // Nymph Node client for the win.
 const Nymph = require('nymph-client-node');
 
@@ -90,15 +92,30 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
         responseBytes = parseInt(responseBytes, 10);
         referer = referer.slice(1, -1);
         userAgent = userAgent.slice(1, -1);
-        let time = Date.parse(timeString.replace(/\//g, '-').replace(/:/, ' ')) / 1000;
-        let timeEnd = time + duration;
-        let [method, resource, protocol] = requestLine.split(' ');
+        const time = Date.parse(timeString.replace(/\//g, '-').replace(/:/, ' ')) / 1000;
+        const timeEnd = time + duration;
+        const [method, resource, protocol] = requestLine.split(' ');
         if (!argv['dont-skip-status'] && resource === '/status.xsl') {
           continue;
         }
         if (!argv['dont-skip-metadata'] && resource === '/admin/metadata') {
           continue;
         }
+
+        // Parse user agent string.
+        const uaParts = uaParser(userAgent);
+
+        // These go in the entity.
+        const uaBrowserName = uaParts.browser.name;
+        const uaBrowserVersion = uaParts.browser.version;
+        const uaCpuArchitecture = uaParts.cpu.architecture;
+        const uaDeviceModel = uaParts.device.model;
+        const uaDeviceType = uaParts.device.type;
+        const uaDeviceVendor = uaParts.device.vendor;
+        const uaEngineName = uaParts.engine.name;
+        const uaEngineVersion = uaParts.engine.version;
+        const uaOsName = uaParts.os.name;
+        const uaOsVersion = uaParts.os.version;
 
         // Check whether this log entry has already been added.
         if (!argv['skip-dupe-check']) {
@@ -124,6 +141,16 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
           responseBytes,
           referer,
           userAgent,
+          uaBrowserName,
+          uaBrowserVersion,
+          uaCpuArchitecture,
+          uaDeviceModel,
+          uaDeviceType,
+          uaDeviceVendor,
+          uaEngineName,
+          uaEngineVersion,
+          uaOsName,
+          uaOsVersion,
           duration,
           time,
           timeStart: time,
