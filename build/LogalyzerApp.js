@@ -60,7 +60,7 @@ const extractBy = function(property, unknownIsCalled, appendProperty) {
     // Convert every entry to an array.
     for (let k in values) {
       data.push({
-        x: k,
+        x: k + " (" + values[k] + ")",
         y: values[k]
       });
     }
@@ -342,6 +342,55 @@ const chartFunctions = {
     }
   },
 
+  bar: {
+    name: "Bar Chart",
+    func: function (label, axisLabel, data, canvas) {
+  		const color = Chart.helpers.color;
+  		const config = {
+        type: 'bar',
+        data: {
+  				labels: data.map((v) => v.x),
+          datasets: [{
+            label: axisLabel,
+            backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
+            borderColor: chartColors.blueGrey,
+            borderWidth: 1,
+            data: data.map((v) => v.y)
+          }]
+        },
+        options: {
+          // Elements options apply to all of the options unless overridden in a dataset
+          // In this case, we are setting the border of each horizontal bar to be 2px wide
+          elements: {
+            rectangle: {
+              borderWidth: 2,
+            }
+          },
+          responsive: true,
+          legend: {
+            display: false,
+          },
+          title: {
+            display: true,
+            text: label
+          },
+        	pan: {
+        		enabled: true,
+        		mode: 'xy'
+        	},
+        	zoom: {
+        		enabled: true,
+        		drag: true,
+        		mode: 'xy'
+        	}
+        }
+      };
+
+			const ctx = canvas.getContext("2d");
+			return {context: ctx, chart: new Chart(ctx, config)};
+    }
+  },
+
   horizontalBar: {
     name: "Horizontal Bar Chart",
     func: function (label, axisLabel, data, canvas) {
@@ -496,13 +545,13 @@ function query(options, selectors) {
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2240543082", "");
+		setAttribute(node, "svelte-86282820", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2240543082-style';
-		style.textContent = "[svelte-2240543082].hidden,[svelte-2240543082] .hidden{display:none}[svelte-2240543082].chart-canvas,[svelte-2240543082] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2240543082].loader,[svelte-2240543082] .loader,[svelte-2240543082].loader:after,[svelte-2240543082] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2240543082].loader,[svelte-2240543082] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2240543082-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2240543082]0%,[svelte-2240543082] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2240543082]100%,[svelte-2240543082] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2240543082-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-86282820-style';
+		style.textContent = "[svelte-86282820].hidden,[svelte-86282820] .hidden{display:none}[svelte-86282820].chart-canvas,[svelte-86282820] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-86282820].loader,[svelte-86282820] .loader,[svelte-86282820].loader:after,[svelte-86282820] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-86282820].loader,[svelte-86282820] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-86282820-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-86282820]0%,[svelte-86282820] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-86282820]100%,[svelte-86282820] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-86282820-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -999,7 +1048,7 @@ function query(options, selectors) {
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2240543082-style")) add_css();
+		if (!document.getElementById("svelte-86282820-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];

@@ -96,7 +96,7 @@
       // Convert every entry to an array.
       for (let k in values) {
         data.push({
-          x: k,
+          x: k + " (" + values[k] + ")",
           y: values[k]
         });
       }
@@ -372,6 +372,55 @@
           	}
     			}
     		};
+
+  			const ctx = canvas.getContext("2d");
+  			return {context: ctx, chart: new Chart(ctx, config)};
+      }
+    },
+
+    bar: {
+      name: "Bar Chart",
+      func: function (label, axisLabel, data, canvas) {
+    		const color = Chart.helpers.color;
+    		const config = {
+          type: 'bar',
+          data: {
+    				labels: data.map((v) => v.x),
+            datasets: [{
+              label: axisLabel,
+              backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
+              borderColor: chartColors.blueGrey,
+              borderWidth: 1,
+              data: data.map((v) => v.y)
+            }]
+          },
+          options: {
+            // Elements options apply to all of the options unless overridden in a dataset
+            // In this case, we are setting the border of each horizontal bar to be 2px wide
+            elements: {
+              rectangle: {
+                borderWidth: 2,
+              }
+            },
+            responsive: true,
+            legend: {
+              display: false,
+            },
+            title: {
+              display: true,
+              text: label
+            },
+          	pan: {
+          		enabled: true,
+          		mode: 'xy'
+          	},
+          	zoom: {
+          		enabled: true,
+          		drag: true,
+          		mode: 'xy'
+          	}
+          }
+        };
 
   			const ctx = canvas.getContext("2d");
   			return {context: ctx, chart: new Chart(ctx, config)};
