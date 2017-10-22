@@ -602,19 +602,15 @@
         },
         selectors: [
           {
-            'type': '|',
+            'type': '&',
             'strict': [
-              ['resource', '/stream'],
-              ['resource', '/stream2']
-            ]
-          },
-          {
-            "type": "&",
+              ['resource', '/stream']
+            ],
             "gte": [
-              ["timeEnd", 1504677600]
+              ["timeStart", 1508122800]
             ],
             "lte": [
-              ["timeStart", 1504688400]
+              ["timeEnd", 1508144400]
             ]
           }
         ]
