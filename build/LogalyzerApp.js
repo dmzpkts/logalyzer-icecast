@@ -26,56 +26,125 @@ var LogalyzerApp = (function(QueryEditor, Nymph, LogEntry) { "use strict";
   blueGrey: 'rgb(84,110,122)'
 };
 
+///////////////////////////////////////
+//  Aggregetor Functions
+///////////////////////////////////////
+
 const extractBy = function(property, unknownIsCalled, appendProperty) {
   return function (entries) {
     const values = {};
-    const data = [];
+    const data = [], eventHandlers = {};
 
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
-      let value = entry.get(property);
+      const value = entry.get(property);
 
       if (!value || value === "-") {
         if (values[unknownIsCalled]) {
-          values[unknownIsCalled]++;
+          values[unknownIsCalled].value++;
         } else {
-          values[unknownIsCalled] = 1;
+          values[unknownIsCalled] = {value: 1};
         }
       } else {
+        let finalVal = value, valueAppend;
         if (appendProperty) {
-          let valueAppend = entry.get(appendProperty);
+          valueAppend = entry.get(appendProperty);
           if (!valueAppend) {
             valueAppend = '-';
           }
-          value += ' '+valueAppend;
+          finalVal += ' '+valueAppend;
         }
-        if (values[value]) {
-          values[value]++;
+        if (values[finalVal]) {
+          values[finalVal].value++;
         } else {
-          values[value] = 1;
+          if (appendProperty) {
+            values[finalVal] = {
+              propValue: value,
+              appendValue: valueAppend,
+              value: 1
+            };
+          } else {
+            values[finalVal] = {
+              propValue: value,
+              value: 1
+            };
+          }
         }
       }
     }
 
     // Convert every entry to an array.
     for (let k in values) {
+      const label = k + " (" + (Math.round(values[k].value / entries.length * 10000) / 100) + "%, " + values[k].value + ")";
       data.push({
-        x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
-        y: values[k]
+        x: label,
+        y: values[k].value
       });
+      if (k === unknownIsCalled) {
+        eventHandlers[label] = function(app) {
+          const selectors = app.get("selectors");
+          selectors.push({
+            type: "|",
+            strict: [
+              [property, "-"]
+            ],
+            "!isset": [property]
+          });
+          app.set({selectors});
+          alert("Added selector to filter for an unknown " + property + ".");
+        };
+      } else {
+        eventHandlers[label] = function(app) {
+          const selectors = app.get("selectors");
+          if (appendProperty) {
+            if (values[k].appendValue === "-") {
+              selectors.push({
+                type: "&",
+                "1": {
+                  type: "|",
+                  strict: [
+                    [appendProperty, "-"]
+                  ],
+                  "!isset": [appendProperty]
+                },
+                strict: [
+                  [property, values[k].propValue]
+                ]
+              });
+            } else {
+              selectors.push({
+                type: "&",
+                strict: [
+                  [property, values[k].propValue],
+                  [appendProperty, values[k].appendValue]
+                ]
+              });
+            }
+          } else {
+            selectors.push({
+              type: "&",
+              strict: [
+                [property, values[k].propValue]
+              ]
+            });
+          }
+          app.set({selectors});
+          alert("Added selector to filter for this " + property + (appendProperty ? " and " + appendProperty : "") + ".");
+        };
+      }
     }
 
     data.sort((a, b) => b.y - a.y);
 
-    return data;
+    return {data, eventHandlers};
   };
-}
+};
 
 const aggregateFunctions = {
   totalListenersOverTime: {
     name: "Total Listeners Over Time",
     axisLabel: "Listeners",
-    defaultChartFunction: "timeSeries",
+    defaultChartFunction: "timeSeriesSteppedArea",
     func: function (entries) {
   		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
@@ -124,7 +193,7 @@ const aggregateFunctions = {
         }
       }
 
-      return data;
+      return {data};
     }
   },
 
@@ -152,7 +221,7 @@ const aggregateFunctions = {
         "Unknown": 0
       };
       const refererDomainRegex = /^\w+:\/\/(?:www\.)?([A-Za-z0-9-:.]+)/g;
-      const data = [];
+      const data = [], eventHandlers = {};
 
       // Go through and parse out the domain of the referer.
       for (let i = 0; i < entries.length; i++) {
@@ -185,7 +254,7 @@ const aggregateFunctions = {
 
       data.sort((a, b) => b.y - a.y);
 
-      return data;
+      return {data, eventHandlers};
     }
   },
 
@@ -196,7 +265,7 @@ const aggregateFunctions = {
     func: function (entries) {
       const values = {};
       const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?[A-Za-z0-9-:.]+\/.*q=([^&]+)(?:&|$)/g;
-      const data = [];
+      const data = [], eventHandlers = {};
 
       // Go through and parse out the search terms and service.
       for (let i = 0; i < entries.length; i++) {
@@ -206,7 +275,7 @@ const aggregateFunctions = {
         if (!(!value || value === "-")) {
           const match = searchTermsByServiceRegex.exec(value);
           if (match !== null && match.length > 1) {
-            const key = decodeURIComponent(match[1].replace('+', ' '));
+            const key = decodeURIComponent(match[1].replace(/\+/g, ' '));
             if (values[key]) {
               values[key]++;
             } else {
@@ -218,15 +287,27 @@ const aggregateFunctions = {
 
       // Convert every entry to an array.
       for (let k in values) {
+        const label = k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")";
         data.push({
-          x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
+          x: label,
           y: values[k]
         });
+        eventHandlers[label] = function(app) {
+          const selectors = app.get("selectors");
+          selectors.push({
+            type: "&",
+            like: [
+              ["referer", "%q="+(encodeURIComponent(k).replace(/%20/g, '+').replace(/%/g, '\%').replace(/_/g, '\_'))+"%"]
+            ]
+          });
+          app.set({selectors});
+          alert("Added selector to filter for this searth term.");
+        };
       }
 
       data.sort((a, b) => b.y - a.y);
 
-      return data;
+      return {data, eventHandlers};
     }
   },
 
@@ -237,7 +318,7 @@ const aggregateFunctions = {
     func: function (entries) {
       const values = {};
       const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?([A-Za-z0-9-:.]+)\/.*q=([^&]+)(?:&|$)/g;
-      const data = [];
+      const data = [], eventHandlers = {};
 
       // Go through and parse out the search terms and service.
       for (let i = 0; i < entries.length; i++) {
@@ -247,7 +328,7 @@ const aggregateFunctions = {
         if (!(!value || value === "-")) {
           const match = searchTermsByServiceRegex.exec(value);
           if (match !== null && match.length > 2) {
-            const key = match[1] + ": " + decodeURIComponent(match[2].replace('+', ' '));
+            const key = match[1] + ": " + decodeURIComponent(match[2].replace(/\+/g, ' '));
             if (values[key]) {
               values[key]++;
             } else {
@@ -259,15 +340,27 @@ const aggregateFunctions = {
 
       // Convert every entry to an array.
       for (let k in values) {
+        const label = k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")";
         data.push({
-          x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
+          x: label,
           y: values[k]
         });
+        eventHandlers[label] = function(app) {
+          const selectors = app.get("selectors");
+          selectors.push({
+            type: "&",
+            like: [
+              ["referer", "%"+k.split(": ", 2)[0]+"/%q="+(encodeURIComponent(k.split(": ", 2)[1]).replace(/%20/g, '+').replace(/%/g, '\%').replace(/_/g, '\_'))+"%"]
+            ]
+          });
+          app.set({selectors});
+          alert("Added selector to filter for this searth term and service.");
+        };
       }
 
       data.sort((a, b) => b.y - a.y);
 
-      return data;
+      return {data, eventHandlers};
     }
   },
 
@@ -363,64 +456,109 @@ const aggregateFunctions = {
   },
 };
 
+///////////////////////////////////////
+//  Charting Functions
+///////////////////////////////////////
+
+const timeSeries = function(graphType, area, stepped) {
+  return function (app, label, axisLabel, data, canvas, eventHandlers) {
+    const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+
+    const color = Chart.helpers.color;
+    const config = {
+      type: graphType,
+      data: {
+        labels: [],
+        datasets: [{
+          label: axisLabel,
+          backgroundColor: color(chartColors.indigo).alpha(0.5).rgbString(),
+          borderColor: chartColors.indigo,
+          fill: !!area,
+          steppedLine: !!stepped,
+          lineTension: 0,
+          // cubicInterpolationMode: 'monotone',
+          data: data
+        }]
+      },
+      options: {
+        title:{
+          display: true,
+          text: label
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [{
+            type: "time",
+            time: {
+              format: timeFormat,
+              // round: 'day'
+              tooltipFormat: 'll HH:mm'
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Date / Time'
+            }
+          }, ],
+          yAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: axisLabel
+            }
+          }]
+        },
+        zoom: {
+            enabled: true,
+            mode: 'x',
+        },
+        onClick: function(ev, elements) {
+          if (
+              elements[0] !== undefined &&
+              elements[0]._model !== undefined &&
+              elements[0]._model.label !== undefined &&
+              eventHandlers !== undefined &&
+              eventHandlers.hasOwnProperty(elements[0]._model.label)
+            ) {
+            eventHandlers[elements[0]._model.label](app);
+          }
+        }
+      }
+    };
+
+    const ctx = canvas.getContext("2d");
+    return {context: ctx, chart: new Chart(ctx, config)};
+  }
+};
+
 const chartFunctions = {
-  timeSeries: {
-    name: "Time Series",
-    func: function (label, axisLabel, data, canvas) {
-  		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+  timeSeriesSteppedArea: {
+    name: "Time Series Stepped Area",
+    func: timeSeries("line", true, true)
+  },
 
-  		const color = Chart.helpers.color;
-  		const config = {
-  			type: 'line',
-  			data: {
-  				labels: [],
-  				datasets: [{
-  					label: axisLabel,
-  					backgroundColor: color(chartColors.indigo).alpha(0.5).rgbString(),
-  					borderColor: chartColors.indigo,
-  					fill: false,
-            cubicInterpolationMode: 'monotone',
-  					data: data
-  				}]
-  			},
-  			options: {
-          title:{
-            display: true,
-            text: label
-          },
-          responsive: true,
-          maintainAspectRatio: false,
-  				scales: {
-  					xAxes: [{
-  						type: "time",
-  						time: {
-  							format: timeFormat,
-  							// round: 'day'
-  							tooltipFormat: 'll HH:mm'
-  						},
-  						scaleLabel: {
-  							display: true,
-  							labelString: 'Date / Time'
-  						}
-  					}, ],
-  					yAxes: [{
-  						scaleLabel: {
-  							display: true,
-  							labelString: axisLabel
-  						}
-  					}]
-  				}
-  			}
-  		};
+  timeSeriesStepped: {
+    name: "Time Series Stepped",
+    func: timeSeries("line", false, true)
+  },
 
-			const ctx = canvas.getContext("2d");
-			return {context: ctx, chart: new Chart(ctx, config)};
-    }
+  timeSeriesLine: {
+    name: "Time Series Line",
+    func: timeSeries("line")
+  },
+
+  timeSeriesArea: {
+    name: "Time Series Area",
+    func: timeSeries("line", true)
+  },
+
+  timeSeriesBar: {
+    name: "Time Series Bar",
+    func: timeSeries("bar")
   },
 
   bar: {
     name: "Bar Chart",
-    func: function (label, axisLabel, data, canvas) {
+    func: function (app, label, axisLabel, data, canvas, eventHandlers) {
   		const color = Chart.helpers.color;
   		const config = {
         type: 'bar',
@@ -450,6 +588,17 @@ const chartFunctions = {
           title: {
             display: true,
             text: label + " (" + data.length + " total)"
+          },
+          onClick: function(ev, elements) {
+            if (
+                elements[0] !== undefined &&
+                elements[0]._model !== undefined &&
+                elements[0]._model.label !== undefined &&
+                eventHandlers !== undefined &&
+                eventHandlers.hasOwnProperty(elements[0]._model.label)
+              ) {
+              eventHandlers[elements[0]._model.label](app);
+            }
           }
         }
       };
@@ -461,7 +610,7 @@ const chartFunctions = {
 
   horizontalBar: {
     name: "Horizontal Bar Chart",
-    func: function (label, axisLabel, data, canvas) {
+    func: function (app, label, axisLabel, data, canvas, eventHandlers) {
   		const color = Chart.helpers.color;
   		const config = {
         type: 'horizontalBar',
@@ -491,6 +640,17 @@ const chartFunctions = {
           title: {
             display: true,
             text: label + " (" + data.length + " total)"
+          },
+          onClick: function(ev, elements) {
+            if (
+                elements[0] !== undefined &&
+                elements[0]._model !== undefined &&
+                elements[0]._model.label !== undefined &&
+                eventHandlers !== undefined &&
+                eventHandlers.hasOwnProperty(elements[0]._model.label)
+              ) {
+              eventHandlers[elements[0]._model.label](app);
+            }
           }
         }
       };
@@ -502,7 +662,7 @@ const chartFunctions = {
 
   pie: {
     name: "Pie Chart",
-    func: function (label, axisLabel, data, canvas) {
+    func: function (app, label, axisLabel, data, canvas, eventHandlers) {
   		const color = Chart.helpers.color;
       const chartColorsKeys = Object.keys(chartColors);
   		const config = {
@@ -521,6 +681,17 @@ const chartFunctions = {
           title: {
             display: true,
             text: label + " (" + data.length + " total)"
+          },
+          onClick: function(ev, elements) {
+            if (
+                elements[0] !== undefined &&
+                elements[0]._index !== undefined &&
+                data[elements[0]._index] !== undefined &&
+                eventHandlers !== undefined &&
+                eventHandlers.hasOwnProperty(data[elements[0]._index].x)
+              ) {
+              eventHandlers[data[elements[0]._index].x](app);
+            }
           }
         }
       };
@@ -532,13 +703,15 @@ const chartFunctions = {
 };
 
 const originalHash = window.location.hash.replace(/^#/, '');
+let currentHash = originalHash;
 
 function query(options, selectors) {
 		return [options, ...selectors];
 	}
 
 	function urlHashUpdate(aggregateFunction, chartFunction, options, selectors) {
-  window.location.hash = JSON.stringify({aggregateFunction, chartFunction, options, selectors});
+  currentHash = JSON.stringify({aggregateFunction, chartFunction, options, selectors});
+  window.location.hash = currentHash;
   return null;
 }
 
@@ -591,11 +764,13 @@ function query(options, selectors) {
       const aggFuncObj = aggregateFunctions[aggregateFunction];
       const chartFuncObj = chartFunctions[chartFunction];
       // Run the aggregator:
-      const data = aggFuncObj.func(entries);
+      const aggResults = aggFuncObj.func(entries);
+      const data = aggResults.data;
+      const eventHandlers = aggResults.eventHandlers;
 
       // Create the chart:
       this.set({
-        __currentChart: chartFuncObj.func(aggFuncObj.name, aggFuncObj.axisLabel, data, this.refs.canvas),
+        __currentChart: chartFuncObj.func(this, aggFuncObj.name, aggFuncObj.axisLabel, data, this.refs.canvas, eventHandlers),
         __loading: false
       });
     }, (err) => {
@@ -617,22 +792,34 @@ function query(options, selectors) {
 };
 
 	function oncreate() {
-  try {
-    const state = JSON.parse(originalHash);
-    this.set(state);
-  } catch (e) {
-    // ignore errors here.
-  }
+  const updateFromHash = (hash) => {
+    try {
+      const state = JSON.parse(hash);
+      this.set(state);
+    } catch (e) {
+      // ignore errors here.
+    }
+  };
+  updateFromHash(originalHash);
+  setInterval(() => {
+    // Compare the current hash with the window's hash. If the window's
+    // hash has been updated, update our state.
+    const windowHash = window.location.hash.replace(/^#/, '');
+    if (windowHash !== currentHash) {
+      currentHash = windowHash;
+      updateFromHash(currentHash);
+    }
+  }, 5);
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-585127094", "");
+		setAttribute(node, "svelte-982585325", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-585127094-style';
-		style.textContent = "[svelte-585127094].hidden,[svelte-585127094] .hidden{display:none}[svelte-585127094].chart-canvas,[svelte-585127094] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-585127094].loader,[svelte-585127094] .loader,[svelte-585127094].loader:after,[svelte-585127094] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-585127094].loader,[svelte-585127094] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-585127094-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-585127094]0%,[svelte-585127094] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-585127094]100%,[svelte-585127094] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-585127094-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-982585325-style';
+		style.textContent = "[svelte-982585325].hidden,[svelte-982585325] .hidden{display:none}[svelte-982585325].chart-canvas,[svelte-982585325] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-982585325].loader,[svelte-982585325] .loader,[svelte-982585325].loader:after,[svelte-982585325] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-982585325].loader,[svelte-982585325] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-982585325-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-982585325]0%,[svelte-982585325] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-982585325]100%,[svelte-982585325] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-982585325-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -821,7 +1008,7 @@ function query(options, selectors) {
 				div_3.className = div_3_class_value = "loader " + (state.__loading ? '' : 'hidden');
 				div_4.className = "chart-container";
 				setStyle(div_4, "position", "relative");
-				setStyle(div_4, "height", "100%");
+				setStyle(div_4, "height", "140%");
 				setStyle(div_4, "width", "100%");
 				canvas.className = "chart-canvas";
 			},
@@ -1160,7 +1347,7 @@ function query(options, selectors) {
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1 }, this._state);
 
-		if (!document.getElementById("svelte-585127094-style")) add_css();
+		if (!document.getElementById("svelte-982585325-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 
