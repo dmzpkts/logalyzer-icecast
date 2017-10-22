@@ -60,7 +60,7 @@ const extractBy = function(property, unknownIsCalled, appendProperty) {
     // Convert every entry to an array.
     for (let k in values) {
       data.push({
-        x: k + " (" + values[k] + ")",
+        x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
         y: values[k]
       });
     }
@@ -147,39 +147,39 @@ const aggregateFunctions = {
     axisLabel: "Requests",
     defaultChartFunction: "horizontalBar",
     func: function (entries) {
-      const referers = {
+      const values = {
         "Direct Request": 0,
         "Unknown": 0
       };
-      const refererDomainRegex = /^\w+:\/\/(?:www\.)?([A-Za-z-.]+)/g;
+      const refererDomainRegex = /^\w+:\/\/(?:www\.)?([A-Za-z0-9-:.]+)/g;
       const data = [];
 
       // Go through and parse out the domain of the referer.
       for (let i = 0; i < entries.length; i++) {
         const entry = entries[i];
-        const referer = entry.get("referer");
+        const value = entry.get("referer");
 
-        if (!referer || referer === "-") {
-          referers["Direct Request"]++;
+        if (!value || value === "-") {
+          values["Direct Request"]++;
         } else {
-          const match = refererDomainRegex.exec(referer);
+          const match = refererDomainRegex.exec(value);
           if (match !== null && match.length > 1) {
-            if (referers[match[1]]) {
-              referers[match[1]]++;
+            if (values[match[1]]) {
+              values[match[1]]++;
             } else {
-              referers[match[1]] = 1;
+              values[match[1]] = 1;
             }
           } else {
-            referers["Unknown"]++;
+            values["Unknown"]++;
           }
         }
       }
 
       // Convert every entry to an array.
-      for (let k in referers) {
+      for (let k in values) {
         data.push({
-          x: k,
-          y: referers[k]
+          x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
+          y: values[k]
         });
       }
 
@@ -297,7 +297,8 @@ const chartFunctions = {
   					backgroundColor: color(chartColors.indigo).alpha(0.5).rgbString(),
   					borderColor: chartColors.indigo,
   					fill: false,
-  					data: data,
+            cubicInterpolationMode: 'monotone',
+  					data: data
   				}]
   			},
   			options: {
@@ -324,16 +325,7 @@ const chartFunctions = {
   							labelString: axisLabel
   						}
   					}]
-  				},
-        	// pan: {
-        	// 	enabled: true,
-        	// 	mode: 'x'
-        	// },
-        	zoom: {
-        		enabled: true,
-        		// drag: true,
-        		mode: 'x'
-        	}
+  				}
   			}
   		};
 
@@ -372,17 +364,8 @@ const chartFunctions = {
           },
           title: {
             display: true,
-            text: label
-          },
-        	pan: {
-        		enabled: true,
-        		mode: 'xy'
-        	},
-        	zoom: {
-        		enabled: true,
-        		drag: true,
-        		mode: 'xy'
-        	}
+            text: label + " (" + data.length + " total)"
+          }
         }
       };
 
@@ -421,17 +404,8 @@ const chartFunctions = {
           },
           title: {
             display: true,
-            text: label
-          },
-        	pan: {
-        		enabled: true,
-        		mode: 'xy'
-        	},
-        	zoom: {
-        		enabled: true,
-        		drag: true,
-        		mode: 'xy'
-        	}
+            text: label + " (" + data.length + " total)"
+          }
         }
       };
 
@@ -459,7 +433,7 @@ const chartFunctions = {
           responsive: true,
           title: {
             display: true,
-            text: label
+            text: label + " (" + data.length + " total)"
           }
         }
       };
@@ -545,13 +519,13 @@ function query(options, selectors) {
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-86282820", "");
+		setAttribute(node, "svelte-2442405993", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-86282820-style';
-		style.textContent = "[svelte-86282820].hidden,[svelte-86282820] .hidden{display:none}[svelte-86282820].chart-canvas,[svelte-86282820] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-86282820].loader,[svelte-86282820] .loader,[svelte-86282820].loader:after,[svelte-86282820] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-86282820].loader,[svelte-86282820] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-86282820-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-86282820]0%,[svelte-86282820] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-86282820]100%,[svelte-86282820] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-86282820-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-2442405993-style';
+		style.textContent = "[svelte-2442405993].hidden,[svelte-2442405993] .hidden{display:none}[svelte-2442405993].chart-canvas,[svelte-2442405993] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2442405993].loader,[svelte-2442405993] .loader,[svelte-2442405993].loader:after,[svelte-2442405993] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2442405993].loader,[svelte-2442405993] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2442405993-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2442405993]0%,[svelte-2442405993] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2442405993]100%,[svelte-2442405993] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2442405993-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -1048,7 +1022,7 @@ function query(options, selectors) {
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1 }, this._state);
 
-		if (!document.getElementById("svelte-86282820-style")) add_css();
+		if (!document.getElementById("svelte-2442405993-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];

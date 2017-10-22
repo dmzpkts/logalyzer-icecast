@@ -166,8 +166,8 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
           console.log('\nCouldn\'t save log entry: ', entry, '\n');
         }
 
-        // Wait 10 msec between each request, to not overload the server.
-        await new Promise((r) => {setTimeout(() => r(), 10)});
+        // Wait 5 msec between each request, to not overload the server.
+        await new Promise((r) => {setTimeout(() => r(), 5)});
       }
       break;
     case 'prune':

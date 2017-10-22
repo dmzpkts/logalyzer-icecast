@@ -96,7 +96,7 @@
       // Convert every entry to an array.
       for (let k in values) {
         data.push({
-          x: k + " (" + values[k] + ")",
+          x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
           y: values[k]
         });
       }
@@ -183,39 +183,39 @@
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
       func: function (entries) {
-        const referers = {
+        const values = {
           "Direct Request": 0,
           "Unknown": 0
         };
-        const refererDomainRegex = /^\w+:\/\/(?:www\.)?([A-Za-z-.]+)/g;
+        const refererDomainRegex = /^\w+:\/\/(?:www\.)?([A-Za-z0-9-:.]+)/g;
         const data = [];
 
         // Go through and parse out the domain of the referer.
         for (let i = 0; i < entries.length; i++) {
           const entry = entries[i];
-          const referer = entry.get("referer");
+          const value = entry.get("referer");
 
-          if (!referer || referer === "-") {
-            referers["Direct Request"]++;
+          if (!value || value === "-") {
+            values["Direct Request"]++;
           } else {
-            const match = refererDomainRegex.exec(referer);
+            const match = refererDomainRegex.exec(value);
             if (match !== null && match.length > 1) {
-              if (referers[match[1]]) {
-                referers[match[1]]++;
+              if (values[match[1]]) {
+                values[match[1]]++;
               } else {
-                referers[match[1]] = 1;
+                values[match[1]] = 1;
               }
             } else {
-              referers["Unknown"]++;
+              values["Unknown"]++;
             }
           }
         }
 
         // Convert every entry to an array.
-        for (let k in referers) {
+        for (let k in values) {
           data.push({
-            x: k,
-            y: referers[k]
+            x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
+            y: values[k]
           });
         }
 
@@ -333,7 +333,8 @@
     					backgroundColor: color(chartColors.indigo).alpha(0.5).rgbString(),
     					borderColor: chartColors.indigo,
     					fill: false,
-    					data: data,
+              cubicInterpolationMode: 'monotone',
+    					data: data
     				}]
     			},
     			options: {
@@ -360,16 +361,7 @@
     							labelString: axisLabel
     						}
     					}]
-    				},
-          	// pan: {
-          	// 	enabled: true,
-          	// 	mode: 'x'
-          	// },
-          	zoom: {
-          		enabled: true,
-          		// drag: true,
-          		mode: 'x'
-          	}
+    				}
     			}
     		};
 
@@ -408,17 +400,8 @@
             },
             title: {
               display: true,
-              text: label
-            },
-          	pan: {
-          		enabled: true,
-          		mode: 'xy'
-          	},
-          	zoom: {
-          		enabled: true,
-          		drag: true,
-          		mode: 'xy'
-          	}
+              text: label + " (" + data.length + " total)"
+            }
           }
         };
 
@@ -457,17 +440,8 @@
             },
             title: {
               display: true,
-              text: label
-            },
-          	pan: {
-          		enabled: true,
-          		mode: 'xy'
-          	},
-          	zoom: {
-          		enabled: true,
-          		drag: true,
-          		mode: 'xy'
-          	}
+              text: label + " (" + data.length + " total)"
+            }
           }
         };
 
@@ -495,7 +469,7 @@
             responsive: true,
             title: {
               display: true,
-              text: label
+              text: label + " (" + data.length + " total)"
             }
           }
         };
