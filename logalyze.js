@@ -26,8 +26,22 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
         printHelp();
         return;
       }
-      console.log(`Beginning reading input file ${argv.f}...`);
-      const lineReader = new nReadlines(argv.f);
+
+      let inputFile, uncompressedFile;
+      if (argv.f.match(/\.gz$/)) {
+        // Uncompress the gzipped log file.
+        console.log("Uncompressing input file to temporary file.");
+
+        const compressing = require('compressing');
+        uncompressedFile = argv.f.replace(/\.gz$/, "");
+        await compressing.gzip.uncompress(argv.f, uncompressedFile);
+        inputFile = uncompressedFile;
+      } else {
+        inputFile = argv.f;
+      }
+
+      console.log(`Beginning reading input file ${inputFile}...`);
+      const lineReader = new nReadlines(inputFile);
       let i = 0, liner;
       while (liner = lineReader.next()) {
         const line = liner.toString('utf-8');
@@ -167,7 +181,12 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
         }
 
         // Wait 5 msec between each request, to not overload the server.
-        await new Promise((r) => {setTimeout(() => r(), 5)});
+        // await new Promise((r) => {setTimeout(() => r(), 5)});
+      }
+
+      if (argv.f.match(/\.gz$/)) {
+        console.log("Removing uncompressed input file.");
+        fs.unlinkSync(inputFile);
       }
       break;
     case 'prune':

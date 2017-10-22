@@ -4,7 +4,7 @@
     {{#if __showQueryEditor}}Hide{{else}}Show{{/if}} Query Editor
   </button>
   <span>
-    Aggregrate Function:
+    Aggregrator:
     <select bind:value="aggregateFunction" on:change="set({chartFunction: __aggregateFunctions[aggregateFunction].defaultChartFunction})">
       {{#each __aggregateFunctionsKeys as key}}
         <option value="{{key}}">
@@ -14,7 +14,7 @@
     </select>
   </span>
   <span>
-    Chart Function:
+    Chart:
     <select bind:value="chartFunction">
       {{#each __chartFunctionsKeys as key}}
         <option value="{{key}}">
@@ -28,10 +28,16 @@
   </div>
   <hr />
 
-  <h1>Logalyzer Results</h1>
-	<div>
+  <h1>
+    Logalyzer Results
+    <button on:click="increaseChartHeight()">Increase Height</button>
+    <button on:click="decreaseChartHeight()">Decrease Height</button>
+  </h1>
+	<div style="position: relative; height: 60vh;">
     <div class="loader {{__loading ? '' : 'hidden'}}"></div>
-		<canvas class="chart-canvas" ref:canvas></canvas>
+    <div class="chart-container" ref:canvascontainer style="position: relative; height: 100%; width: 100%">
+		    <canvas class="chart-canvas" ref:canvas></canvas>
+    </div>
 	</div>
 </div>
 
@@ -225,6 +231,88 @@
       }
     },
 
+    searchTerms: {
+      name: "Search Terms",
+      axisLabel: "Requests",
+      defaultChartFunction: "horizontalBar",
+      func: function (entries) {
+        const values = {};
+        const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?[A-Za-z0-9-:.]+\/.*q=([^&]+)(?:&|$)/g;
+        const data = [];
+
+        // Go through and parse out the search terms and service.
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const value = entry.get("referer");
+
+          if (!(!value || value === "-")) {
+            const match = searchTermsByServiceRegex.exec(value);
+            if (match !== null && match.length > 1) {
+              const key = decodeURIComponent(match[1].replace('+', ' '));
+              if (values[key]) {
+                values[key]++;
+              } else {
+                values[key] = 1;
+              }
+            }
+          }
+        }
+
+        // Convert every entry to an array.
+        for (let k in values) {
+          data.push({
+            x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
+            y: values[k]
+          });
+        }
+
+        data.sort((a, b) => b.y - a.y);
+
+        return data;
+      }
+    },
+
+    searchTermsByService: {
+      name: "Search Terms by Service",
+      axisLabel: "Requests",
+      defaultChartFunction: "horizontalBar",
+      func: function (entries) {
+        const values = {};
+        const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?([A-Za-z0-9-:.]+)\/.*q=([^&]+)(?:&|$)/g;
+        const data = [];
+
+        // Go through and parse out the search terms and service.
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const value = entry.get("referer");
+
+          if (!(!value || value === "-")) {
+            const match = searchTermsByServiceRegex.exec(value);
+            if (match !== null && match.length > 2) {
+              const key = match[1] + ": " + decodeURIComponent(match[2].replace('+', ' '));
+              if (values[key]) {
+                values[key]++;
+              } else {
+                values[key] = 1;
+              }
+            }
+          }
+        }
+
+        // Convert every entry to an array.
+        for (let k in values) {
+          data.push({
+            x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
+            y: values[k]
+          });
+        }
+
+        data.sort((a, b) => b.y - a.y);
+
+        return data;
+      }
+    },
+
     allReferers: {
       name: "All Referers",
       axisLabel: "Requests",
@@ -342,6 +430,8 @@
               display: true,
               text: label
             },
+            responsive: true,
+            maintainAspectRatio: false,
     				scales: {
     					xAxes: [{
     						type: "time",
@@ -395,6 +485,7 @@
               }
             },
             responsive: true,
+            maintainAspectRatio: false,
             legend: {
               display: false,
             },
@@ -435,6 +526,7 @@
               }
             },
             responsive: true,
+            maintainAspectRatio: false,
             legend: {
               display: false,
             },
@@ -467,6 +559,7 @@
           },
           options: {
             responsive: true,
+            maintainAspectRatio: false,
             title: {
               display: true,
               text: label + " (" + data.length + " total)"
@@ -480,7 +573,18 @@
     }
   };
 
+  const originalHash = window.location.hash.replace(/^#/, '');
+
   export default {
+    oncreate () {
+      try {
+        const state = JSON.parse(originalHash);
+        this.set(state);
+      } catch (e) {
+        // ignore errors here.
+      }
+    },
+
     data () {
       return {
         __supportedClasses: [LogEntry],
@@ -519,6 +623,10 @@
 
     computed: {
       query: (options, selectors) => [options, ...selectors],
+      urlHashUpdate: (aggregateFunction, chartFunction, options, selectors) => {
+        window.location.hash = JSON.stringify({aggregateFunction, chartFunction, options, selectors});
+        return null;
+      }
     },
 
     methods: {
@@ -552,6 +660,14 @@
 
       toggleQueryEditor () {
         this.set({__showQueryEditor: !this.get("__showQueryEditor")});
+      },
+
+      increaseChartHeight () {
+        this.refs.canvascontainer.style.height = (parseInt(this.refs.canvascontainer.style.height, 10) + 40) + "%";
+      },
+
+      decreaseChartHeight () {
+        this.refs.canvascontainer.style.height = (parseInt(this.refs.canvascontainer.style.height, 10) - 40) + "%";
       }
     },
 

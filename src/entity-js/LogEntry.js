@@ -13,7 +13,6 @@ export default class LogEntry extends Entity {
 
   constructor(id) {
     super(id);
-    this.data.line = null;
   }
 
   // === Instance Methods ===

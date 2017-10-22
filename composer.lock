@@ -4,6 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
+    "hash": "30661b9ed49da5c26c9d79a1229001b8",
     "content-hash": "4aa3cf024587658bdd86c075d785cde9",
     "packages": [
         {
@@ -60,7 +61,7 @@
                 "postgres",
                 "postgresql"
             ],
-            "time": "2017-10-18T00:00:00+00:00"
+            "time": "2017-10-18 00:00:00"
         },
         {
             "name": "sciactive/requirephp",
@@ -106,7 +107,7 @@
                 "service location",
                 "service locator"
             ],
-            "time": "2015-02-19T00:00:00+00:00"
+            "time": "2015-02-19 00:00:00"
         }
     ],
     "packages-dev": [],

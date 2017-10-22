@@ -33,10 +33,7 @@ var LogEntry = function (_Entity) {
   function LogEntry(id) {
     _classCallCheck(this, LogEntry);
 
-    var _this = _possibleConstructorReturn(this, (LogEntry.__proto__ || Object.getPrototypeOf(LogEntry)).call(this, id));
-
-    _this.data.line = null;
-    return _this;
+    return _possibleConstructorReturn(this, (LogEntry.__proto__ || Object.getPrototypeOf(LogEntry)).call(this, id));
   }
 
   // === Instance Methods ===

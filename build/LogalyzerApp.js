@@ -189,6 +189,88 @@ const aggregateFunctions = {
     }
   },
 
+  searchTerms: {
+    name: "Search Terms",
+    axisLabel: "Requests",
+    defaultChartFunction: "horizontalBar",
+    func: function (entries) {
+      const values = {};
+      const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?[A-Za-z0-9-:.]+\/.*q=([^&]+)(?:&|$)/g;
+      const data = [];
+
+      // Go through and parse out the search terms and service.
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const value = entry.get("referer");
+
+        if (!(!value || value === "-")) {
+          const match = searchTermsByServiceRegex.exec(value);
+          if (match !== null && match.length > 1) {
+            const key = decodeURIComponent(match[1].replace('+', ' '));
+            if (values[key]) {
+              values[key]++;
+            } else {
+              values[key] = 1;
+            }
+          }
+        }
+      }
+
+      // Convert every entry to an array.
+      for (let k in values) {
+        data.push({
+          x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
+          y: values[k]
+        });
+      }
+
+      data.sort((a, b) => b.y - a.y);
+
+      return data;
+    }
+  },
+
+  searchTermsByService: {
+    name: "Search Terms by Service",
+    axisLabel: "Requests",
+    defaultChartFunction: "horizontalBar",
+    func: function (entries) {
+      const values = {};
+      const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?([A-Za-z0-9-:.]+)\/.*q=([^&]+)(?:&|$)/g;
+      const data = [];
+
+      // Go through and parse out the search terms and service.
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const value = entry.get("referer");
+
+        if (!(!value || value === "-")) {
+          const match = searchTermsByServiceRegex.exec(value);
+          if (match !== null && match.length > 2) {
+            const key = match[1] + ": " + decodeURIComponent(match[2].replace('+', ' '));
+            if (values[key]) {
+              values[key]++;
+            } else {
+              values[key] = 1;
+            }
+          }
+        }
+      }
+
+      // Convert every entry to an array.
+      for (let k in values) {
+        data.push({
+          x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
+          y: values[k]
+        });
+      }
+
+      data.sort((a, b) => b.y - a.y);
+
+      return data;
+    }
+  },
+
   allReferers: {
     name: "All Referers",
     axisLabel: "Requests",
@@ -306,6 +388,8 @@ const chartFunctions = {
             display: true,
             text: label
           },
+          responsive: true,
+          maintainAspectRatio: false,
   				scales: {
   					xAxes: [{
   						type: "time",
@@ -359,6 +443,7 @@ const chartFunctions = {
             }
           },
           responsive: true,
+          maintainAspectRatio: false,
           legend: {
             display: false,
           },
@@ -399,6 +484,7 @@ const chartFunctions = {
             }
           },
           responsive: true,
+          maintainAspectRatio: false,
           legend: {
             display: false,
           },
@@ -431,6 +517,7 @@ const chartFunctions = {
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           title: {
             display: true,
             text: label + " (" + data.length + " total)"
@@ -444,9 +531,16 @@ const chartFunctions = {
   }
 };
 
+const originalHash = window.location.hash.replace(/^#/, '');
+
 function query(options, selectors) {
 		return [options, ...selectors];
 	}
+
+	function urlHashUpdate(aggregateFunction, chartFunction, options, selectors) {
+  window.location.hash = JSON.stringify({aggregateFunction, chartFunction, options, selectors});
+  return null;
+}
 
 	function data() {
   return {
@@ -515,22 +609,39 @@ function query(options, selectors) {
 
   toggleQueryEditor () {
     this.set({__showQueryEditor: !this.get("__showQueryEditor")});
+  },
+
+  increaseChartHeight () {
+    this.refs.canvascontainer.style.height = (parseInt(this.refs.canvascontainer.style.height, 10) + 40) + "%";
+  },
+
+  decreaseChartHeight () {
+    this.refs.canvascontainer.style.height = (parseInt(this.refs.canvascontainer.style.height, 10) - 40) + "%";
+  }
+};
+
+	function oncreate() {
+  try {
+    const state = JSON.parse(originalHash);
+    this.set(state);
+  } catch (e) {
+    // ignore errors here.
   }
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2442405993", "");
+		setAttribute(node, "svelte-349579791", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2442405993-style';
-		style.textContent = "[svelte-2442405993].hidden,[svelte-2442405993] .hidden{display:none}[svelte-2442405993].chart-canvas,[svelte-2442405993] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2442405993].loader,[svelte-2442405993] .loader,[svelte-2442405993].loader:after,[svelte-2442405993] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2442405993].loader,[svelte-2442405993] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2442405993-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2442405993]0%,[svelte-2442405993] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2442405993]100%,[svelte-2442405993] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2442405993-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-349579791-style';
+		style.textContent = "[svelte-349579791].hidden,[svelte-349579791] .hidden{display:none}[svelte-349579791].chart-canvas,[svelte-349579791] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-349579791].loader,[svelte-349579791] .loader,[svelte-349579791].loader:after,[svelte-349579791] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-349579791].loader,[svelte-349579791] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-349579791-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-349579791]0%,[svelte-349579791] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-349579791]100%,[svelte-349579791] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-349579791-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
 	function create_main_fragment(state, component) {
-		var div, button, text_1, button_1, text_2, text_3, span, text_4, select, select_updating = false, text_6, span_1, text_7, select_1, select_1_updating = false, text_9, div_1, div_1_class_value, queryeditor_updating = {}, text_11, hr, text_12, h1, text_14, div_2, div_3, div_3_class_value, text_15, canvas;
+		var div, button, text_1, button_1, text_2, text_3, span, text_4, select, select_updating = false, text_6, span_1, text_7, select_1, select_1_updating = false, text_9, div_1, div_1_class_value, queryeditor_updating = {}, text_11, hr, text_12, h1, text_13, button_2, text_15, button_3, text_18, div_2, div_3, div_3_class_value, text_19, div_4, canvas;
 
 		function click_handler(event) {
 			component.runQuery();
@@ -636,6 +747,14 @@ function query(options, selectors) {
 			state: state
 		};
 
+		function click_handler_2(event) {
+			component.increaseChartHeight();
+		}
+
+		function click_handler_3(event) {
+			component.decreaseChartHeight();
+		}
+
 		return {
 			c: function create() {
 				div = createElement("div");
@@ -647,7 +766,7 @@ function query(options, selectors) {
 				text_2 = createText(" Query Editor");
 				text_3 = createText("\n  ");
 				span = createElement("span");
-				text_4 = createText("Aggregrate Function:\n    ");
+				text_4 = createText("Aggregrator:\n    ");
 				select = createElement("select");
 
 				for (var i = 0; i < each_blocks.length; i += 1) {
@@ -656,7 +775,7 @@ function query(options, selectors) {
 
 				text_6 = createText("\n  ");
 				span_1 = createElement("span");
-				text_7 = createText("Chart Function:\n    ");
+				text_7 = createText("Chart:\n    ");
 				select_1 = createElement("select");
 
 				for (var i = 0; i < each_1_blocks.length; i += 1) {
@@ -670,11 +789,17 @@ function query(options, selectors) {
 				hr = createElement("hr");
 				text_12 = createText("\n\n  ");
 				h1 = createElement("h1");
-				h1.textContent = "Logalyzer Results";
-				text_14 = createText("\n\t");
+				text_13 = createText("Logalyzer Results\n    ");
+				button_2 = createElement("button");
+				button_2.textContent = "Increase Height";
+				text_15 = createText("\n    ");
+				button_3 = createElement("button");
+				button_3.textContent = "Decrease Height";
+				text_18 = createText("\n\t");
 				div_2 = createElement("div");
 				div_3 = createElement("div");
-				text_15 = createText("\n\t\t");
+				text_19 = createText("\n    ");
+				div_4 = createElement("div");
 				canvas = createElement("canvas");
 				this.h();
 			},
@@ -693,7 +818,15 @@ function query(options, selectors) {
 
 				addListener(select_1, "change", select_1_change_handler);
 				div_1.className = div_1_class_value = state.__showQueryEditor ? '' : 'hidden';
+				addListener(button_2, "click", click_handler_2);
+				addListener(button_3, "click", click_handler_3);
+				setStyle(div_2, "position", "relative");
+				setStyle(div_2, "height", "60vh");
 				div_3.className = div_3_class_value = "loader " + (state.__loading ? '' : 'hidden');
+				div_4.className = "chart-container";
+				setStyle(div_4, "position", "relative");
+				setStyle(div_4, "height", "100%");
+				setStyle(div_4, "width", "100%");
 				canvas.className = "chart-canvas";
 			},
 
@@ -749,11 +882,17 @@ function query(options, selectors) {
 				appendNode(hr, div);
 				appendNode(text_12, div);
 				appendNode(h1, div);
-				appendNode(text_14, div);
+				appendNode(text_13, h1);
+				appendNode(button_2, h1);
+				appendNode(text_15, h1);
+				appendNode(button_3, h1);
+				appendNode(text_18, div);
 				appendNode(div_2, div);
 				appendNode(div_3, div_2);
-				appendNode(text_15, div_2);
-				appendNode(canvas, div_2);
+				appendNode(text_19, div_2);
+				appendNode(div_4, div_2);
+				component.refs.canvascontainer = div_4;
+				appendNode(canvas, div_4);
 				component.refs.canvas = canvas;
 			},
 
@@ -884,6 +1023,9 @@ function query(options, selectors) {
 
 				removeListener(select_1, "change", select_1_change_handler);
 				queryeditor.destroy(false);
+				removeListener(button_2, "click", click_handler_2);
+				removeListener(button_3, "click", click_handler_3);
+				if (component.refs.canvascontainer === div_4) component.refs.canvascontainer = null;
 				if (component.refs.canvas === canvas) component.refs.canvas = null;
 			}
 		};
@@ -1020,15 +1162,19 @@ function query(options, selectors) {
 		init(this, options);
 		this.refs = {};
 		this._state = assign(data(), options.data);
-		this._recompute({ options: 1, selectors: 1 }, this._state);
+		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2442405993-style")) add_css();
+		if (!document.getElementById("svelte-349579791-style")) add_css();
+
+		var _oncreate = oncreate.bind(this);
 
 		if (!options._root) {
-			this._oncreate = [];
+			this._oncreate = [_oncreate];
 			this._beforecreate = [];
 			this._aftercreate = [];
-		}
+		} else {
+		 	this._root._oncreate.push(_oncreate);
+		 }
 
 		this._fragment = create_main_fragment(this._state, this);
 
@@ -1060,6 +1206,10 @@ function query(options, selectors) {
 	LogalyzerApp.prototype._recompute = function _recompute(changed, state) {
 		if (changed.options || changed.selectors) {
 			if (differs(state.query, (state.query = query(state.options, state.selectors)))) changed.query = true;
+		}
+
+		if (changed.aggregateFunction || changed.chartFunction || changed.options || changed.selectors) {
+			if (differs(state.urlHashUpdate, (state.urlHashUpdate = urlHashUpdate(state.aggregateFunction, state.chartFunction, state.options, state.selectors)))) changed.urlHashUpdate = true;
 		}
 	}
 
@@ -1094,6 +1244,10 @@ function query(options, selectors) {
 
 	function addListener(node, event, handler) {
 		node.addEventListener(event, handler, false);
+	}
+
+	function setStyle(node, key, value) {
+		node.style.setProperty(key, value);
 	}
 
 	function insertNode(node, target, anchor) {

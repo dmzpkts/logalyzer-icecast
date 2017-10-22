@@ -39,7 +39,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
     },
     options: {},
     selectors: [],
-    showQuery: true
+    showQuery: false
   }
 };
 
@@ -114,13 +114,13 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-3708926793", "");
+		setAttribute(node, "svelte-2650927004", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-3708926793-style';
-		style.textContent = "[svelte-3708926793].query-editor,[svelte-3708926793] .query-editor{font-family:monospace}[svelte-3708926793].options-editor,[svelte-3708926793] .options-editor,[svelte-3708926793].selector-editor,[svelte-3708926793] .selector-editor,[svelte-3708926793].selector-editor .selector,[svelte-3708926793] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-3708926793].options-editor .option,[svelte-3708926793] .options-editor .option,[svelte-3708926793].selector-editor .selector .clause,[svelte-3708926793] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-3708926793].query-result,[svelte-3708926793] .query-result{border:1px solid}[svelte-3708926793].query-result .query,[svelte-3708926793] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}[svelte-3708926793].help-dialog-container,[svelte-3708926793] .help-dialog-container{display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;bottom:0;right:0;background-color:rgba(0, 0, 0, 0.3)}[svelte-3708926793].help-dialog,[svelte-3708926793] .help-dialog{display:flex;flex-direction:column;box-shadow:0px 5px 36px 0px rgba(0,0,0,0.25);background-color:#fff;padding:2em;max-height:80vh;max-width:80vw;overflow:auto}[svelte-3708926793].help-dialog > *,[svelte-3708926793] .help-dialog > *{margin-bottom:1em}[svelte-3708926793].help-dialog > *:last-child,[svelte-3708926793] .help-dialog > *:last-child{margin-bottom:0}[svelte-3708926793].help-dialog .actions,[svelte-3708926793] .help-dialog .actions{display:flex;flex-direction:row;justify-content:flex-end;align-items:center}[svelte-3708926793].help-dialog .actions > *,[svelte-3708926793] .help-dialog .actions > *{margin-left:1em}";
+		style.id = 'svelte-2650927004-style';
+		style.textContent = "[svelte-2650927004].query-editor,[svelte-2650927004] .query-editor{font-family:monospace}[svelte-2650927004].options-editor,[svelte-2650927004] .options-editor,[svelte-2650927004].selector-editor,[svelte-2650927004] .selector-editor,[svelte-2650927004].selector-editor .selector,[svelte-2650927004] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-2650927004].options-editor .option,[svelte-2650927004] .options-editor .option,[svelte-2650927004].selector-editor .selector .clause,[svelte-2650927004] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-2650927004].query-result,[svelte-2650927004] .query-result{border:1px solid}[svelte-2650927004].query-result .query,[svelte-2650927004] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}[svelte-2650927004].help-dialog-container,[svelte-2650927004] .help-dialog-container{display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;bottom:0;right:0;background-color:rgba(0, 0, 0, 0.3)}[svelte-2650927004].help-dialog,[svelte-2650927004] .help-dialog{display:flex;flex-direction:column;box-shadow:0px 5px 36px 0px rgba(0,0,0,0.25);background-color:#fff;padding:2em;max-height:80vh;max-width:80vw;overflow:auto}[svelte-2650927004].help-dialog > *,[svelte-2650927004] .help-dialog > *{margin-bottom:1em}[svelte-2650927004].help-dialog > *:last-child,[svelte-2650927004] .help-dialog > *:last-child{margin-bottom:0}[svelte-2650927004].help-dialog .actions,[svelte-2650927004] .help-dialog .actions{display:flex;flex-direction:row;justify-content:flex-end;align-items:center}[svelte-2650927004].help-dialog .actions > *,[svelte-2650927004] .help-dialog .actions > *{margin-left:1em}";
 		appendNode(style, document.head);
 	}
 
@@ -1238,7 +1238,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, supportedOptions: 1, selectors: 1 }, this._state);
 
-		if (!document.getElementById("svelte-3708926793-style")) add_css();
+		if (!document.getElementById("svelte-2650927004-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];
