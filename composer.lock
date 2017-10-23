@@ -4,21 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "30661b9ed49da5c26c9d79a1229001b8",
-    "content-hash": "4aa3cf024587658bdd86c075d785cde9",
+    "content-hash": "27d1353612ff659f6e03212a941dfc41",
     "packages": [
         {
             "name": "sciactive/nymph-server",
-            "version": "1.6.2",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sciactive/nymph-server.git",
-                "reference": "04cf4295f25d9420adced29c632a0b6a44ff3be6"
+                "reference": "c29d931276619f33fc455654e9b6d07cdbdec88d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sciactive/nymph-server/zipball/04cf4295f25d9420adced29c632a0b6a44ff3be6",
-                "reference": "04cf4295f25d9420adced29c632a0b6a44ff3be6",
+                "url": "https://api.github.com/repos/sciactive/nymph-server/zipball/c29d931276619f33fc455654e9b6d07cdbdec88d",
+                "reference": "c29d931276619f33fc455654e9b6d07cdbdec88d",
                 "shasum": ""
             },
             "require": {
@@ -61,7 +60,7 @@
                 "postgres",
                 "postgresql"
             ],
-            "time": "2017-10-18 00:00:00"
+            "time": "2017-10-22T00:00:00+00:00"
         },
         {
             "name": "sciactive/requirephp",
@@ -107,7 +106,7 @@
                 "service location",
                 "service locator"
             ],
-            "time": "2015-02-19 00:00:00"
+            "time": "2015-02-19T00:00:00+00:00"
         }
     ],
     "packages-dev": [],

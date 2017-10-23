@@ -3,7 +3,7 @@
     "description": "Icecast Log Analyzer.",
     "type": "project",
     "require": {
-        "sciactive/nymph-server": "^1.6"
+        "sciactive/nymph-server": "^2.0"
     },
     "license": "Apache-2.0",
     "authors": [
