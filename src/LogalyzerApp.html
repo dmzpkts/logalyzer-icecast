@@ -127,6 +127,9 @@
             const selectors = app.get("selectors");
             selectors.push({
               type: "|",
+              data: [
+                [property, false]
+              ],
               strict: [
                 [property, "-"]
               ],
@@ -144,6 +147,9 @@
                   type: "&",
                   "1": {
                     type: "|",
+                    data: [
+                      [appendProperty, false]
+                    ],
                     strict: [
                       [appendProperty, "-"]
                     ],
