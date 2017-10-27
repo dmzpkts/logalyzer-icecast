@@ -89,19 +89,19 @@
       return _possibleConstructorReturn(this, (LogEntry.__proto__ || Object.getPrototypeOf(LogEntry)).call(this, id));
     }
 
-    // === Instance Methods ===
+    // === Static Methods ===
 
     // The name of the server class
 
 
-    _createClass(LogEntry, [{
-      key: "archive",
-      value: function archive() {
+    _createClass(LogEntry, null, [{
+      key: "getIpInfo",
+      value: function getIpInfo() {
         for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
           args[_key] = arguments[_key];
         }
 
-        return this.serverCall('archive', args);
+        return LogEntry.serverCallStatic('getIpInfo', args);
       }
     }]);
 

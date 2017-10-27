@@ -1,5 +1,7 @@
 <?php
 
+use MaxMind\Db\Reader;
+
 /**
  * @property string $line The log entry's original log line.
  * @property string $remoteHost
@@ -28,10 +30,19 @@
  * @property string $method
  * @property string $resource
  * @property string $protocol
+ * @property string $timeZone
+ * @property string $continentCode
+ * @property string $continent
+ * @property string $countryCode
+ * @property string $country
+ * @property string $provinceCode
+ * @property string $province
+ * @property string $postalCode
+ * @property string $city
  */
 class LogEntry extends \Nymph\Entity {
   const ETYPE = 'logentry';
-  protected $clientEnabledMethods = ['archive'];
+  static $clientEnabledStaticMethods = ['getIpInfo'];
   protected $whitelistData = [
     'line',
     'remoteHost',
@@ -59,7 +70,17 @@ class LogEntry extends \Nymph\Entity {
     'timeEnd',
     'method',
     'resource',
-    'protocol'];
+    'protocol',
+    'timeZone',
+    'continentCode',
+    'continent',
+    'countryCode',
+    'country',
+    'provinceCode',
+    'province',
+    'postalCode',
+    'city'
+  ];
   protected $protectedTags = ['archived'];
   protected $whitelistTags = [];
 
@@ -68,22 +89,25 @@ class LogEntry extends \Nymph\Entity {
     parent::__construct($id);
   }
 
-  public function info($type) {
-    if ($type == 'name' && isset($this->line)) {
-      return $this->line;
-    } elseif ($type == 'type') {
-      return 'log entry';
-    } elseif ($type == 'types') {
-      return 'log entries';
-    }
-    return null;
-  }
+  public static function getIpInfo($ipAddress) {
+    $databaseFile = '../geolite2db/GeoLite2-City.mmdb';
 
-  public function archive() {
-    if ($this->hasTag('archived')) {
-      return true;
-    }
-    $this->addTag('archived');
-    return $this->save();
+    $reader = new Reader($databaseFile);
+
+    $ipInfo = $reader->get($ipAddress);
+
+    $returnInfo = [
+      'timeZone' => @$ipInfo['location']['time_zone'],
+      'continentCode' => @$ipInfo['continent']['code'],
+      'continent' => @$ipInfo['continent']['names']['en'],
+      'countryCode' => @$ipInfo['country']['iso_code'],
+      'country' => @$ipInfo['country']['names']['en'],
+      'provinceCode' => @$ipInfo['subdivisions'][0]['iso_code'],
+      'province' => @$ipInfo['subdivisions'][0]['names']['en'],
+      'postalCode' => @$ipInfo['postal']['code'],
+      'city' => @$ipInfo['city']['names']['en'],
+    ];
+
+    return $returnInfo;
   }
 }

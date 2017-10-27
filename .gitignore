@@ -2,3 +2,4 @@ node_modules
 vendor
 .idea
 .DS_Store
+geolite2db/GeoLite2-City.mmdb

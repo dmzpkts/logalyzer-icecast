@@ -454,6 +454,97 @@ const aggregateFunctions = {
     func: extractBy("userAgent", "Unknown")
   },
 
+  timeZone: {
+    name: "Timezone",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("timeZone", "Unknown")
+  },
+
+  continentCode: {
+    name: "Continent Code",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("continentCode", "Unknown")
+  },
+
+  continent: {
+    name: "Continent",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("continent", "Unknown")
+  },
+
+  countryCode: {
+    name: "Country Code",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("countryCode", "Unknown")
+  },
+
+  country: {
+    name: "Country",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("country", "Unknown")
+  },
+
+  provinceCode: {
+    name: "Province Code",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("provinceCode", "Unknown")
+  },
+
+  province: {
+    name: "Province",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("province", "Unknown")
+  },
+
+  postalCode: {
+    name: "Postal Code",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("postalCode", "Unknown")
+  },
+
+  city: {
+    name: "City",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("city", "Unknown")
+  },
+
+  countryProvince: {
+    name: "Country and Province",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("country", "Unknown", "province")
+  },
+
+  countryCity: {
+    name: "Country and City",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("country", "Unknown", "city")
+  },
+
+  countryPostalCode: {
+    name: "Country and Postal Code",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("country", "Unknown", "postalCode")
+  },
+
+  provinceCity: {
+    name: "Province and City",
+    axisLabel: "Requests",
+    defaultChartFunction: "pie",
+    func: extractBy("province", "Unknown", "city")
+  },
+
   responseStatusCode: {
     name: "Response Status Code",
     axisLabel: "Requests",
@@ -732,7 +823,7 @@ function query(options, selectors) {
     __aggregateFunctionsKeys: Object.keys(aggregateFunctions),
     __chartFunctionsKeys: Object.keys(chartFunctions),
     aggregateFunction: "totalListenersOverTime",
-    chartFunction: "timeSeries",
+    chartFunction: "timeSeriesSteppedArea",
     options: {
       'class': LogEntry.class
     },
@@ -819,13 +910,13 @@ function query(options, selectors) {
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-733147571", "");
+		setAttribute(node, "svelte-966813168", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-733147571-style';
-		style.textContent = "[svelte-733147571].hidden,[svelte-733147571] .hidden{display:none}[svelte-733147571].chart-canvas,[svelte-733147571] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-733147571].loader,[svelte-733147571] .loader,[svelte-733147571].loader:after,[svelte-733147571] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-733147571].loader,[svelte-733147571] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-733147571-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-733147571]0%,[svelte-733147571] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-733147571]100%,[svelte-733147571] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-733147571-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-966813168-style';
+		style.textContent = "[svelte-966813168].hidden,[svelte-966813168] .hidden{display:none}[svelte-966813168].chart-canvas,[svelte-966813168] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-966813168].loader,[svelte-966813168] .loader,[svelte-966813168].loader:after,[svelte-966813168] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-966813168].loader,[svelte-966813168] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-966813168-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-966813168]0%,[svelte-966813168] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-966813168]100%,[svelte-966813168] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-966813168-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -1353,7 +1444,7 @@ function query(options, selectors) {
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1 }, this._state);
 
-		if (!document.getElementById("svelte-733147571-style")) add_css();
+		if (!document.getElementById("svelte-966813168-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 

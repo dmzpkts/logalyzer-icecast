@@ -15,10 +15,10 @@ export default class LogEntry extends Entity {
     super(id);
   }
 
-  // === Instance Methods ===
+  // === Static Methods ===
 
-  archive(...args) {
-    return this.serverCall('archive', args);
+  static getIpInfo(...args) {
+    return LogEntry.serverCallStatic('getIpInfo', args);
   }
 }
 

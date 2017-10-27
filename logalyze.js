@@ -2,9 +2,13 @@ const fs = require('fs');
 const nReadlines = require('n-readlines');
 const argv = require('minimist')(process.argv.slice(2));
 const uaParser = require('ua-parser-js');
+const curl = require('curl');
 
 // Nymph Node client for the win.
 const Nymph = require('nymph-client-node');
+
+// Making gratuitous requests to someone else's service isn't very nice.
+const ipDataCache = {};
 
 // Did they call us correctly?
 if (argv._.length !== 1) {
@@ -130,17 +134,36 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
         const uaEngineVersion = uaParts.engine.version;
         const uaOsName = uaParts.os.name;
         const uaOsVersion = uaParts.os.version;
+        let ipInfo;
 
         // Check whether this log entry has already been added.
         if (!argv['skip-dupe-check']) {
-          const dupes = await Nymph.getEntities({'class': LogEntry.class}, {'type': '&', 'strict': ['line', line]}).then((e) => e, (err) => {
-            console.log('\nCouldn\'t check for dupes. Got err: ', err, '\n');
-          });
+          let dupes;
+          [ipInfo, dupes] = await Promise.all([
+            getIpLocationData(remoteHost),
+            Nymph.getEntities({'class': LogEntry.class}, {'type': '&', 'strict': ['line', line]}).then((e) => e, (err) => {
+              console.log('\nCouldn\'t check for dupes. Got err: ', err, '\n');
+            })
+          ]);
           if (dupes.length) {
             console.log(`\nSkipping duplicate log entry, already in the db ${dupes.length} time(s):\n${line}\n`);
             continue;
           }
+        } else {
+          ipInfo = await getIpLocationData(remoteHost);
         }
+
+        const {
+          timeZone,
+          continentCode,
+          continent,
+          countryCode,
+          country,
+          provinceCode,
+          province,
+          postalCode,
+          city
+        } = ipInfo;
 
         // Save the entry to the DB.
         const entry = new LogEntry();
@@ -171,7 +194,16 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
           timeEnd,
           method,
           resource,
-          protocol
+          protocol,
+          timeZone,
+          continentCode,
+          continent,
+          countryCode,
+          country,
+          provinceCode,
+          province,
+          postalCode,
+          city
         });
 
         console.log('Saving log entry: ', ++i);
@@ -263,4 +295,78 @@ Actions are:
 
 Thanks for using the logalyzer. I hope you find it useful.
 `);
+}
+
+function getIpLocationData(ip) {
+  if (ipDataCache[ip]) {
+    return Promise.resolve(ipDataCache[ip]);
+  }
+
+  console.log("Looking up location data for IP: "+ip);
+
+  return new Promise((resolve, reject) => {
+    LogEntry.getIpInfo(ip).then((ipInfo) => {
+      let nonNullFound = false;
+      for (let p in ipInfo) {
+        if (ipInfo[p] !== null) {
+          nonNullFound = true;
+          break;
+        }
+      }
+      if (!nonNullFound) {
+        console.log("IP location data not found in GeoLite2 DB.");
+        console.log("Falling back to ip2c.org...");
+        fallback();
+        return;
+      }
+      ipDataCache[ip] = ipInfo;
+      resolve(ipInfo);
+    }, (err) => {
+      console.log("Couldn't get location data from GeoLite2 DB: "+err);
+      console.log("Falling back to ip2c.org...");
+      fallback();
+    });
+    function fallback() {
+      const ipInfoUrl = `http://ip2c.org/${ip}`;
+      curl.get(ipInfoUrl, null, function(err, response, body) {
+        if (err) {
+          console.log("Couldn't get location data: "+err);
+          reject(err);
+          return;
+        }
+        const [result, countryCode, unused, country] = body.split(';', 4);
+        switch (result) {
+          case '0':
+          case '2':
+          default:
+            ipDataCache[ip] = {
+              timeZone: null,
+              continentCode: null,
+              continent: null,
+              countryCode: null,
+              country: null,
+              provinceCode: null,
+              province: null,
+              postalCode: null,
+              city: null
+            };
+            break;
+          case '1':
+            ipDataCache[ip] = {
+              timeZone: null,
+              continentCode: null,
+              continent: null,
+              countryCode,
+              country,
+              provinceCode: null,
+              province: null,
+              postalCode: null,
+              city: null
+            };
+            break;
+        }
+        resolve(ipDataCache[ip]);
+      });
+    }
+  });
 }

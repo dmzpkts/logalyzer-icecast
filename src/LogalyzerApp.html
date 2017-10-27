@@ -496,6 +496,97 @@
       func: extractBy("userAgent", "Unknown")
     },
 
+    timeZone: {
+      name: "Timezone",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("timeZone", "Unknown")
+    },
+
+    continentCode: {
+      name: "Continent Code",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("continentCode", "Unknown")
+    },
+
+    continent: {
+      name: "Continent",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("continent", "Unknown")
+    },
+
+    countryCode: {
+      name: "Country Code",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("countryCode", "Unknown")
+    },
+
+    country: {
+      name: "Country",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("country", "Unknown")
+    },
+
+    provinceCode: {
+      name: "Province Code",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("provinceCode", "Unknown")
+    },
+
+    province: {
+      name: "Province",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("province", "Unknown")
+    },
+
+    postalCode: {
+      name: "Postal Code",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("postalCode", "Unknown")
+    },
+
+    city: {
+      name: "City",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("city", "Unknown")
+    },
+
+    countryProvince: {
+      name: "Country and Province",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("country", "Unknown", "province")
+    },
+
+    countryCity: {
+      name: "Country and City",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("country", "Unknown", "city")
+    },
+
+    countryPostalCode: {
+      name: "Country and Postal Code",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("country", "Unknown", "postalCode")
+    },
+
+    provinceCity: {
+      name: "Province and City",
+      axisLabel: "Requests",
+      defaultChartFunction: "pie",
+      func: extractBy("province", "Unknown", "city")
+    },
+
     responseStatusCode: {
       name: "Response Status Code",
       axisLabel: "Requests",
@@ -786,7 +877,7 @@
         __aggregateFunctionsKeys: Object.keys(aggregateFunctions),
         __chartFunctionsKeys: Object.keys(chartFunctions),
         aggregateFunction: "totalListenersOverTime",
-        chartFunction: "timeSeries",
+        chartFunction: "timeSeriesSteppedArea",
         options: {
           'class': LogEntry.class
         },
