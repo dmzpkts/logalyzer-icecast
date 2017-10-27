@@ -1,7 +1,5 @@
 <?php
 
-// https://dev.maxmind.com/geoip/geoip2/geolite2/
-
 require '../vendor/autoload.php';
 
 use MaxMind\Db\Reader;

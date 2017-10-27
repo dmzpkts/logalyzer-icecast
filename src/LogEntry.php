@@ -92,6 +92,10 @@ class LogEntry extends \Nymph\Entity {
   public static function getIpInfo($ipAddress) {
     $databaseFile = '../geolite2db/GeoLite2-City.mmdb';
 
+    if (!file_exists($databaseFile)) {
+      throw new Exception("The database file is missing.", 4000);
+    }
+
     $reader = new Reader($databaseFile);
 
     $ipInfo = $reader->get($ipAddress);

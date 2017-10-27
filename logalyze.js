@@ -10,16 +10,41 @@ const Nymph = require('nymph-client-node');
 // Making gratuitous requests to someone else's service isn't very nice.
 const ipDataCache = {};
 
+if (argv.help || argv.h) {
+  printHelp();
+  process.exit(0);
+}
+
+if (argv.version) {
+  printVersion();
+  process.exit(0);
+}
+
 // Did they call us correctly?
 if (argv._.length !== 1) {
   printHelp();
-  return;
+  process.exit(1);
 }
 
 // Set up Nymph.
 const nymphOptions = require('./conf/config.js').config;
 Nymph.init(nymphOptions);
 const LogEntry = require('./build/cjs/LogEntry').LogEntry;
+
+// Did they download the GeoLite2 database?
+(async function() {
+  try {
+    await LogEntry.getIpInfo('8.8.8.8');
+  } catch (e) {
+    if (e.code === 4000) {
+      printIpDbInstructions();
+      process.exit(1);
+    } else {
+      console.log("Can't communicate with backend to lookup IPs.");
+      process.exit(1);
+    }
+  }
+})();
 
 (async () => {
   switch (argv._[0]) {
@@ -28,7 +53,7 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
       if (!argv.f) {
         console.log('You\'re missing the file part of the command...');
         printHelp();
-        return;
+        process.exit(1);
       }
 
       let inputFile, uncompressedFile;
@@ -261,10 +286,14 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
   return;
 })();
 
-function printHelp() {
-  console.log(`
-      ## Icecast Logalyzer by Hunter Perrin ##
+function printVersion() {
+  console.log(`Icecast Logalyzer by Hunter Perrin
+Version 1.0.0`);
+}
 
+function printHelp() {
+  printVersion();
+  console.log(`
 This logalyzer requires you to have MySQL set up and put the configuration for it in
 conf/config.php.
 
@@ -294,6 +323,21 @@ Actions are:
 
 
 Thanks for using the logalyzer. I hope you find it useful.
+`);
+}
+
+function printIpDbInstructions() {
+  console.log(`
+It looks like you haven't set up the IP geolocation database on your server. You should do
+that now.
+
+1. Go to https://dev.maxmind.com/geoip/geoip2/geolite2/
+2. Download the GeoLite2 City database in "MaxMind DB binary, gzipped" format.
+3. Extract it, and take the "GeoLite2-City.mmdb" file.
+4. Put that file in the "geolite2db" folder in the Logalyzer folder on your server.
+5. MaxMind releases an updated DB the first Tuesday of each month, so remember to update it.
+
+Kudos to MaxMind for providing this DB for free!
 `);
 }
 

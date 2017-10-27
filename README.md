@@ -14,3 +14,9 @@ If you run an Icecast server and you want to analyze your logs, this is it.
 ## Hey there, it's not quite ready.
 
 You can install this and play around with it, but the query editor and the charts aren't quite ready yet.
+
+## Shoutouts
+
+This product includes GeoLite2 data created by MaxMind, available from [maxmind.com](http://www.maxmind.com).
+
+This product also uses IP geolocation data from [ip2c.org](http://ip2c.org/).
