@@ -114,13 +114,13 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2650927004", "");
+		setAttribute(node, "svelte-1709484614", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2650927004-style';
-		style.textContent = "[svelte-2650927004].query-editor,[svelte-2650927004] .query-editor{font-family:monospace}[svelte-2650927004].options-editor,[svelte-2650927004] .options-editor,[svelte-2650927004].selector-editor,[svelte-2650927004] .selector-editor,[svelte-2650927004].selector-editor .selector,[svelte-2650927004] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-2650927004].options-editor .option,[svelte-2650927004] .options-editor .option,[svelte-2650927004].selector-editor .selector .clause,[svelte-2650927004] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-2650927004].query-result,[svelte-2650927004] .query-result{border:1px solid}[svelte-2650927004].query-result .query,[svelte-2650927004] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}[svelte-2650927004].help-dialog-container,[svelte-2650927004] .help-dialog-container{display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;bottom:0;right:0;background-color:rgba(0, 0, 0, 0.3)}[svelte-2650927004].help-dialog,[svelte-2650927004] .help-dialog{display:flex;flex-direction:column;box-shadow:0px 5px 36px 0px rgba(0,0,0,0.25);background-color:#fff;padding:2em;max-height:80vh;max-width:80vw;overflow:auto}[svelte-2650927004].help-dialog > *,[svelte-2650927004] .help-dialog > *{margin-bottom:1em}[svelte-2650927004].help-dialog > *:last-child,[svelte-2650927004] .help-dialog > *:last-child{margin-bottom:0}[svelte-2650927004].help-dialog .actions,[svelte-2650927004] .help-dialog .actions{display:flex;flex-direction:row;justify-content:flex-end;align-items:center}[svelte-2650927004].help-dialog .actions > *,[svelte-2650927004] .help-dialog .actions > *{margin-left:1em}";
+		style.id = 'svelte-1709484614-style';
+		style.textContent = "[svelte-1709484614].query-editor,[svelte-1709484614] .query-editor{font-family:monospace}[svelte-1709484614].options-editor,[svelte-1709484614] .options-editor,[svelte-1709484614].selector-editor,[svelte-1709484614] .selector-editor,[svelte-1709484614].selector-editor .selector,[svelte-1709484614] .selector-editor .selector{padding-left:1em;display:flex;flex-direction:column}[svelte-1709484614].options-editor .option,[svelte-1709484614] .options-editor .option,[svelte-1709484614].selector-editor .selector .clause,[svelte-1709484614] .selector-editor .selector .clause{padding:.5em 1em;display:flex;flex-direction:row}[svelte-1709484614].query-result,[svelte-1709484614] .query-result{border:1px solid}[svelte-1709484614].query-result .query,[svelte-1709484614] .query-result .query{font-family:monospace;margin:0;padding:1em;overflow:auto;max-height:200px}[svelte-1709484614].help-dialog-container,[svelte-1709484614] .help-dialog-container{display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;bottom:0;right:0;z-index:1000}[svelte-1709484614].help-dialog-overlay,[svelte-1709484614] .help-dialog-overlay{position:absolute;top:0;left:0;bottom:0;right:0;background-color:rgba(0, 0, 0, 0.3);z-index:1}[svelte-1709484614].help-dialog,[svelte-1709484614] .help-dialog{display:flex;flex-direction:column;box-shadow:0px 5px 36px 0px rgba(0,0,0,0.25);background-color:#fff;padding:2em;max-height:80vh;max-width:80vw;overflow:auto;z-index:2}[svelte-1709484614].help-dialog > *,[svelte-1709484614] .help-dialog > *{margin-bottom:1em}[svelte-1709484614].help-dialog > *:last-child,[svelte-1709484614] .help-dialog > *:last-child{margin-bottom:0}[svelte-1709484614].help-dialog .actions,[svelte-1709484614] .help-dialog .actions{display:flex;flex-direction:row;justify-content:flex-end;align-items:center}[svelte-1709484614].help-dialog .actions > *,[svelte-1709484614] .help-dialog .actions > *{margin-left:1em}";
 		appendNode(style, document.head);
 	}
 
@@ -1146,9 +1146,13 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 
 	// (72:2) {{#if __showHelp}}
 	function create_if_block_5(state, component) {
-		var div, div_1, h3, text_1, div_2, text_10, div_3, text_12, div_4, text_19, div_5, text_38, div_6, text_40, div_7, text_53, div_8, button;
+		var div, div_1, text, div_2, h3, text_2, div_3, text_11, div_4, text_13, div_5, text_20, div_6, text_39, div_7, text_41, div_8, text_54, div_9, button;
 
 		function click_handler_1(event) {
+			component.closeHelpDialog();
+		}
+
+		function click_handler_2(event) {
 			component.closeHelpDialog();
 		}
 
@@ -1156,28 +1160,30 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 			c: function create() {
 				div = createElement("div");
 				div_1 = createElement("div");
+				text = createText("\n    ");
+				div_2 = createElement("div");
 				h3 = createElement("h3");
 				h3.textContent = "How to Build Nymph Queries";
-				text_1 = createText("\n\n      ");
-				div_2 = createElement("div");
-				div_2.innerHTML = "options is an associative array, which contains any of the following\n        settings (in the form options['name'] = value):\n\n        <ul><li>class - (string) The class to create each entity with.</li>\n          <li>limit - (int) The limit of entities to be returned.</li>\n          <li>offset - (int) The offset from the oldest matching entity to start\n            retrieving.</li>\n          <li>reverse - (bool) If true, entities will be retrieved from newest to\n            oldest. Therefore, offset will be from the newest entity.</li>\n          <li>sort - (string) How to sort the entities. Accepts \"guid\", \"cdate\", and\n            \"mdate\". Defaults to \"cdate\".</li>\n          <li>skip_ac - (bool) If true, the user manager will not filter returned\n            entities according to access controls.</li>\n        </ul>";
-				text_10 = createText("\n\n      ");
+				text_2 = createText("\n\n      ");
 				div_3 = createElement("div");
-				div_3.textContent = "If a class is specified, it must have a factory() static method that\n        returns a new instance.";
-				text_12 = createText("\n\n      ");
+				div_3.innerHTML = "options is an associative array, which contains any of the following\n        settings (in the form options['name'] = value):\n\n        <ul><li>class - (string) The class to create each entity with.</li>\n          <li>limit - (int) The limit of entities to be returned.</li>\n          <li>offset - (int) The offset from the oldest matching entity to start\n            retrieving.</li>\n          <li>reverse - (bool) If true, entities will be retrieved from newest to\n            oldest. Therefore, offset will be from the newest entity.</li>\n          <li>sort - (string) How to sort the entities. Accepts \"guid\", \"cdate\", and\n            \"mdate\". Defaults to \"cdate\".</li>\n          <li>skip_ac - (bool) If true, the user manager will not filter returned\n            entities according to access controls.</li>\n        </ul>";
+				text_11 = createText("\n\n      ");
 				div_4 = createElement("div");
-				div_4.innerHTML = "Selectors are also associative arrays. Any amount of selectors can be\n        provided. Empty selectors will be ignored. The first member of a selector\n        must be a \"type\" string. The type string can be:\n\n        <ul><li>& - (and) All values in the selector must be true.</li>\n          <li>| - (or) At least one value in the selector must be true.</li>\n          <li>!& - (not and) All values in the selector must be false.</li>\n          <li>!| - (not or) At least one value in the selector must be false.</li>\n        </ul>";
-				text_19 = createText("\n\n      ");
+				div_4.textContent = "If a class is specified, it must have a factory() static method that\n        returns a new instance.";
+				text_13 = createText("\n\n      ");
 				div_5 = createElement("div");
-				div_5.innerHTML = "The rest of the entries in the selector are either more selectors or\n        associative entries called selector clauses, which can be any of the\n        following (in the form selector['name'] = value, or\n        selector['name'] = [value1, value2,...]):\n\n        <ul><li>guid - A GUID. True if the entity's GUID is equal.</li>\n          <li>tag - A tag. True if the entity has the tag.</li>\n          <li>isset - A name. True if the named variable exists and is not null.</li>\n          <li>data - An array with a name, then value. True if the named variable is\n            defined and equal.</li>\n          <li>strict - An array with a name, then value. True if the named variable\n            is defined and identical.</li>\n          <li>array - An array with a name, then value. True if the named variable is\n            an array containing the value. Uses in_array().</li>\n          <li>match - An array with a name, then regular expression. True if the\n            named variable matches. Uses preg_match(). More powerful than \"pmatch\"\n            but slower. Must be surrounded by \"/\" delimiters.</li>\n          <li>pmatch - An array with a name, then regular expression. True if the\n            named variable matches. Uses POSIX RegExp. Case sensitive. Faster than\n            \"match\". Must *not* be surrounded by any delimiters.</li>\n          <li>ipmatch - An array with a name, then regular expression. True if the\n            named variable matches. Uses POSIX RegExp. Case insensitive. Faster\n            than \"match\". Must *not* be surrounded by any delimiters.</li>\n          <li>like - An array with a name, then pattern. True if the named variable\n            matches. Uses % for variable length wildcard and _ for single character\n            wildcard. Case sensitive.</li>\n          <li>ilike - An array with a name, then pattern. True if the named variable\n            matches. Uses % for variable length wildcard and _ for single character\n            wildcard. Case insensitive.</li>\n          <li>gt - An array with a name, then value. True if the named variable is\n            greater than the value.</li>\n          <li>gte - An array with a name, then value. True if the named variable is\n            greater than or equal to the value.</li>\n          <li>lt - An array with a name, then value. True if the named variable is\n            less than the value.</li>\n          <li>lte - An array with a name, then value. True if the named variable is\n            less than or equal to the value.</li>\n          <li>ref - An array with a name, then either a entity, or a GUID. True if\n            the named variable is the entity or an array containing the entity.</li>\n        </ul>";
-				text_38 = createText("\n\n      ");
+				div_5.innerHTML = "Selectors are also associative arrays. Any amount of selectors can be\n        provided. Empty selectors will be ignored. The first member of a selector\n        must be a \"type\" string. The type string can be:\n\n        <ul><li>& - (and) All values in the selector must be true.</li>\n          <li>| - (or) At least one value in the selector must be true.</li>\n          <li>!& - (not and) All values in the selector must be false.</li>\n          <li>!| - (not or) At least one value in the selector must be false.</li>\n        </ul>";
+				text_20 = createText("\n\n      ");
 				div_6 = createElement("div");
-				div_6.textContent = "These clauses can all be negated, by prefixing them with an exclamation\n        point, such as \"!isset\".";
-				text_40 = createText("\n\n      ");
+				div_6.innerHTML = "The rest of the entries in the selector are either more selectors or\n        associative entries called selector clauses, which can be any of the\n        following (in the form selector['name'] = value, or\n        selector['name'] = [value1, value2,...]):\n\n        <ul><li>guid - A GUID. True if the entity's GUID is equal.</li>\n          <li>tag - A tag. True if the entity has the tag.</li>\n          <li>isset - A name. True if the named variable exists and is not null.</li>\n          <li>data - An array with a name, then value. True if the named variable is\n            defined and equal.</li>\n          <li>strict - An array with a name, then value. True if the named variable\n            is defined and identical.</li>\n          <li>array - An array with a name, then value. True if the named variable is\n            an array containing the value. Uses in_array().</li>\n          <li>match - An array with a name, then regular expression. True if the\n            named variable matches. Uses preg_match(). More powerful than \"pmatch\"\n            but slower. Must be surrounded by \"/\" delimiters.</li>\n          <li>pmatch - An array with a name, then regular expression. True if the\n            named variable matches. Uses POSIX RegExp. Case sensitive. Faster than\n            \"match\". Must *not* be surrounded by any delimiters.</li>\n          <li>ipmatch - An array with a name, then regular expression. True if the\n            named variable matches. Uses POSIX RegExp. Case insensitive. Faster\n            than \"match\". Must *not* be surrounded by any delimiters.</li>\n          <li>like - An array with a name, then pattern. True if the named variable\n            matches. Uses % for variable length wildcard and _ for single character\n            wildcard. Case sensitive.</li>\n          <li>ilike - An array with a name, then pattern. True if the named variable\n            matches. Uses % for variable length wildcard and _ for single character\n            wildcard. Case insensitive.</li>\n          <li>gt - An array with a name, then value. True if the named variable is\n            greater than the value.</li>\n          <li>gte - An array with a name, then value. True if the named variable is\n            greater than or equal to the value.</li>\n          <li>lt - An array with a name, then value. True if the named variable is\n            less than the value.</li>\n          <li>lte - An array with a name, then value. True if the named variable is\n            less than or equal to the value.</li>\n          <li>ref - An array with a name, then either a entity, or a GUID. True if\n            the named variable is the entity or an array containing the entity.</li>\n        </ul>";
+				text_39 = createText("\n\n      ");
 				div_7 = createElement("div");
-				div_7.innerHTML = "This example will retrieve the last two entities where:\n\n        <ul><li>It has 'person' tag.</li>\n          <li>spouse exists and is not null.</li>\n          <li>gender is male and lname is Smith.</li>\n          <li>warnings is not an integer 0.</li>\n          <li>It has 'level1' and 'level2' tags, or it has 'access1' and 'access2'\n            tags.</li>\n          <li>It has either 'employee' or 'manager' tag.</li>\n          <li>name is either Clark, James, Chris, Christopher, Jake, or Jacob.</li>\n          <li>If age is 22 or more, then pay is not greater than 8.</li>\n        </ul>\n\n        <pre>Nymph.getEntities(\n  {\n    'reverse': true,\n    'limit': 2\n  },\n  {\n    'type': '&', // all must be true\n    'tag': 'person',\n    'isset': 'spouse',\n    'data': [\n      ['gender', 'male'],\n      ['lname', 'Smith']\n    ],\n    '!strict': ['warnings', 0]\n  },\n  {\n    'type': '|', // at least one of the selectors in this must evaluate to true\n    '1': {\n      'type': '&',\n      'tag': ['level1', 'level2']\n    },\n    '2': {\n      'type': '&',\n      'tag': ['access1', 'access2']\n    }\n  },\n  {\n    'type': '|', // at least one must be true\n    'tag': ['employee', 'manager']\n  },\n  {\n    'type': '|',\n    'data': [\n      ['name', 'Clark'],\n      ['name', 'James']\n    ],\n    'pmatch': [\n      ['name', 'Chris(topher)?'],\n      ['name', 'Ja(ke|cob)']\n    ]\n  },\n  {\n    'type': '!|', // at least one must be false\n    'gte': ['age', 22],\n    'gt': ['pay', 8]\n  }\n);</pre>";
-				text_53 = createText("\n\n      ");
+				div_7.textContent = "These clauses can all be negated, by prefixing them with an exclamation\n        point, such as \"!isset\".";
+				text_41 = createText("\n\n      ");
 				div_8 = createElement("div");
+				div_8.innerHTML = "This example will retrieve the last two entities where:\n\n        <ul><li>It has 'person' tag.</li>\n          <li>spouse exists and is not null.</li>\n          <li>gender is male and lname is Smith.</li>\n          <li>warnings is not an integer 0.</li>\n          <li>It has 'level1' and 'level2' tags, or it has 'access1' and 'access2'\n            tags.</li>\n          <li>It has either 'employee' or 'manager' tag.</li>\n          <li>name is either Clark, James, Chris, Christopher, Jake, or Jacob.</li>\n          <li>If age is 22 or more, then pay is not greater than 8.</li>\n        </ul>\n\n        <pre>Nymph.getEntities(\n  {\n    'reverse': true,\n    'limit': 2\n  },\n  {\n    'type': '&', // all must be true\n    'tag': 'person',\n    'isset': 'spouse',\n    'data': [\n      ['gender', 'male'],\n      ['lname', 'Smith']\n    ],\n    '!strict': ['warnings', 0]\n  },\n  {\n    'type': '|', // at least one of the selectors in this must evaluate to true\n    '1': {\n      'type': '&',\n      'tag': ['level1', 'level2']\n    },\n    '2': {\n      'type': '&',\n      'tag': ['access1', 'access2']\n    }\n  },\n  {\n    'type': '|', // at least one must be true\n    'tag': ['employee', 'manager']\n  },\n  {\n    'type': '|',\n    'data': [\n      ['name', 'Clark'],\n      ['name', 'James']\n    ],\n    'pmatch': [\n      ['name', 'Chris(topher)?'],\n      ['name', 'Ja(ke|cob)']\n    ]\n  },\n  {\n    'type': '!|', // at least one must be false\n    'gte': ['age', 22],\n    'gt': ['pay', 8]\n  }\n);</pre>";
+				text_54 = createText("\n\n      ");
+				div_9 = createElement("div");
 				button = createElement("button");
 				button.textContent = "Close";
 				this.h();
@@ -1185,30 +1191,34 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 
 			h: function hydrate() {
 				div.className = "help-dialog-container";
-				div_1.className = "help-dialog";
-				div_8.className = "actions";
-				addListener(button, "click", click_handler_1);
+				div_1.className = "help-dialog-overlay";
+				addListener(div_1, "click", click_handler_1);
+				div_2.className = "help-dialog";
+				div_9.className = "actions";
+				addListener(button, "click", click_handler_2);
 			},
 
 			m: function mount(target, anchor) {
 				insertNode(div, target, anchor);
 				appendNode(div_1, div);
-				appendNode(h3, div_1);
-				appendNode(text_1, div_1);
-				appendNode(div_2, div_1);
-				appendNode(text_10, div_1);
-				appendNode(div_3, div_1);
-				appendNode(text_12, div_1);
-				appendNode(div_4, div_1);
-				appendNode(text_19, div_1);
-				appendNode(div_5, div_1);
-				appendNode(text_38, div_1);
-				appendNode(div_6, div_1);
-				appendNode(text_40, div_1);
-				appendNode(div_7, div_1);
-				appendNode(text_53, div_1);
-				appendNode(div_8, div_1);
-				appendNode(button, div_8);
+				appendNode(text, div);
+				appendNode(div_2, div);
+				appendNode(h3, div_2);
+				appendNode(text_2, div_2);
+				appendNode(div_3, div_2);
+				appendNode(text_11, div_2);
+				appendNode(div_4, div_2);
+				appendNode(text_13, div_2);
+				appendNode(div_5, div_2);
+				appendNode(text_20, div_2);
+				appendNode(div_6, div_2);
+				appendNode(text_39, div_2);
+				appendNode(div_7, div_2);
+				appendNode(text_41, div_2);
+				appendNode(div_8, div_2);
+				appendNode(text_54, div_2);
+				appendNode(div_9, div_2);
+				appendNode(button, div_9);
 			},
 
 			u: function unmount() {
@@ -1216,7 +1226,8 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 			},
 
 			d: function destroy() {
-				removeListener(button, "click", click_handler_1);
+				removeListener(div_1, "click", click_handler_1);
+				removeListener(button, "click", click_handler_2);
 			}
 		};
 	}
@@ -1238,7 +1249,7 @@ var QueryEditor = (function(SelectorEditor, ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, supportedOptions: 1, selectors: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2650927004-style")) add_css();
+		if (!document.getElementById("svelte-1709484614-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];

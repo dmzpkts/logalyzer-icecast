@@ -71,6 +71,7 @@
   {{/if}}
   {{#if __showHelp}}
   <div class="help-dialog-container">
+    <div class="help-dialog-overlay" on:click="closeHelpDialog()"></div>
     <div class="help-dialog">
       <h3>How to Build Nymph Queries</h3>
 
@@ -453,7 +454,16 @@
     left: 0;
     bottom: 0;
     right: 0;
+    z-index: 1000;
+  }
+  .help-dialog-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
     background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1;
   }
   .help-dialog {
     display: flex;
@@ -464,6 +474,7 @@
     max-height: 80vh;
     max-width: 80vw;
     overflow: auto;
+    z-index: 2;
   }
   .help-dialog > * {
     margin-bottom: 1em;

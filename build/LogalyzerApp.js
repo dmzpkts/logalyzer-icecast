@@ -825,14 +825,22 @@ function query(options, selectors) {
     aggregateFunction: "totalListenersOverTime",
     chartFunction: "timeSeriesSteppedArea",
     options: {
-      'class': LogEntry.class
+      "class": LogEntry.class
     },
     selectors: [
       {
-        'type': '&',
-        'strict': ['resource', '/stream'],
-        "gte": ["timeStart", 1508122800],
-        "lte": ["timeEnd", 1508144400]
+        "type": "&",
+        "strict": ["resource", "/stream"]
+      },
+      {
+        "type": "&",
+        "gte": ["timeEnd", null, "-1 week"],
+        "lte": ["timeStart", null, "now"]
+      },
+      {
+        "type": "&",
+        "gte": ["duration", 300],
+        "lte": ["duration", 86400]
       }
     ]
   }
@@ -850,7 +858,7 @@ function query(options, selectors) {
     }
 
     this.set({__loading: true});
-    const query = this.get('query');
+    const query = this.get("query");
     Nymph.getEntities(...query).then((entries) => {
       const aggFuncObj = aggregateFunctions[aggregateFunction];
       const chartFuncObj = chartFunctions[chartFunction];
@@ -904,13 +912,13 @@ function query(options, selectors) {
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-3909657938", "");
+		setAttribute(node, "svelte-407090604", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-3909657938-style';
-		style.textContent = "[svelte-3909657938].hidden,[svelte-3909657938] .hidden{display:none}[svelte-3909657938].chart-canvas,[svelte-3909657938] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-3909657938].loader,[svelte-3909657938] .loader,[svelte-3909657938].loader:after,[svelte-3909657938] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-3909657938].loader,[svelte-3909657938] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-3909657938-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-3909657938]0%,[svelte-3909657938] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-3909657938]100%,[svelte-3909657938] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-3909657938-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-407090604-style';
+		style.textContent = "[svelte-407090604].hidden,[svelte-407090604] .hidden{display:none}[svelte-407090604].chart-canvas,[svelte-407090604] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-407090604].loader,[svelte-407090604] .loader,[svelte-407090604].loader:after,[svelte-407090604] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-407090604].loader,[svelte-407090604] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-407090604-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-407090604]0%,[svelte-407090604] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-407090604]100%,[svelte-407090604] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-407090604-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -1438,7 +1446,7 @@ function query(options, selectors) {
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1 }, this._state);
 
-		if (!document.getElementById("svelte-3909657938-style")) add_css();
+		if (!document.getElementById("svelte-407090604-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 

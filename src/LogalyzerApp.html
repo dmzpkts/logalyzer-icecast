@@ -879,14 +879,22 @@
         aggregateFunction: "totalListenersOverTime",
         chartFunction: "timeSeriesSteppedArea",
         options: {
-          'class': LogEntry.class
+          "class": LogEntry.class
         },
         selectors: [
           {
-            'type': '&',
-            'strict': ['resource', '/stream'],
-            "gte": ["timeStart", 1508122800],
-            "lte": ["timeEnd", 1508144400]
+            "type": "&",
+            "strict": ["resource", "/stream"]
+          },
+          {
+            "type": "&",
+            "gte": ["timeEnd", null, "-1 week"],
+            "lte": ["timeStart", null, "now"]
+          },
+          {
+            "type": "&",
+            "gte": ["duration", 300],
+            "lte": ["duration", 86400]
           }
         ]
       }
@@ -913,7 +921,7 @@
         }
 
         this.set({__loading: true});
-        const query = this.get('query');
+        const query = this.get("query");
         Nymph.getEntities(...query).then((entries) => {
           const aggFuncObj = aggregateFunctions[aggregateFunction];
           const chartFuncObj = chartFunctions[chartFunction];
