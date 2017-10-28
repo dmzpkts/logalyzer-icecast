@@ -10,6 +10,22 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		return Object.keys(selector).filter((i) => i !== "type").map((key) => supportedClauses.hasOwnProperty(key) ? {key, type: supportedClauses[key]} : {key, type: 'selector'});
 	}
 
+	function isCompoundVectorClauseKeys(selector, supportedClauses) {
+  const entries = Object.entries(selector);
+  const filtered = entries.filter((i) => i[0] !== "type" && supportedClauses[i[0]].vector);
+  const mapped = filtered.map((i) => {i[1] = Array.isArray(i[1][0]); return i;});
+  const map = mapped.length ? Object.assign(...mapped.map(([k, v]) => ({[k]: v}))) : {};
+  return map;
+}
+
+	function isCompoundScalarClauseKeys(selector, supportedClauses) {
+  const entries = Object.entries(selector);
+  const filtered = entries.filter((i) => i[0] !== "type" && !supportedClauses[i[0]].vector);
+  const mapped = filtered.map((i) => {i[1] = Array.isArray(i[1]); return i;});
+  const map = mapped.length ? Object.assign(...mapped.map(([k, v]) => ({[k]: v}))) : {};
+  return map;
+}
+
 	function data() {
   return {
     __newClause: "",
@@ -82,7 +98,15 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
     const supportedClauses = this.get("supportedClauses");
 
     if (clause in selector) {
-      selector[clause].push(this.getDefaultValue(supportedClauses[clause])[0]);
+      if (
+          (supportedClauses[clause].vector && !this.isCompoundVectorClause(selector[clause]))
+          || (!supportedClauses[clause].vector && !this.isCompoundScalarClause(selector[clause]))
+        ) {
+        const firstEntry = selector[clause];
+        selector[clause] = [firstEntry];
+      }
+
+      selector[clause].push(this.getDefaultValue(supportedClauses[clause]));
     }
 
     this.set({selector});
@@ -90,9 +114,56 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 
   removeClauseEntry (clause, index) {
     const selector = this.get("selector");
+    const supportedClauses = this.get("supportedClauses");
 
     if (clause in selector) {
       selector[clause].splice(index, 1);
+
+      if (
+          (supportedClauses[clause].vector && selector[clause].length === 1 && this.isCompoundVectorClause(selector[clause]))
+          || (!supportedClauses[clause].vector && selector[clause].length === 1 && this.isCompoundScalarClause(selector[clause]))
+        ) {
+        const firstEntry = selector[clause][0];
+        selector[clause] = firstEntry;
+      }
+    }
+
+    this.set({selector});
+  },
+
+  makeDate (clauseKey, index) {
+    const selector = this.get("selector");
+
+    console.log("make date");
+
+    if (index === null) {
+      selector[clauseKey][1] = null;
+      if (selector[clauseKey].length === 2) {
+        selector[clauseKey].push("");
+      }
+    } else {
+      selector[clauseKey][index][1] = null;
+      if (selector[clauseKey][index].length === 2) {
+        selector[clauseKey][index].push("");
+      }
+    }
+
+    this.set({selector});
+  },
+
+  makeNotDate (clauseKey, index) {
+    const selector = this.get("selector");
+
+    console.log("make not date");
+
+    if (index === null) {
+      if (selector[clauseKey].length === 3) {
+        selector[clauseKey].splice(2, 1);
+      }
+    } else {
+      if (selector[clauseKey][index].length === 3) {
+        selector[clauseKey][index].splice(2, 1);
+      }
     }
 
     this.set({selector});
@@ -101,14 +172,14 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
   getDefaultValue (typeObj) {
     switch (typeObj.type) {
       case "int":
-        return typeObj.vector ? [["", 1]] : [1];
+        return typeObj.vector ? ["", 1] : 1;
       case "float":
-        return typeObj.vector ? [["", 0.1]] : [0.1];
+        return typeObj.vector ? ["", 0.1] : 0.1;
       case "boolean":
-        return typeObj.vector ? [["", true]] : [true];
+        return typeObj.vector ? ["", true] : true;
       case "string":
       default:
-        return typeObj.vector ? [["", ""]] : [""];
+        return typeObj.vector ? ["", ""] : "";
     }
   },
 
@@ -139,17 +210,25 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
     }
 
     this.set({selector});
+  },
+
+  isCompoundVectorClause (value) {
+    return Array.isArray(value[0]);
+  },
+
+  isCompoundScalarClause (value) {
+    return Array.isArray(value);
   }
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-3706593811", "");
+		setAttribute(node, "svelte-1745198361", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-3706593811-style';
-		style.textContent = "[svelte-3706593811].selector,[svelte-3706593811] .selector{margin:.5em;padding:.5em;display:flex;flex-direction:column;border:1px dotted}[svelte-3706593811].selector .clause,[svelte-3706593811] .selector .clause,[svelte-3706593811].selector .clause .clause-entry,[svelte-3706593811] .selector .clause .clause-entry{padding:.5em 1em;display:flex;flex-direction:row}";
+		style.id = 'svelte-1745198361-style';
+		style.textContent = "[svelte-1745198361].selector,[svelte-1745198361] .selector{margin:.5em;padding:.5em;display:flex;flex-direction:column;border:1px dotted}[svelte-1745198361].selector .clause,[svelte-1745198361] .selector .clause,[svelte-1745198361].selector .clause .clause-entry,[svelte-1745198361] .selector .clause .clause-entry{padding:.5em 1em;display:flex;flex-direction:row}";
 		appendNode(style, document.head);
 	}
 
@@ -286,7 +365,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 
 				var clausesKeysTypes_1 = state.clausesKeysTypes;
 
-				if (changed.clausesKeysTypes || changed.selector) {
+				if (changed.clausesKeysTypes || changed.selector || changed.isCompoundVectorClauseKeys || changed.isCompoundScalarClauseKeys) {
 					for (var i = 0; i < clausesKeysTypes_1.length; i += 1) {
 						if (each_blocks[i]) {
 							each_blocks[i].p(changed, state, clausesKeysTypes_1, clausesKeysTypes_1[i], i);
@@ -511,10 +590,10 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 	function create_each_block_1(state, clausesKeysTypes_1, clause_1, clause_index, component) {
 		var div, div_1, text_value = clause_1.key, text, text_1, text_2, div_2, text_4;
 
-		var current_block_type = select_block_type_1(state, clausesKeysTypes_1, clause_1, clause_index);
+		var current_block_type = select_block_type_2(state, clausesKeysTypes_1, clause_1, clause_index);
 		var if_block = current_block_type(state, clausesKeysTypes_1, clause_1, clause_index, component);
 
-		var if_block_1 = (clause_1.type !== "selector") && create_if_block_5(state, clausesKeysTypes_1, clause_1, clause_index, component);
+		var if_block_1 = (clause_1.type !== "selector") && create_if_block_8(state, clausesKeysTypes_1, clause_1, clause_index, component);
 
 		return {
 			c: function create() {
@@ -553,7 +632,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 					text.data = text_value;
 				}
 
-				if (current_block_type === (current_block_type = select_block_type_1(state, clausesKeysTypes_1, clause_1, clause_index)) && if_block) {
+				if (current_block_type === (current_block_type = select_block_type_2(state, clausesKeysTypes_1, clause_1, clause_index)) && if_block) {
 					if_block.p(changed, state, clausesKeysTypes_1, clause_1, clause_index);
 				} else {
 					if_block.u();
@@ -567,7 +646,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 					if (if_block_1) {
 						if_block_1.p(changed, state, clausesKeysTypes_1, clause_1, clause_index);
 					} else {
-						if_block_1 = create_if_block_5(state, clausesKeysTypes_1, clause_1, clause_index, component);
+						if_block_1 = create_if_block_8(state, clausesKeysTypes_1, clause_1, clause_index, component);
 						if_block_1.c();
 						if_block_1.m(div, null);
 					}
@@ -591,7 +670,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		};
 	}
 
-	// (55:12) {{#each selector[clause.key] as clauseEntry, index}}
+	// (56:14) {{#each selector[clause.key] as clauseEntry, index}}
 	function create_each_block_2(state, clausesKeysTypes_1, clause_1, clause_index, each_value, clauseEntry, index, component) {
 		var div, text, input, input_updating = false, text_1, valueeditor_updating = {}, text_2, button;
 
@@ -614,6 +693,10 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 			valueeditor_initial_data.value = clauseEntry[1];
 			valueeditor_updating.value = true;
 		}
+		if (index in each_value) {
+			valueeditor_initial_data.wholeEntry = clauseEntry;
+			valueeditor_updating.wholeEntry = true;
+		}
 		var valueeditor = new ValueEditor({
 			_root: component._root,
 			data: valueeditor_initial_data,
@@ -623,6 +706,15 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 					var list = valueeditor_context.each_value;
 					var index = valueeditor_context.index;
 					list[index][1] = childState.value;
+
+					newState.selector = state.selector;
+					newState.clausesKeysTypes = state.clausesKeysTypes;
+				}
+
+				if (!valueeditor_updating.wholeEntry && changed.wholeEntry) {
+					var list = valueeditor_context.each_value;
+					var index = valueeditor_context.index;
+					list[index] = childState.wholeEntry;
 
 					newState.selector = state.selector;
 					newState.clausesKeysTypes = state.clausesKeysTypes;
@@ -644,14 +736,39 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				newState.selector = state.selector;
 				newState.clausesKeysTypes = state.clausesKeysTypes;
 			}
-			valueeditor_updating = { value: true };
+
+			if (!valueeditor_updating.wholeEntry) {
+				var list = valueeditor_context.each_value;
+				var index = valueeditor_context.index;
+				list[index] = childState.wholeEntry;
+
+				newState.selector = state.selector;
+				newState.clausesKeysTypes = state.clausesKeysTypes;
+			}
+			valueeditor_updating = { value: true, wholeEntry: true };
 			component._set(newState);
 			valueeditor_updating = {};
 		});
 
+		valueeditor.on("makeDate", function(event) {
+			var clausesKeysTypes_1 = valueeditor_context.clausesKeysTypes_1, clause_index = valueeditor_context.clause_index, clause = clausesKeysTypes_1[clause_index]
+			var each_value = valueeditor_context.each_value, index = valueeditor_context.index, clauseEntry = each_value[index]
+
+			component.makeDate(clause_1.key, index);
+		});
+
+		valueeditor.on("makeNotDate", function(event) {
+			var clausesKeysTypes_1 = valueeditor_context.clausesKeysTypes_1, clause_index = valueeditor_context.clause_index, clause = clausesKeysTypes_1[clause_index]
+			var each_value = valueeditor_context.each_value, index = valueeditor_context.index, clauseEntry = each_value[index]
+
+			component.makeNotDate(clause_1.key, index);
+		});
+
 		var valueeditor_context = {
 			each_value: each_value,
-			index: index
+			index: index,
+			clausesKeysTypes_1: clausesKeysTypes_1,
+			clause_index: clause_index
 		};
 
 		return {
@@ -659,9 +776,9 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				div = createElement("div");
 				text = createText("[");
 				input = createElement("input");
-				text_1 = createText(", ");
+				text_1 = createText(",\n                    ");
 				valueeditor._fragment.c();
-				text_2 = createText("]\n                ");
+				text_2 = createText("]\n                  ");
 				button = createElement("button");
 				button.textContent = "Remove";
 				this.h();
@@ -717,11 +834,17 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 					valueeditor_changes.value = clauseEntry[1];
 					valueeditor_updating.value = true;
 				}
+				if (!valueeditor_updating.wholeEntry && changed.selector || changed.clausesKeysTypes) {
+					valueeditor_changes.wholeEntry = clauseEntry;
+					valueeditor_updating.wholeEntry = true;
+				}
 				valueeditor._set( valueeditor_changes );
 				valueeditor_updating = {};
 
 				valueeditor_context.each_value = each_value;
 				valueeditor_context.index = index;
+				valueeditor_context.clausesKeysTypes_1 = clausesKeysTypes_1;
+				valueeditor_context.clause_index = clause_index;
 
 				button._svelte.clausesKeysTypes_1 = clausesKeysTypes_1;
 				button._svelte.clause_index = clause_index;
@@ -741,121 +864,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		};
 	}
 
-	// (62:12) {{#each selector[clause.key] as clauseEntry, index}}
-	function create_each_block_3(state, clausesKeysTypes_1, clause_1, clause_index, each_value, clauseEntry_1, index, component) {
-		var div, valueeditor_updating = {}, text, button;
-
-		var valueeditor_initial_data = {
-			valueTypeInitial: clause_1.type.type,
-			allowedTypes: clause_1.type.allowedTypes
-		};
-		if (index in each_value) {
-			valueeditor_initial_data.value = clauseEntry_1;
-			valueeditor_updating.value = true;
-		}
-		var valueeditor = new ValueEditor({
-			_root: component._root,
-			data: valueeditor_initial_data,
-			_bind: function(changed, childState) {
-				var state = component.get(), newState = {};
-				if (!valueeditor_updating.value && changed.value) {
-					var list = valueeditor_context.each_value;
-					var index = valueeditor_context.index;
-					list[index] = childState.value;
-
-					newState.selector = state.selector;
-					newState.clausesKeysTypes = state.clausesKeysTypes;
-				}
-				valueeditor_updating = assign({}, changed);
-				component._set(newState);
-				valueeditor_updating = {};
-			}
-		});
-
-		component._root._beforecreate.push(function () {
-			var state = component.get(), childState = valueeditor.get(), newState = {};
-			if (!childState) return;
-			if (!valueeditor_updating.value) {
-				var list = valueeditor_context.each_value;
-				var index = valueeditor_context.index;
-				list[index] = childState.value;
-
-				newState.selector = state.selector;
-				newState.clausesKeysTypes = state.clausesKeysTypes;
-			}
-			valueeditor_updating = { value: true };
-			component._set(newState);
-			valueeditor_updating = {};
-		});
-
-		var valueeditor_context = {
-			each_value: each_value,
-			index: index
-		};
-
-		return {
-			c: function create() {
-				div = createElement("div");
-				valueeditor._fragment.c();
-				text = createText("\n                ");
-				button = createElement("button");
-				button.textContent = "Remove";
-				this.h();
-			},
-
-			h: function hydrate() {
-				div.className = "clause-entry";
-				addListener(button, "click", click_handler_2);
-
-				button._svelte = {
-					component: component,
-					clausesKeysTypes_1: clausesKeysTypes_1,
-					clause_index: clause_index,
-					each_value: each_value,
-					index: index
-				};
-			},
-
-			m: function mount(target, anchor) {
-				insertNode(div, target, anchor);
-				valueeditor._mount(div, null);
-				appendNode(text, div);
-				appendNode(button, div);
-			},
-
-			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index, each_value, clauseEntry_1, index) {
-				var valueeditor_changes = {};
-				if (changed.clausesKeysTypes) valueeditor_changes.valueTypeInitial = clause_1.type.type;
-				if (changed.clausesKeysTypes) valueeditor_changes.allowedTypes = clause_1.type.allowedTypes;
-				if (!valueeditor_updating.value && changed.selector || changed.clausesKeysTypes) {
-					valueeditor_changes.value = clauseEntry_1;
-					valueeditor_updating.value = true;
-				}
-				valueeditor._set( valueeditor_changes );
-				valueeditor_updating = {};
-
-				valueeditor_context.each_value = each_value;
-				valueeditor_context.index = index;
-
-				button._svelte.clausesKeysTypes_1 = clausesKeysTypes_1;
-				button._svelte.clause_index = clause_index;
-				button._svelte.each_value = each_value;
-				button._svelte.index = index;
-			},
-
-			u: function unmount() {
-				detachNode(div);
-			},
-
-			d: function destroy() {
-				valueeditor.destroy(false);
-				removeListener(button, "click", click_handler_2);
-			}
-		};
-	}
-
-	// (54:10) {{#if clause.type.vector}}
-	function create_if_block_3(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+	// (55:12) {{#if isCompoundVectorClauseKeys[clause.key]}}
+	function create_if_block_4(state, clausesKeysTypes_1, clause_1, clause_index, component) {
 		var each_anchor;
 
 		var each_value = state.selector[clause_1.key];
@@ -919,8 +929,314 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		};
 	}
 
-	// (61:10) {{else}}
-	function create_if_block_4(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+	// (69:12) {{else}}
+	function create_if_block_5(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+		var div, input, input_updating = false, text, valueeditor_updating = {};
+
+		function input_input_handler() {
+			input_updating = true;
+			var state = component.get();
+			state.selector[clause_1.key][0] = input.value;
+			component.set({ selector: state.selector, clausesKeysTypes: state.clausesKeysTypes });
+			input_updating = false;
+		}
+
+		var valueeditor_initial_data = {
+			valueTypeInitial: clause_1.type.type,
+			allowedTypes: clause_1.type.allowedTypes
+		};
+		if (1 in state.selector[clause_1.key]) {
+			valueeditor_initial_data.value = state.selector[clause_1.key][1];
+			valueeditor_updating.value = true;
+		}
+		if (clause_1.key in state.selector) {
+			valueeditor_initial_data.wholeEntry = state.selector[clause_1.key];
+			valueeditor_updating.wholeEntry = true;
+		}
+		var valueeditor = new ValueEditor({
+			_root: component._root,
+			data: valueeditor_initial_data,
+			_bind: function(changed, childState) {
+				var state = component.get(), newState = {};
+				if (!valueeditor_updating.value && changed.value) {
+					state.selector[clause_1.key][1] = childState.value;
+					newState.selector = state.selector;
+					newState.clausesKeysTypes = state.clausesKeysTypes;
+				}
+
+				if (!valueeditor_updating.wholeEntry && changed.wholeEntry) {
+					state.selector[clause_1.key] = childState.wholeEntry;
+					newState.selector = state.selector;
+					newState.clausesKeysTypes = state.clausesKeysTypes;
+				}
+				valueeditor_updating = assign({}, changed);
+				component._set(newState);
+				valueeditor_updating = {};
+			}
+		});
+
+		component._root._beforecreate.push(function () {
+			var state = component.get(), childState = valueeditor.get(), newState = {};
+			if (!childState) return;
+			if (!valueeditor_updating.value) {
+				state.selector[clause_1.key][1] = childState.value;
+				newState.selector = state.selector;
+				newState.clausesKeysTypes = state.clausesKeysTypes;
+			}
+
+			if (!valueeditor_updating.wholeEntry) {
+				state.selector[clause_1.key] = childState.wholeEntry;
+				newState.selector = state.selector;
+				newState.clausesKeysTypes = state.clausesKeysTypes;
+			}
+			valueeditor_updating = { value: true, wholeEntry: true };
+			component._set(newState);
+			valueeditor_updating = {};
+		});
+
+		valueeditor.on("makeDate", function(event) {
+			var clausesKeysTypes_1 = valueeditor_context.clausesKeysTypes_1, clause_index = valueeditor_context.clause_index, clause = clausesKeysTypes_1[clause_index]
+
+			component.makeDate(clause_1.key, null);
+		});
+
+		valueeditor.on("makeNotDate", function(event) {
+			var clausesKeysTypes_1 = valueeditor_context.clausesKeysTypes_1, clause_index = valueeditor_context.clause_index, clause = clausesKeysTypes_1[clause_index]
+
+			component.makeNotDate(clause_1.key, null);
+		});
+
+		var valueeditor_context = {
+			state: state,
+			clausesKeysTypes_1: clausesKeysTypes_1,
+			clause_index: clause_index
+		};
+
+		return {
+			c: function create() {
+				div = createElement("div");
+				input = createElement("input");
+				text = createText(",\n                ");
+				valueeditor._fragment.c();
+				this.h();
+			},
+
+			h: function hydrate() {
+				div.className = "clause-entry";
+				input.type = "text";
+				input.placeholder = "property name";
+				addListener(input, "input", input_input_handler);
+
+				input._svelte = {
+					clausesKeysTypes_1: clausesKeysTypes_1,
+					clause_index: clause_index
+				};
+			},
+
+			m: function mount(target, anchor) {
+				insertNode(div, target, anchor);
+				appendNode(input, div);
+
+				input.value = state.selector[clause_1.key][0];
+
+				appendNode(text, div);
+				valueeditor._mount(div, null);
+			},
+
+			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index) {
+				if (!input_updating) {
+					input.value = state.selector[clause_1.key][0];
+				}
+
+				input._svelte.clausesKeysTypes_1 = clausesKeysTypes_1;
+				input._svelte.clause_index = clause_index;
+
+				var valueeditor_changes = {};
+				if (changed.clausesKeysTypes) valueeditor_changes.valueTypeInitial = clause_1.type.type;
+				if (changed.clausesKeysTypes) valueeditor_changes.allowedTypes = clause_1.type.allowedTypes;
+				if (!valueeditor_updating.value && changed.selector || changed.clausesKeysTypes) {
+					valueeditor_changes.value = state.selector[clause_1.key][1];
+					valueeditor_updating.value = true;
+				}
+				if (!valueeditor_updating.wholeEntry && changed.selector || changed.clausesKeysTypes) {
+					valueeditor_changes.wholeEntry = state.selector[clause_1.key];
+					valueeditor_updating.wholeEntry = true;
+				}
+				valueeditor._set( valueeditor_changes );
+				valueeditor_updating = {};
+
+				valueeditor_context.state = state;
+				valueeditor_context.clausesKeysTypes_1 = clausesKeysTypes_1;
+				valueeditor_context.clause_index = clause_index;
+			},
+
+			u: function unmount() {
+				detachNode(div);
+			},
+
+			d: function destroy() {
+				removeListener(input, "input", input_input_handler);
+				valueeditor.destroy(false);
+			}
+		};
+	}
+
+	// (83:14) {{#each selector[clause.key] as clauseEntry, index}}
+	function create_each_block_3(state, clausesKeysTypes_1, clause_1, clause_index, each_value, clauseEntry_1, index, component) {
+		var div, valueeditor_updating = {}, text, button;
+
+		var valueeditor_initial_data = {
+			valueTypeInitial: clause_1.type.type,
+			allowedTypes: clause_1.type.allowedTypes
+		};
+		if (index in each_value) {
+			valueeditor_initial_data.value = clauseEntry_1;
+			valueeditor_updating.value = true;
+		}
+		var valueeditor = new ValueEditor({
+			_root: component._root,
+			data: valueeditor_initial_data,
+			_bind: function(changed, childState) {
+				var state = component.get(), newState = {};
+				if (!valueeditor_updating.value && changed.value) {
+					var list = valueeditor_context.each_value;
+					var index = valueeditor_context.index;
+					list[index] = childState.value;
+
+					newState.selector = state.selector;
+					newState.clausesKeysTypes = state.clausesKeysTypes;
+				}
+				valueeditor_updating = assign({}, changed);
+				component._set(newState);
+				valueeditor_updating = {};
+			}
+		});
+
+		component._root._beforecreate.push(function () {
+			var state = component.get(), childState = valueeditor.get(), newState = {};
+			if (!childState) return;
+			if (!valueeditor_updating.value) {
+				var list = valueeditor_context.each_value;
+				var index = valueeditor_context.index;
+				list[index] = childState.value;
+
+				newState.selector = state.selector;
+				newState.clausesKeysTypes = state.clausesKeysTypes;
+			}
+			valueeditor_updating = { value: true };
+			component._set(newState);
+			valueeditor_updating = {};
+		});
+
+		var valueeditor_context = {
+			each_value: each_value,
+			index: index
+		};
+
+		return {
+			c: function create() {
+				div = createElement("div");
+				valueeditor._fragment.c();
+				text = createText("\n                  ");
+				button = createElement("button");
+				button.textContent = "Remove";
+				this.h();
+			},
+
+			h: function hydrate() {
+				div.className = "clause-entry";
+				addListener(button, "click", click_handler_2);
+
+				button._svelte = {
+					component: component,
+					clausesKeysTypes_1: clausesKeysTypes_1,
+					clause_index: clause_index,
+					each_value: each_value,
+					index: index
+				};
+			},
+
+			m: function mount(target, anchor) {
+				insertNode(div, target, anchor);
+				valueeditor._mount(div, null);
+				appendNode(text, div);
+				appendNode(button, div);
+			},
+
+			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index, each_value, clauseEntry_1, index) {
+				var valueeditor_changes = {};
+				if (changed.clausesKeysTypes) valueeditor_changes.valueTypeInitial = clause_1.type.type;
+				if (changed.clausesKeysTypes) valueeditor_changes.allowedTypes = clause_1.type.allowedTypes;
+				if (!valueeditor_updating.value && changed.selector || changed.clausesKeysTypes) {
+					valueeditor_changes.value = clauseEntry_1;
+					valueeditor_updating.value = true;
+				}
+				valueeditor._set( valueeditor_changes );
+				valueeditor_updating = {};
+
+				valueeditor_context.each_value = each_value;
+				valueeditor_context.index = index;
+
+				button._svelte.clausesKeysTypes_1 = clausesKeysTypes_1;
+				button._svelte.clause_index = clause_index;
+				button._svelte.each_value = each_value;
+				button._svelte.index = index;
+			},
+
+			u: function unmount() {
+				detachNode(div);
+			},
+
+			d: function destroy() {
+				valueeditor.destroy(false);
+				removeListener(button, "click", click_handler_2);
+			}
+		};
+	}
+
+	// (54:10) {{#if clause.type.vector}}
+	function create_if_block_3(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+		var if_block_anchor;
+
+		var current_block_type = select_block_type(state, clausesKeysTypes_1, clause_1, clause_index);
+		var if_block = current_block_type(state, clausesKeysTypes_1, clause_1, clause_index, component);
+
+		return {
+			c: function create() {
+				if_block.c();
+				if_block_anchor = createComment();
+			},
+
+			m: function mount(target, anchor) {
+				if_block.m(target, anchor);
+				insertNode(if_block_anchor, target, anchor);
+			},
+
+			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index) {
+				if (current_block_type === (current_block_type = select_block_type(state, clausesKeysTypes_1, clause_1, clause_index)) && if_block) {
+					if_block.p(changed, state, clausesKeysTypes_1, clause_1, clause_index);
+				} else {
+					if_block.u();
+					if_block.d();
+					if_block = current_block_type(state, clausesKeysTypes_1, clause_1, clause_index, component);
+					if_block.c();
+					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+				}
+			},
+
+			u: function unmount() {
+				if_block.u();
+				detachNode(if_block_anchor);
+			},
+
+			d: function destroy() {
+				if_block.d();
+			}
+		};
+	}
+
+	// (82:12) {{#if isCompoundScalarClauseKeys[clause.key]}}
+	function create_if_block_6(state, clausesKeysTypes_1, clause_1, clause_index, component) {
 		var each_anchor;
 
 		var each_value = state.selector[clause_1.key];
@@ -980,6 +1296,95 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 
 			d: function destroy() {
 				destroyEach(each_blocks);
+			}
+		};
+	}
+
+	// (92:12) {{else}}
+	function create_if_block_7(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+		var div, valueeditor_updating = {};
+
+		var valueeditor_initial_data = {
+			valueTypeInitial: clause_1.type.type,
+			allowedTypes: clause_1.type.allowedTypes
+		};
+		if (clause_1.key in state.selector) {
+			valueeditor_initial_data.value = state.selector[clause_1.key];
+			valueeditor_updating.value = true;
+		}
+		var valueeditor = new ValueEditor({
+			_root: component._root,
+			data: valueeditor_initial_data,
+			_bind: function(changed, childState) {
+				var state = component.get(), newState = {};
+				if (!valueeditor_updating.value && changed.value) {
+					state.selector[clause_1.key] = childState.value;
+					newState.selector = state.selector;
+					newState.clausesKeysTypes = state.clausesKeysTypes;
+				}
+				valueeditor_updating = assign({}, changed);
+				component._set(newState);
+				valueeditor_updating = {};
+			}
+		});
+
+		component._root._beforecreate.push(function () {
+			var state = component.get(), childState = valueeditor.get(), newState = {};
+			if (!childState) return;
+			if (!valueeditor_updating.value) {
+				state.selector[clause_1.key] = childState.value;
+				newState.selector = state.selector;
+				newState.clausesKeysTypes = state.clausesKeysTypes;
+			}
+			valueeditor_updating = { value: true };
+			component._set(newState);
+			valueeditor_updating = {};
+		});
+
+		var valueeditor_context = {
+			state: state,
+			clausesKeysTypes_1: clausesKeysTypes_1,
+			clause_index: clause_index
+		};
+
+		return {
+			c: function create() {
+				div = createElement("div");
+				valueeditor._fragment.c();
+				this.h();
+			},
+
+			h: function hydrate() {
+				div.className = "clause-entry";
+			},
+
+			m: function mount(target, anchor) {
+				insertNode(div, target, anchor);
+				valueeditor._mount(div, null);
+			},
+
+			p: function update(changed, state, clausesKeysTypes_1, clause_1, clause_index) {
+				var valueeditor_changes = {};
+				if (changed.clausesKeysTypes) valueeditor_changes.valueTypeInitial = clause_1.type.type;
+				if (changed.clausesKeysTypes) valueeditor_changes.allowedTypes = clause_1.type.allowedTypes;
+				if (!valueeditor_updating.value && changed.selector || changed.clausesKeysTypes) {
+					valueeditor_changes.value = state.selector[clause_1.key];
+					valueeditor_updating.value = true;
+				}
+				valueeditor._set( valueeditor_changes );
+				valueeditor_updating = {};
+
+				valueeditor_context.state = state;
+				valueeditor_context.clausesKeysTypes_1 = clausesKeysTypes_1;
+				valueeditor_context.clause_index = clause_index;
+			},
+
+			u: function unmount() {
+				detachNode(div);
+			},
+
+			d: function destroy() {
+				valueeditor.destroy(false);
 			}
 		};
 	}
@@ -1071,7 +1476,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 	function create_if_block_2(state, clausesKeysTypes_1, clause_1, clause_index, component) {
 		var div, button, text_2, text_3;
 
-		var current_block_type = select_block_type(state, clausesKeysTypes_1, clause_1, clause_index);
+		var current_block_type = select_block_type_1(state, clausesKeysTypes_1, clause_1, clause_index);
 		var if_block = current_block_type(state, clausesKeysTypes_1, clause_1, clause_index, component);
 
 		return {
@@ -1107,7 +1512,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 				button._svelte.clausesKeysTypes_1 = clausesKeysTypes_1;
 				button._svelte.clause_index = clause_index;
 
-				if (current_block_type === (current_block_type = select_block_type(state, clausesKeysTypes_1, clause_1, clause_index)) && if_block) {
+				if (current_block_type === (current_block_type = select_block_type_1(state, clausesKeysTypes_1, clause_1, clause_index)) && if_block) {
 					if_block.p(changed, state, clausesKeysTypes_1, clause_1, clause_index);
 				} else {
 					if_block.u();
@@ -1132,8 +1537,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		};
 	}
 
-	// (72:6) {{#if clause.type !== "selector"}}
-	function create_if_block_5(state, clausesKeysTypes_1, clause_1, clause_index, component) {
+	// (104:6) {{#if clause.type !== "selector"}}
+	function create_if_block_8(state, clausesKeysTypes_1, clause_1, clause_index, component) {
 		var div, button;
 
 		return {
@@ -1188,6 +1593,11 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		component.removeClauseEntry(clause_1.key, index);
 	}
 
+	function select_block_type(state, clausesKeysTypes_1, clause_1, clause_index) {
+		if (state.isCompoundVectorClauseKeys[clause_1.key]) return create_if_block_4;
+		return create_if_block_5;
+	}
+
 	function click_handler_2(event) {
 		var component = this._svelte.component;
 		var clausesKeysTypes_1 = this._svelte.clausesKeysTypes_1, clause_index = this._svelte.clause_index, clause_1 = clausesKeysTypes_1[clause_index];
@@ -1195,12 +1605,13 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		component.removeClauseEntry(clause_1.key, index);
 	}
 
-	function select_block_type(state, clausesKeysTypes_1, clause_1, clause_index) {
+	function select_block_type_1(state, clausesKeysTypes_1, clause_1, clause_index) {
 		if (clause_1.type.vector) return create_if_block_3;
-		return create_if_block_4;
+		if (state.isCompoundScalarClauseKeys[clause_1.key]) return create_if_block_6;
+		return create_if_block_7;
 	}
 
-	function select_block_type_1(state, clausesKeysTypes_1, clause_1, clause_index) {
+	function select_block_type_2(state, clausesKeysTypes_1, clause_1, clause_index) {
 		if (clause_1.type === "selector") return create_if_block_1;
 		return create_if_block_2;
 	}
@@ -1216,7 +1627,7 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		this._state = assign(data(), options.data);
 		this._recompute({ selector: 1, supportedClauses: 1 }, this._state);
 
-		if (!document.getElementById("svelte-3706593811-style")) add_css();
+		if (!document.getElementById("svelte-1745198361-style")) add_css();
 
 		if (!options._root) {
 			this._oncreate = [];
@@ -1255,6 +1666,8 @@ var SelectorEditor = (function(ValueEditor) { "use strict";
 		if (changed.selector || changed.supportedClauses) {
 			if (differs(state.remainingClauses, (state.remainingClauses = remainingClauses(state.selector, state.supportedClauses)))) changed.remainingClauses = true;
 			if (differs(state.clausesKeysTypes, (state.clausesKeysTypes = clausesKeysTypes(state.selector, state.supportedClauses)))) changed.clausesKeysTypes = true;
+			if (differs(state.isCompoundVectorClauseKeys, (state.isCompoundVectorClauseKeys = isCompoundVectorClauseKeys(state.selector, state.supportedClauses)))) changed.isCompoundVectorClauseKeys = true;
+			if (differs(state.isCompoundScalarClauseKeys, (state.isCompoundScalarClauseKeys = isCompoundScalarClauseKeys(state.selector, state.supportedClauses)))) changed.isCompoundScalarClauseKeys = true;
 		}
 	}
 

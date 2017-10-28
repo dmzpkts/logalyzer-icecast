@@ -830,15 +830,9 @@ function query(options, selectors) {
     selectors: [
       {
         'type': '&',
-        'strict': [
-          ['resource', '/stream']
-        ],
-        "gte": [
-          ["timeStart", 1508122800]
-        ],
-        "lte": [
-          ["timeEnd", 1508144400]
-        ]
+        'strict': ['resource', '/stream'],
+        "gte": ["timeStart", 1508122800],
+        "lte": ["timeEnd", 1508144400]
       }
     ]
   }
@@ -910,13 +904,13 @@ function query(options, selectors) {
 };
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-966813168", "");
+		setAttribute(node, "svelte-3909657938", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-966813168-style';
-		style.textContent = "[svelte-966813168].hidden,[svelte-966813168] .hidden{display:none}[svelte-966813168].chart-canvas,[svelte-966813168] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-966813168].loader,[svelte-966813168] .loader,[svelte-966813168].loader:after,[svelte-966813168] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-966813168].loader,[svelte-966813168] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-966813168-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-966813168]0%,[svelte-966813168] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-966813168]100%,[svelte-966813168] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-966813168-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-3909657938-style';
+		style.textContent = "[svelte-3909657938].hidden,[svelte-3909657938] .hidden{display:none}[svelte-3909657938].chart-canvas,[svelte-3909657938] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-3909657938].loader,[svelte-3909657938] .loader,[svelte-3909657938].loader:after,[svelte-3909657938] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-3909657938].loader,[svelte-3909657938] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-3909657938-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-3909657938]0%,[svelte-3909657938] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-3909657938]100%,[svelte-3909657938] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-3909657938-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -1444,7 +1438,7 @@ function query(options, selectors) {
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1 }, this._state);
 
-		if (!document.getElementById("svelte-966813168-style")) add_css();
+		if (!document.getElementById("svelte-3909657938-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 
