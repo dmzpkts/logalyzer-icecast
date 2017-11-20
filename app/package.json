@@ -6,7 +6,8 @@
   "scripts": {
     "build": "npm run build-entities && npm run build-svelte",
     "build-entities": "babel -d build/ entities/",
-    "build-svelte": "npm run build-LogalyzerApp",
+    "build-svelte": "npm run build-MainApp && npm run build-LogalyzerApp",
+    "build-MainApp": "svelte compile --format es src/MainApp.html > build/MainApp.js && babel build/MainApp.js -o build/MainApp.js",
     "build-LogalyzerApp": "svelte compile --format es src/LogalyzerApp.html > build/LogalyzerApp.js && babel build/LogalyzerApp.js -o build/LogalyzerApp.js",
     "watch-entities": "babel --watch -d build/ entities/",
     "prepare": "npm run build",

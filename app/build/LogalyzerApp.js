@@ -954,62 +954,56 @@
   };
 
   function encapsulateStyles(node) {
-    setAttribute(node, "svelte-518362706", "");
+    setAttribute(node, "svelte-2675235431", "");
   }
 
   function add_css() {
     var style = createElement("style");
-    style.id = 'svelte-518362706-style';
-    style.textContent = "[svelte-518362706].hidden,[svelte-518362706] .hidden{display:none}[svelte-518362706].chart-canvas,[svelte-518362706] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-518362706].loader,[svelte-518362706] .loader,[svelte-518362706].loader:after,[svelte-518362706] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-518362706].loader,[svelte-518362706] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-518362706-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-518362706]0%,[svelte-518362706] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-518362706]100%,[svelte-518362706] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-518362706-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+    style.id = 'svelte-2675235431-style';
+    style.textContent = "[svelte-2675235431].chart-canvas,[svelte-2675235431] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2675235431].loader,[svelte-2675235431] .loader,[svelte-2675235431].loader:after,[svelte-2675235431] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2675235431].loader,[svelte-2675235431] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2675235431-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2675235431]0%,[svelte-2675235431] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2675235431]100%,[svelte-2675235431] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2675235431-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
     appendNode(style, document.head);
   }
 
   function create_main_fragment(state, component) {
     var div,
-        button,
-        text_1,
-        button_1,
-        text_2,
-        text_3,
-        span,
-        text_4,
+        div_1,
+        div_2,
+        label,
+        text,
         select,
         select_updating = false,
-        text_6,
-        span_1,
-        text_7,
+        text_3,
+        div_3,
+        label_1,
+        text_4,
         select_1,
         select_1_updating = false,
+        text_7,
+        button,
         text_9,
-        div_1,
-        div_1_class_value,
-        queryeditor_updating = {},
-        text_11,
-        hr,
+        button_1,
+        text_10,
         text_12,
-        h1,
-        text_13,
-        button_2,
-        text_15,
-        button_3,
-        text_18,
-        div_2,
-        div_3,
-        div_3_class_value,
-        text_19,
         div_4,
+        div_4_class_value,
+        queryeditor_updating = {},
+        text_14,
+        hr,
+        text_15,
+        div_5,
+        h1,
+        text_17,
+        div_6,
+        button_2,
+        text_19,
+        button_3,
+        text_23,
+        div_7,
+        div_8,
+        div_8_class_value,
+        text_24,
+        div_9,
         canvas;
-
-    function click_handler(event) {
-      component.runQuery();
-    }
-
-    function click_handler_1(event) {
-      component.toggleQueryEditor();
-    }
-
-    var current_block_type = select_block_type(state);
-    var if_block = current_block_type(state, component);
 
     var __aggregateFunctionsKeys = state.__aggregateFunctionsKeys;
 
@@ -1045,6 +1039,17 @@
       component.set({ chartFunction: selectedOption && selectedOption.__value });
       select_1_updating = false;
     }
+
+    function click_handler(event) {
+      component.runQuery();
+    }
+
+    function click_handler_1(event) {
+      component.toggleQueryEditor();
+    }
+
+    var current_block_type = select_block_type(state);
+    var if_block = current_block_type(state, component);
 
     var queryeditor_initial_data = {};
     if ('options' in state) {
@@ -1118,89 +1123,103 @@
     return {
       c: function create() {
         div = createElement("div");
-        button = createElement("button");
-        button.textContent = "Run Query";
-        text_1 = createText("\n  ");
-        button_1 = createElement("button");
-        if_block.c();
-        text_2 = createText(" Query Editor");
-        text_3 = createText("\n  ");
-        span = createElement("span");
-        text_4 = createText("Aggregrator:\n    ");
+        div_1 = createElement("div");
+        div_2 = createElement("div");
+        label = createElement("label");
+        text = createText("Aggregrator\n        ");
         select = createElement("select");
 
         for (var i = 0; i < each_blocks.length; i += 1) {
           each_blocks[i].c();
         }
 
-        text_6 = createText("\n  ");
-        span_1 = createElement("span");
-        text_7 = createText("Chart:\n    ");
+        text_3 = createText("\n    ");
+        div_3 = createElement("div");
+        label_1 = createElement("label");
+        text_4 = createText("Chart\n        ");
         select_1 = createElement("select");
 
         for (var i = 0; i < each_1_blocks.length; i += 1) {
           each_1_blocks[i].c();
         }
 
-        text_9 = createText("\n  ");
-        div_1 = createElement("div");
+        text_7 = createText("\n    ");
+        button = createElement("button");
+        button.textContent = "Run Query";
+        text_9 = createText("\n    ");
+        button_1 = createElement("button");
+        if_block.c();
+        text_10 = createText(" Query Editor");
+        text_12 = createText("\n  ");
+        div_4 = createElement("div");
         queryeditor._fragment.c();
-        text_11 = createText("\n  ");
+        text_14 = createText("\n  ");
         hr = createElement("hr");
-        text_12 = createText("\n\n  ");
+        text_15 = createText("\n\n  ");
+        div_5 = createElement("div");
         h1 = createElement("h1");
-        text_13 = createText("Logalyzer Results\n    ");
+        h1.textContent = "Logalyzer Results";
+        text_17 = createText("\n    ");
+        div_6 = createElement("div");
         button_2 = createElement("button");
         button_2.textContent = "Increase Height";
-        text_15 = createText("\n    ");
+        text_19 = createText("\n      ");
         button_3 = createElement("button");
         button_3.textContent = "Decrease Height";
-        text_18 = createText("\n\t");
-        div_2 = createElement("div");
-        div_3 = createElement("div");
-        text_19 = createText("\n    ");
-        div_4 = createElement("div");
+        text_23 = createText("\n\t");
+        div_7 = createElement("div");
+        div_8 = createElement("div");
+        text_24 = createText("\n    ");
+        div_9 = createElement("div");
         canvas = createElement("canvas");
         this.h();
       },
 
       h: function hydrate() {
         encapsulateStyles(div);
-        addListener(button, "click", click_handler);
-        addListener(button_1, "click", click_handler_1);
+        div_1.className = "form-inline mb-3";
+        div_2.className = "form-group mx-sm-3";
+        select.className = "form-control ml-3";
 
         if (!('aggregateFunction' in state)) component._root._beforecreate.push(select_change_handler);
 
         addListener(select, "change", select_change_handler);
         addListener(select, "change", change_handler);
+        div_3.className = "form-group mx-sm-3";
+        select_1.className = "form-control ml-3";
 
         if (!('chartFunction' in state)) component._root._beforecreate.push(select_1_change_handler);
 
         addListener(select_1, "change", select_1_change_handler);
-        div_1.className = div_1_class_value = state.__showQueryEditor ? '' : 'hidden';
+        button.type = "button";
+        button.className = "btn btn-primary ml-3";
+        addListener(button, "click", click_handler);
+        button_1.type = "button";
+        button_1.className = "btn btn-secondary ml-3";
+        addListener(button_1, "click", click_handler_1);
+        div_4.className = div_4_class_value = "mb-3 " + (state.__showQueryEditor ? '' : 'd-none');
+        div_5.className = "d-flex align-items-start justify-content-between";
+        button_2.className = "btn btn-secondary";
         addListener(button_2, "click", click_handler_2);
+        button_3.className = "btn btn-secondary";
         addListener(button_3, "click", click_handler_3);
-        setStyle(div_2, "position", "relative");
-        setStyle(div_2, "height", "60vh");
-        div_3.className = div_3_class_value = "loader " + (state.__loading ? '' : 'hidden');
-        div_4.className = "chart-container";
-        setStyle(div_4, "position", "relative");
-        setStyle(div_4, "height", "140%");
-        setStyle(div_4, "width", "100%");
+        setStyle(div_7, "position", "relative");
+        setStyle(div_7, "height", "60vh");
+        div_8.className = div_8_class_value = "loader " + (state.__loading ? '' : 'hidden');
+        div_9.className = "chart-container";
+        setStyle(div_9, "position", "relative");
+        setStyle(div_9, "height", "140%");
+        setStyle(div_9, "width", "100%");
         canvas.className = "chart-canvas";
       },
 
       m: function mount(target, anchor) {
         insertNode(div, target, anchor);
-        appendNode(button, div);
-        appendNode(text_1, div);
-        appendNode(button_1, div);
-        if_block.m(button_1, null);
-        appendNode(text_2, button_1);
-        appendNode(text_3, div);
-        appendNode(span, div);
-        appendNode(text_4, span);
-        appendNode(select, span);
+        appendNode(div_1, div);
+        appendNode(div_2, div_1);
+        appendNode(label, div_2);
+        appendNode(text, label);
+        appendNode(select, label);
 
         for (var i = 0; i < each_blocks.length; i += 1) {
           each_blocks[i].m(select, null);
@@ -1216,10 +1235,11 @@
           }
         }
 
-        appendNode(text_6, div);
-        appendNode(span_1, div);
-        appendNode(text_7, span_1);
-        appendNode(select_1, span_1);
+        appendNode(text_3, div_1);
+        appendNode(div_3, div_1);
+        appendNode(label_1, div_3);
+        appendNode(text_4, label_1);
+        appendNode(select_1, label_1);
 
         for (var i = 0; i < each_1_blocks.length; i += 1) {
           each_1_blocks[i].m(select_1, null);
@@ -1235,36 +1255,36 @@
           }
         }
 
-        appendNode(text_9, div);
-        appendNode(div_1, div);
-        queryeditor._mount(div_1, null);
-        appendNode(text_11, div);
-        appendNode(hr, div);
+        appendNode(text_7, div_1);
+        appendNode(button, div_1);
+        appendNode(text_9, div_1);
+        appendNode(button_1, div_1);
+        if_block.m(button_1, null);
+        appendNode(text_10, button_1);
         appendNode(text_12, div);
-        appendNode(h1, div);
-        appendNode(text_13, h1);
-        appendNode(button_2, h1);
-        appendNode(text_15, h1);
-        appendNode(button_3, h1);
-        appendNode(text_18, div);
-        appendNode(div_2, div);
-        appendNode(div_3, div_2);
-        appendNode(text_19, div_2);
-        appendNode(div_4, div_2);
-        component.refs.canvascontainer = div_4;
-        appendNode(canvas, div_4);
+        appendNode(div_4, div);
+        queryeditor._mount(div_4, null);
+        appendNode(text_14, div);
+        appendNode(hr, div);
+        appendNode(text_15, div);
+        appendNode(div_5, div);
+        appendNode(h1, div_5);
+        appendNode(text_17, div_5);
+        appendNode(div_6, div_5);
+        appendNode(button_2, div_6);
+        appendNode(text_19, div_6);
+        appendNode(button_3, div_6);
+        appendNode(text_23, div);
+        appendNode(div_7, div);
+        appendNode(div_8, div_7);
+        appendNode(text_24, div_7);
+        appendNode(div_9, div_7);
+        component.refs.canvascontainer = div_9;
+        appendNode(canvas, div_9);
         component.refs.canvas = canvas;
       },
 
       p: function update(changed, state) {
-        if (current_block_type !== (current_block_type = select_block_type(state))) {
-          if_block.u();
-          if_block.d();
-          if_block = current_block_type(state, component);
-          if_block.c();
-          if_block.m(button_1, text_2);
-        }
-
         var __aggregateFunctionsKeys = state.__aggregateFunctionsKeys;
 
         if (changed.__aggregateFunctionsKeys || changed.__aggregateFunctions) {
@@ -1329,8 +1349,16 @@
           }
         }
 
-        if (changed.__showQueryEditor && div_1_class_value !== (div_1_class_value = state.__showQueryEditor ? '' : 'hidden')) {
-          div_1.className = div_1_class_value;
+        if (current_block_type !== (current_block_type = select_block_type(state))) {
+          if_block.u();
+          if_block.d();
+          if_block = current_block_type(state, component);
+          if_block.c();
+          if_block.m(button_1, text_10);
+        }
+
+        if (changed.__showQueryEditor && div_4_class_value !== (div_4_class_value = "mb-3 " + (state.__showQueryEditor ? '' : 'd-none'))) {
+          div_4.className = div_4_class_value;
         }
 
         var queryeditor_changes = {};
@@ -1351,14 +1379,13 @@
 
         queryeditor_context.state = state;
 
-        if (changed.__loading && div_3_class_value !== (div_3_class_value = "loader " + (state.__loading ? '' : 'hidden'))) {
-          div_3.className = div_3_class_value;
+        if (changed.__loading && div_8_class_value !== (div_8_class_value = "loader " + (state.__loading ? '' : 'hidden'))) {
+          div_8.className = div_8_class_value;
         }
       },
 
       u: function unmount() {
         detachNode(div);
-        if_block.u();
 
         for (var i = 0; i < each_blocks.length; i += 1) {
           each_blocks[i].u();
@@ -1367,13 +1394,11 @@
         for (var i = 0; i < each_1_blocks.length; i += 1) {
           each_1_blocks[i].u();
         }
+
+        if_block.u();
       },
 
       d: function destroy() {
-        removeListener(button, "click", click_handler);
-        removeListener(button_1, "click", click_handler_1);
-        if_block.d();
-
         destroyEach(each_blocks);
 
         removeListener(select, "change", select_change_handler);
@@ -1382,58 +1407,19 @@
         destroyEach(each_1_blocks);
 
         removeListener(select_1, "change", select_1_change_handler);
+        removeListener(button, "click", click_handler);
+        removeListener(button_1, "click", click_handler_1);
+        if_block.d();
         queryeditor.destroy(false);
         removeListener(button_2, "click", click_handler_2);
         removeListener(button_3, "click", click_handler_3);
-        if (component.refs.canvascontainer === div_4) component.refs.canvascontainer = null;
+        if (component.refs.canvascontainer === div_9) component.refs.canvascontainer = null;
         if (component.refs.canvas === canvas) component.refs.canvas = null;
       }
     };
   }
 
-  // (4:4) {{#if __showQueryEditor}}
-  function create_if_block(state, component) {
-    var text;
-
-    return {
-      c: function create() {
-        text = createText("Hide");
-      },
-
-      m: function mount(target, anchor) {
-        insertNode(text, target, anchor);
-      },
-
-      u: function unmount() {
-        detachNode(text);
-      },
-
-      d: noop
-    };
-  }
-
-  // (4:33) {{else}}
-  function create_if_block_1(state, component) {
-    var text;
-
-    return {
-      c: function create() {
-        text = createText("Show");
-      },
-
-      m: function mount(target, anchor) {
-        insertNode(text, target, anchor);
-      },
-
-      u: function unmount() {
-        detachNode(text);
-      },
-
-      d: noop
-    };
-  }
-
-  // (9:6) {{#each __aggregateFunctionsKeys as key}}
+  // (7:10) {{#each __aggregateFunctionsKeys as key}}
   function create_each_block(state, __aggregateFunctionsKeys, key, key_index, component) {
     var option,
         option_value_value,
@@ -1476,7 +1462,7 @@
     };
   }
 
-  // (19:6) {{#each __chartFunctionsKeys as key}}
+  // (19:10) {{#each __chartFunctionsKeys as key}}
   function create_each_block_1(state, __chartFunctionsKeys, key_1, key_index_1, component) {
     var option,
         option_value_value,
@@ -1519,6 +1505,48 @@
     };
   }
 
+  // (29:6) {{#if __showQueryEditor}}
+  function create_if_block(state, component) {
+    var text;
+
+    return {
+      c: function create() {
+        text = createText("Hide");
+      },
+
+      m: function mount(target, anchor) {
+        insertNode(text, target, anchor);
+      },
+
+      u: function unmount() {
+        detachNode(text);
+      },
+
+      d: noop
+    };
+  }
+
+  // (29:35) {{else}}
+  function create_if_block_1(state, component) {
+    var text;
+
+    return {
+      c: function create() {
+        text = createText("Show");
+      },
+
+      m: function mount(target, anchor) {
+        insertNode(text, target, anchor);
+      },
+
+      u: function unmount() {
+        detachNode(text);
+      },
+
+      d: noop
+    };
+  }
+
   function select_block_type(state) {
     if (state.__showQueryEditor) return create_if_block;
     return create_if_block_1;
@@ -1530,7 +1558,7 @@
     this._state = assign(data(), options.data);
     this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1 }, this._state);
 
-    if (!document.getElementById("svelte-518362706-style")) add_css();
+    if (!document.getElementById("svelte-2675235431-style")) add_css();
 
     var _oncreate = oncreate.bind(this);
 
@@ -1626,14 +1654,14 @@
     node.parentNode.removeChild(node);
   }
 
-  function removeListener(node, event, handler) {
-    node.removeEventListener(event, handler, false);
-  }
-
   function destroyEach(iterations) {
     for (var i = 0; i < iterations.length; i += 1) {
       if (iterations[i]) iterations[i].d();
     }
+  }
+
+  function removeListener(node, event, handler) {
+    node.removeEventListener(event, handler, false);
   }
 
   function noop() {}
