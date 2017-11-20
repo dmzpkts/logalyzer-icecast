@@ -1,6 +1,8 @@
 node_modules
 vendor
-.idea
-.DS_Store
-geolite2db/GeoLite2-City.mmdb
-icecast2*/
+/mail
+/db_data
+/db_password.txt
+/db_root_password.txt
+/app/geolite2db/GeoLite2-City.mmdb
+/app/icecast2*/

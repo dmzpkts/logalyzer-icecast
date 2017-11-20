@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Logalyzer for Icecast</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Nymph Config -->
+  <script type="text/javascript">
+    (function(){
+      var s = document.createElement("script"); s.setAttribute("src", "https://www.promisejs.org/polyfills/promise-5.0.0.min.js");
+      (typeof Promise !== "undefined" && typeof Promise.all === "function") || document.getElementsByTagName('head')[0].appendChild(s);
+    })();
+    NymphOptions = {
+      restURL: '/rest.php',
+      pubsubURL: 'ws://'+window.location.hostname+':8081',
+      rateLimit: 100
+    };
+  </script>
+
+  <!-- Nymph JS -->
+  <script src="/node_modules/nymph-client/lib/Nymph.js"></script>
+  <script src="/node_modules/nymph-client/lib/Entity.js"></script>
+  <script src="/node_modules/nymph-client/lib/PubSub.js"></script>
+
+  <!-- Tilmeld JS -->
+  <script src="/node_modules/tilmeld/lib/Entities/User.js"></script>
+  <script src="/node_modules/tilmeld/lib/Entities/Group.js"></script>
+  <script src="/node_modules/tilmeld/lib/Components/TilmeldRecover.js"></script>
+  <script src="/node_modules/tilmeld/lib/Components/TilmeldLogin.js"></script>
+  <script src="/node_modules/tilmeld/lib/Components/TilmeldChangePassword.js"></script>
+
+  <!-- PForm CSS -->
+  <link rel="stylesheet" href="/node_modules/pform/css/pform.css">
+  <link rel="stylesheet" href="/node_modules/pform/css/pform-bootstrap.css">
+
+  <!-- Entity JS -->
+  <script src="build/LogEntry.js"></script>
+
+  <!-- Locutus strtotime (have to load it manually) -->
+  <script type="text/javascript">
+    if (typeof module !== "undefined") _module = module;
+    module = {};
+  </script>
+  <script src="/node_modules/locutus/php/datetime/strtotime.js"></script>
+  <script type="text/javascript">
+    strtotime = module.exports;
+    delete module;
+    if (typeof _module !== "undefined") module = _module;
+  </script>
+
+  <!-- Moment -->
+  <script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="/node_modules/chart.js/dist/Chart.min.js"></script>
+  <script src="/node_modules/hammerjs/hammer.min.js"></script>
+  <script src="/node_modules/chartjs-plugin-zoom/chartjs-plugin-zoom.min.js"></script>
+</head>
+<body>
+  <main></main>
+
+  <!-- App JS -->
+  <script src="/node_modules/nymph-query-editor/lib/ValueEditor.js"></script>
+  <script src="/node_modules/nymph-query-editor/lib/SelectorEditor.js"></script>
+  <script src="/node_modules/nymph-query-editor/lib/QueryEditor.js"></script>
+  <script src="/build/LogalyzerApp.js"></script>
+  <script type="text/javascript">
+    ((global, LogalyzerApp) => {
+      LogalyzerApp = (LogalyzerApp && LogalyzerApp.__esModule) ? LogalyzerApp["default"] : LogalyzerApp;
+      const logalyzerApp = new LogalyzerApp({
+        target: document.querySelector('main')
+      });
+    })(this, LogalyzerApp);
+  </script>
+</body>
+</html>

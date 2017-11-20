@@ -28,11 +28,13 @@ if (argv._.length !== 1) {
 
 // Set up Nymph.
 const nymphOptions = require('./conf/config.js').config;
-Nymph.init(nymphOptions);
-const LogEntry = require('./build/cjs/LogEntry').LogEntry;
+Nymph.init({
+  restURL: 'http://localhost:8080/rest.php'
+});
+const LogEntry = require('./build/LogEntry').LogEntry;
 
 // Did they download the GeoLite2 database?
-(async function() {
+(async () => {
   try {
     await LogEntry.getIpInfo('8.8.8.8');
   } catch (e) {
@@ -74,8 +76,6 @@ const LogEntry = require('./build/cjs/LogEntry').LogEntry;
       let i = 0, liner;
       while (liner = lineReader.next()) {
         const line = liner.toString('utf-8');
-
-        // 198.199.105.67 - - [05/Sep/2017:15:57:17 -0700] "GET /admin/metadata HTTP/1.0" 200 335 "-" "libshout/2.3.1" 0
 
         // Removes are super easy to handle.
         if (argv._[0] === 'remove') {
@@ -294,8 +294,8 @@ Version 1.0.0`);
 function printHelp() {
   printVersion();
   console.log(`
-This logalyzer requires you to have MySQL set up and put the configuration for it in
-conf/config.php.
+This Logalyzer client requires you to have a Logalyzer server.
+TODO(hperrin): expand this help printout.
 
 Once you've done that, you can run this script file and give it an action.
 
@@ -305,7 +305,7 @@ Actions are:
     Reads the log file <file> and adds all the entries to the database.
     --skip-dupe-check will cause Logalyzer to skip the duplicate entry check it does for each
       entry. (Use this if you know you've never imported these entries before.)
-    --dont-skip-status will cause Logalizer to not skip /status.xsl requests.
+    --dont-skip-status will cause Logalyzer to not skip /status.xsl requests.
     --dont-skip-metadata will cause Logalyzer to not skip /admin/metadata requests.
 
   node logalyzer.js remove -f <file>
