@@ -1,33 +1,29 @@
 <div>
-  <div class="form-inline mb-3">
-    <div class="form-group mx-sm-3">
-      <label>
-        Aggregrator
-        <select class="form-control ml-3" bind:value="aggregateFunction" on:change="set({chartFunction: __aggregateFunctions[aggregateFunction].defaultChartFunction})">
-          {{#each __aggregateFunctionsKeys as key}}
-            <option value="{{key}}">
-              {{__aggregateFunctions[key].name}}
-            </option>
-          {{/each}}
-        </select>
-      </label>
-    </div>
-    <div class="form-group mx-sm-3">
-      <label>
-        Chart
-        <select class="form-control ml-3" bind:value="chartFunction">
-          {{#each __chartFunctionsKeys as key}}
-            <option value="{{key}}">
-              {{__chartFunctions[key].name}}
-            </option>
-          {{/each}}
-        </select>
-      </label>
-    </div>
-    <button type="button" class="btn btn-primary ml-3" on:click="runQuery()">Run Query</button>
-    <button type="button" class="btn btn-secondary ml-3" on:click="toggleQueryEditor()">
+  <div class="d-flex">
+    <label class="mx-3 mb-0">
+      Aggregrator
+      <select class="form-control d-inline w-auto ml-2" bind:value="aggregateFunction" on:change="set({chartFunction: __aggregateFunctions[aggregateFunction].defaultChartFunction})">
+        {{#each __aggregateFunctionsKeys as key}}
+          <option value="{{key}}">
+            {{__aggregateFunctions[key].name}}
+          </option>
+        {{/each}}
+      </select>
+    </label>
+    <label class="mx-3 mb-0">
+      Chart
+      <select class="form-control d-inline w-auto ml-2" bind:value="chartFunction">
+        {{#each __chartFunctionsKeys as key}}
+          <option value="{{key}}">
+            {{__chartFunctions[key].name}}
+          </option>
+        {{/each}}
+      </select>
+    </label>
+    <button type="button" class="btn btn-secondary mx-3" on:click="toggleQueryEditor()">
       {{#if __showQueryEditor}}Hide{{else}}Show{{/if}} Query Editor
     </button>
+    <button type="button" class="btn btn-primary ml-auto" on:click="runQuery()">Run Query</button>
   </div>
   <div class="mb-3 {{__showQueryEditor ? '' : 'd-none'}}">
     <QueryEditor
@@ -866,6 +862,7 @@
       const updateFromHash = (hash) => {
         try {
           const state = JSON.parse(hash);
+          this.set({selectors: []});
           this.set(state);
         } catch (e) {
           // ignore errors here.

@@ -221,7 +221,7 @@
 			},
 
 			h: function hydrate() {
-				div.className = "container";
+				div.className = "container-fluid";
 				setStyle(div, "height", "100vh");
 			},
 
@@ -521,7 +521,7 @@
 
 			h: function hydrate() {
 				nav.className = "navbar navbar-expand-lg navbar-dark bg-dark";
-				div.className = "container";
+				div.className = "container-fluid";
 				span.className = "navbar-brand mb-0 h1";
 			},
 
@@ -589,7 +589,7 @@
 			},
 
 			h: function hydrate() {
-				div.className = "container mt-3";
+				div.className = "container-fluid mt-3";
 				div_1.className = "row";
 				div_2.className = "col-sm-4 order-sm-2";
 				div_3.className = "col-sm-8 order-sm-1";
@@ -841,7 +841,7 @@
 			},
 
 			h: function hydrate() {
-				div.className = "container mt-3";
+				div.className = "container-fluid mt-3";
 				div_1.className = "modal fade";
 				div_1.id = "accountInfoModal";
 				div_1.tabIndex = "-1";

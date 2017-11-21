@@ -936,6 +936,7 @@
     var updateFromHash = function updateFromHash(hash) {
       try {
         var state = JSON.parse(hash);
+        _this2.set({ selectors: [] });
         _this2.set(state);
       } catch (e) {
         // ignore errors here.
@@ -954,55 +955,53 @@
   };
 
   function encapsulateStyles(node) {
-    setAttribute(node, "svelte-1524333444", "");
+    setAttribute(node, "svelte-2868722327", "");
   }
 
   function add_css() {
     var style = createElement("style");
-    style.id = 'svelte-1524333444-style';
-    style.textContent = "[svelte-1524333444].w-auto,[svelte-1524333444] .w-auto{width:auto}[svelte-1524333444].query-editor h2,[svelte-1524333444] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-1524333444].chart-canvas,[svelte-1524333444] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-1524333444].loader,[svelte-1524333444] .loader,[svelte-1524333444].loader:after,[svelte-1524333444] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-1524333444].loader,[svelte-1524333444] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-1524333444-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-1524333444]0%,[svelte-1524333444] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-1524333444]100%,[svelte-1524333444] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-1524333444-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+    style.id = 'svelte-2868722327-style';
+    style.textContent = "[svelte-2868722327].w-auto,[svelte-2868722327] .w-auto{width:auto}[svelte-2868722327].query-editor h2,[svelte-2868722327] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-2868722327].chart-canvas,[svelte-2868722327] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2868722327].loader,[svelte-2868722327] .loader,[svelte-2868722327].loader:after,[svelte-2868722327] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2868722327].loader,[svelte-2868722327] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2868722327-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2868722327]0%,[svelte-2868722327] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2868722327]100%,[svelte-2868722327] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2868722327-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
     appendNode(style, document.head);
   }
 
   function create_main_fragment(state, component) {
     var div,
         div_1,
-        div_2,
         label,
         text,
         select,
         select_updating = false,
-        text_3,
-        div_3,
+        text_2,
         label_1,
-        text_4,
+        text_3,
         select_1,
         select_1_updating = false,
-        text_7,
+        text_5,
         button,
-        text_9,
+        text_6,
+        text_7,
         button_1,
         text_10,
-        text_12,
-        div_4,
-        div_4_class_value,
+        div_2,
+        div_2_class_value,
         queryeditor_updating = {},
-        text_14,
+        text_12,
         hr,
-        text_15,
-        div_5,
+        text_13,
+        div_3,
         h1,
-        text_17,
-        div_6,
+        text_15,
+        div_4,
         button_2,
-        text_19,
+        text_17,
         button_3,
-        text_23,
+        text_21,
+        div_5,
+        div_6,
+        div_6_class_value,
+        text_22,
         div_7,
-        div_8,
-        div_8_class_value,
-        text_24,
-        div_9,
         canvas;
 
     var __aggregateFunctionsKeys = state.__aggregateFunctionsKeys;
@@ -1041,15 +1040,15 @@
     }
 
     function click_handler(event) {
-      component.runQuery();
-    }
-
-    function click_handler_1(event) {
       component.toggleQueryEditor();
     }
 
     var current_block_type = select_block_type(state);
     var if_block = current_block_type(state, component);
+
+    function click_handler_1(event) {
+      component.runQuery();
+    }
 
     var queryeditor_initial_data = {
       classCheckbox: "mr-1",
@@ -1131,100 +1130,97 @@
       c: function create() {
         div = createElement("div");
         div_1 = createElement("div");
-        div_2 = createElement("div");
         label = createElement("label");
-        text = createText("Aggregrator\n        ");
+        text = createText("Aggregrator\n      ");
         select = createElement("select");
 
         for (var i = 0; i < each_blocks.length; i += 1) {
           each_blocks[i].c();
         }
 
-        text_3 = createText("\n    ");
-        div_3 = createElement("div");
+        text_2 = createText("\n    ");
         label_1 = createElement("label");
-        text_4 = createText("Chart\n        ");
+        text_3 = createText("Chart\n      ");
         select_1 = createElement("select");
 
         for (var i = 0; i < each_1_blocks.length; i += 1) {
           each_1_blocks[i].c();
         }
 
-        text_7 = createText("\n    ");
+        text_5 = createText("\n    ");
         button = createElement("button");
-        button.textContent = "Run Query";
-        text_9 = createText("\n    ");
-        button_1 = createElement("button");
         if_block.c();
-        text_10 = createText(" Query Editor");
-        text_12 = createText("\n  ");
-        div_4 = createElement("div");
+        text_6 = createText(" Query Editor");
+        text_7 = createText("\n    ");
+        button_1 = createElement("button");
+        button_1.textContent = "Run Query";
+        text_10 = createText("\n  ");
+        div_2 = createElement("div");
         queryeditor._fragment.c();
-        text_14 = createText("\n  ");
+        text_12 = createText("\n  ");
         hr = createElement("hr");
-        text_15 = createText("\n\n  ");
-        div_5 = createElement("div");
+        text_13 = createText("\n\n  ");
+        div_3 = createElement("div");
         h1 = createElement("h1");
         h1.textContent = "Logalyzer Results";
-        text_17 = createText("\n    ");
-        div_6 = createElement("div");
+        text_15 = createText("\n    ");
+        div_4 = createElement("div");
         button_2 = createElement("button");
         button_2.textContent = "Increase Height";
-        text_19 = createText("\n      ");
+        text_17 = createText("\n      ");
         button_3 = createElement("button");
         button_3.textContent = "Decrease Height";
-        text_23 = createText("\n  ");
+        text_21 = createText("\n  ");
+        div_5 = createElement("div");
+        div_6 = createElement("div");
+        text_22 = createText("\n    ");
         div_7 = createElement("div");
-        div_8 = createElement("div");
-        text_24 = createText("\n    ");
-        div_9 = createElement("div");
         canvas = createElement("canvas");
         this.h();
       },
 
       h: function hydrate() {
         encapsulateStyles(div);
-        div_1.className = "form-inline mb-3";
-        div_2.className = "form-group mx-sm-3";
-        select.className = "form-control ml-3";
+        div_1.className = "d-flex";
+        label.className = "mx-3 mb-0";
+        select.className = "form-control d-inline w-auto ml-2";
 
         if (!('aggregateFunction' in state)) component._root._beforecreate.push(select_change_handler);
 
         addListener(select, "change", select_change_handler);
         addListener(select, "change", change_handler);
-        div_3.className = "form-group mx-sm-3";
-        select_1.className = "form-control ml-3";
+        label_1.className = "mx-3 mb-0";
+        select_1.className = "form-control d-inline w-auto ml-2";
 
         if (!('chartFunction' in state)) component._root._beforecreate.push(select_1_change_handler);
 
         addListener(select_1, "change", select_1_change_handler);
         button.type = "button";
-        button.className = "btn btn-primary ml-3";
+        button.className = "btn btn-secondary mx-3";
         addListener(button, "click", click_handler);
         button_1.type = "button";
-        button_1.className = "btn btn-secondary ml-3";
+        button_1.className = "btn btn-primary ml-auto";
         addListener(button_1, "click", click_handler_1);
-        div_4.className = div_4_class_value = "mb-3 " + (state.__showQueryEditor ? '' : 'd-none');
-        div_5.className = "d-flex align-items-start justify-content-between";
+        div_2.className = div_2_class_value = "mb-3 " + (state.__showQueryEditor ? '' : 'd-none');
+        div_3.className = "d-flex align-items-start justify-content-between";
         button_2.className = "btn btn-secondary";
         addListener(button_2, "click", click_handler_2);
         button_3.className = "btn btn-secondary";
         addListener(button_3, "click", click_handler_3);
+        setStyle(div_5, "position", "relative");
+        setStyle(div_5, "height", "60vh");
+        div_6.className = div_6_class_value = "loader " + (state.__loading ? '' : 'd-none');
+        div_7.className = "chart-container";
         setStyle(div_7, "position", "relative");
-        setStyle(div_7, "height", "60vh");
-        div_8.className = div_8_class_value = "loader " + (state.__loading ? '' : 'd-none');
-        div_9.className = "chart-container";
-        setStyle(div_9, "position", "relative");
-        setStyle(div_9, "height", "140%");
-        setStyle(div_9, "width", "100%");
+        setStyle(div_7, "height", "140%");
+        setStyle(div_7, "width", "100%");
         canvas.className = "chart-canvas";
       },
 
       m: function mount(target, anchor) {
         insertNode(div, target, anchor);
         appendNode(div_1, div);
-        appendNode(div_2, div_1);
-        appendNode(label, div_2);
+        appendNode(label, div_1);
         appendNode(text, label);
         appendNode(select, label);
 
@@ -1242,10 +1238,9 @@
           }
         }
 
-        appendNode(text_3, div_1);
-        appendNode(div_3, div_1);
-        appendNode(label_1, div_3);
-        appendNode(text_4, label_1);
+        appendNode(text_2, div_1);
+        appendNode(label_1, div_1);
+        appendNode(text_3, label_1);
         appendNode(select_1, label_1);
 
         for (var i = 0; i < each_1_blocks.length; i += 1) {
@@ -1262,32 +1257,32 @@
           }
         }
 
-        appendNode(text_7, div_1);
+        appendNode(text_5, div_1);
         appendNode(button, div_1);
-        appendNode(text_9, div_1);
+        if_block.m(button, null);
+        appendNode(text_6, button);
+        appendNode(text_7, div_1);
         appendNode(button_1, div_1);
-        if_block.m(button_1, null);
-        appendNode(text_10, button_1);
+        appendNode(text_10, div);
+        appendNode(div_2, div);
+        queryeditor._mount(div_2, null);
         appendNode(text_12, div);
-        appendNode(div_4, div);
-        queryeditor._mount(div_4, null);
-        appendNode(text_14, div);
         appendNode(hr, div);
-        appendNode(text_15, div);
+        appendNode(text_13, div);
+        appendNode(div_3, div);
+        appendNode(h1, div_3);
+        appendNode(text_15, div_3);
+        appendNode(div_4, div_3);
+        appendNode(button_2, div_4);
+        appendNode(text_17, div_4);
+        appendNode(button_3, div_4);
+        appendNode(text_21, div);
         appendNode(div_5, div);
-        appendNode(h1, div_5);
-        appendNode(text_17, div_5);
         appendNode(div_6, div_5);
-        appendNode(button_2, div_6);
-        appendNode(text_19, div_6);
-        appendNode(button_3, div_6);
-        appendNode(text_23, div);
-        appendNode(div_7, div);
-        appendNode(div_8, div_7);
-        appendNode(text_24, div_7);
-        appendNode(div_9, div_7);
-        component.refs.canvascontainer = div_9;
-        appendNode(canvas, div_9);
+        appendNode(text_22, div_5);
+        appendNode(div_7, div_5);
+        component.refs.canvascontainer = div_7;
+        appendNode(canvas, div_7);
         component.refs.canvas = canvas;
       },
 
@@ -1361,11 +1356,11 @@
           if_block.d();
           if_block = current_block_type(state, component);
           if_block.c();
-          if_block.m(button_1, text_10);
+          if_block.m(button, text_6);
         }
 
-        if (changed.__showQueryEditor && div_4_class_value !== (div_4_class_value = "mb-3 " + (state.__showQueryEditor ? '' : 'd-none'))) {
-          div_4.className = div_4_class_value;
+        if (changed.__showQueryEditor && div_2_class_value !== (div_2_class_value = "mb-3 " + (state.__showQueryEditor ? '' : 'd-none'))) {
+          div_2.className = div_2_class_value;
         }
 
         var queryeditor_changes = {};
@@ -1386,8 +1381,8 @@
 
         queryeditor_context.state = state;
 
-        if (changed.__loading && div_8_class_value !== (div_8_class_value = "loader " + (state.__loading ? '' : 'd-none'))) {
-          div_8.className = div_8_class_value;
+        if (changed.__loading && div_6_class_value !== (div_6_class_value = "loader " + (state.__loading ? '' : 'd-none'))) {
+          div_6.className = div_6_class_value;
         }
       },
 
@@ -1415,18 +1410,18 @@
 
         removeListener(select_1, "change", select_1_change_handler);
         removeListener(button, "click", click_handler);
-        removeListener(button_1, "click", click_handler_1);
         if_block.d();
+        removeListener(button_1, "click", click_handler_1);
         queryeditor.destroy(false);
         removeListener(button_2, "click", click_handler_2);
         removeListener(button_3, "click", click_handler_3);
-        if (component.refs.canvascontainer === div_9) component.refs.canvascontainer = null;
+        if (component.refs.canvascontainer === div_7) component.refs.canvascontainer = null;
         if (component.refs.canvas === canvas) component.refs.canvas = null;
       }
     };
   }
 
-  // (7:10) {{#each __aggregateFunctionsKeys as key}}
+  // (6:8) {{#each __aggregateFunctionsKeys as key}}
   function create_each_block(state, __aggregateFunctionsKeys, key, key_index, component) {
     var option,
         option_value_value,
@@ -1469,7 +1464,7 @@
     };
   }
 
-  // (19:10) {{#each __chartFunctionsKeys as key}}
+  // (16:8) {{#each __chartFunctionsKeys as key}}
   function create_each_block_1(state, __chartFunctionsKeys, key_1, key_index_1, component) {
     var option,
         option_value_value,
@@ -1512,7 +1507,7 @@
     };
   }
 
-  // (29:6) {{#if __showQueryEditor}}
+  // (24:6) {{#if __showQueryEditor}}
   function create_if_block(state, component) {
     var text;
 
@@ -1533,7 +1528,7 @@
     };
   }
 
-  // (29:35) {{else}}
+  // (24:35) {{else}}
   function create_if_block_1(state, component) {
     var text;
 
@@ -1565,7 +1560,7 @@
     this._state = assign(data(), options.data);
     this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1 }, this._state);
 
-    if (!document.getElementById("svelte-1524333444-style")) add_css();
+    if (!document.getElementById("svelte-2868722327-style")) add_css();
 
     var _oncreate = oncreate.bind(this);
 

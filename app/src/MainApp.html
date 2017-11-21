@@ -1,5 +1,5 @@
 {{#if currentUser === false}}
-  <div class="container" style="height: 100vh;">
+  <div class="container-fluid" style="height: 100vh;">
     <div class="row align-items-center justify-content-center" style="height: 100vh;">
       <div class="col-auto">
         <svg width="200px"  height="200px"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="lds-dual-ring" style="background: none;">
@@ -13,7 +13,7 @@
 {{/if}}
 {{#if currentUser !== false}}
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
+    <div class="container-fluid">
       <span class="navbar-brand mb-0 h1">Logalyzer <small>Icecast</small></span>
       {{#if currentUser}}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
   </nav>
 {{/if}}
 {{#if currentUser === null}}
-  <div class="container mt-3">
+  <div class="container-fluid mt-3">
     <div class="row">
       <div class="col-sm-4 order-sm-2">
         <TilmeldLogin
@@ -84,7 +84,7 @@
   </div>
 {{/if}}
 {{#if currentUser}}
-  <div class="container mt-3">
+  <div class="container-fluid mt-3">
     <LogalyzerApp></LogalyzerApp>
   </div>
   <div class="modal fade" id="accountInfoModal" tabindex="-1" role="dialog" aria-labelledby="accountInfoModalLabel" aria-hidden="true">
