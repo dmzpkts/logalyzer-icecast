@@ -954,13 +954,13 @@
   };
 
   function encapsulateStyles(node) {
-    setAttribute(node, "svelte-2675235431", "");
+    setAttribute(node, "svelte-1524333444", "");
   }
 
   function add_css() {
     var style = createElement("style");
-    style.id = 'svelte-2675235431-style';
-    style.textContent = "[svelte-2675235431].chart-canvas,[svelte-2675235431] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2675235431].loader,[svelte-2675235431] .loader,[svelte-2675235431].loader:after,[svelte-2675235431] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2675235431].loader,[svelte-2675235431] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2675235431-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2675235431]0%,[svelte-2675235431] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2675235431]100%,[svelte-2675235431] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2675235431-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+    style.id = 'svelte-1524333444-style';
+    style.textContent = "[svelte-1524333444].w-auto,[svelte-1524333444] .w-auto{width:auto}[svelte-1524333444].query-editor h2,[svelte-1524333444] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-1524333444].chart-canvas,[svelte-1524333444] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-1524333444].loader,[svelte-1524333444] .loader,[svelte-1524333444].loader:after,[svelte-1524333444] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-1524333444].loader,[svelte-1524333444] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-1524333444-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-1524333444]0%,[svelte-1524333444] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-1524333444]100%,[svelte-1524333444] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-1524333444-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
     appendNode(style, document.head);
   }
 
@@ -1051,7 +1051,14 @@
     var current_block_type = select_block_type(state);
     var if_block = current_block_type(state, component);
 
-    var queryeditor_initial_data = {};
+    var queryeditor_initial_data = {
+      classCheckbox: "mr-1",
+      classInput: "form-control form-control-sm d-inline w-auto",
+      classSelect: "form-control form-control-sm d-inline w-auto",
+      classAddButton: "btn btn-sm btn-primary mx-1",
+      classRemoveButton: "btn btn-sm btn-danger mx-1",
+      classButton: "btn btn-sm btn-secondary mx-1"
+    };
     if ('options' in state) {
       queryeditor_initial_data.options = state.options;
       queryeditor_updating.options = true;
@@ -1166,7 +1173,7 @@
         text_19 = createText("\n      ");
         button_3 = createElement("button");
         button_3.textContent = "Decrease Height";
-        text_23 = createText("\n\t");
+        text_23 = createText("\n  ");
         div_7 = createElement("div");
         div_8 = createElement("div");
         text_24 = createText("\n    ");
@@ -1205,7 +1212,7 @@
         addListener(button_3, "click", click_handler_3);
         setStyle(div_7, "position", "relative");
         setStyle(div_7, "height", "60vh");
-        div_8.className = div_8_class_value = "loader " + (state.__loading ? '' : 'hidden');
+        div_8.className = div_8_class_value = "loader " + (state.__loading ? '' : 'd-none');
         div_9.className = "chart-container";
         setStyle(div_9, "position", "relative");
         setStyle(div_9, "height", "140%");
@@ -1379,7 +1386,7 @@
 
         queryeditor_context.state = state;
 
-        if (changed.__loading && div_8_class_value !== (div_8_class_value = "loader " + (state.__loading ? '' : 'hidden'))) {
+        if (changed.__loading && div_8_class_value !== (div_8_class_value = "loader " + (state.__loading ? '' : 'd-none'))) {
           div_8.className = div_8_class_value;
         }
       },
@@ -1558,7 +1565,7 @@
     this._state = assign(data(), options.data);
     this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1 }, this._state);
 
-    if (!document.getElementById("svelte-2675235431-style")) add_css();
+    if (!document.getElementById("svelte-1524333444-style")) add_css();
 
     var _oncreate = oncreate.bind(this);
 

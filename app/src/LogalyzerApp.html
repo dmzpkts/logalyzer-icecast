@@ -30,7 +30,16 @@
     </button>
   </div>
   <div class="mb-3 {{__showQueryEditor ? '' : 'd-none'}}">
-    <QueryEditor bind:options bind:selectors bind:supportedClasses="__supportedClasses"></QueryEditor>
+    <QueryEditor
+        bind:options
+        bind:selectors
+        bind:supportedClasses="__supportedClasses"
+        classCheckbox="mr-1"
+        classInput="form-control form-control-sm d-inline w-auto"
+        classSelect="form-control form-control-sm d-inline w-auto"
+        classAddButton="btn btn-sm btn-primary mx-1"
+        classRemoveButton="btn btn-sm btn-danger mx-1"
+        classButton="btn btn-sm btn-secondary mx-1"></QueryEditor>
   </div>
   <hr />
 
@@ -41,12 +50,12 @@
       <button class="btn btn-secondary" on:click="decreaseChartHeight()">Decrease Height</button>
     </div>
   </div>
-	<div style="position: relative; height: 60vh;">
-    <div class="loader {{__loading ? '' : 'hidden'}}"></div>
+  <div style="position: relative; height: 60vh;">
+    <div class="loader {{__loading ? '' : 'd-none'}}"></div>
     <div class="chart-container" ref:canvascontainer style="position: relative; height: 140%; width: 100%">
-		    <canvas class="chart-canvas" ref:canvas></canvas>
+      <canvas class="chart-canvas" ref:canvas></canvas>
     </div>
-	</div>
+  </div>
 </div>
 
 <script>
@@ -55,7 +64,7 @@
   import LogEntry from 'LogEntry';
 
   const chartColors = {
-  	red: 'rgb(229,57,53)',
+    red: 'rgb(229,57,53)',
     indigo: 'rgb(57,73,171)',
     teal: 'rgb(0,137,123)',
     yellow: 'rgb(253,216,53)',
@@ -72,7 +81,7 @@
     lime: 'rgb(192,202,51)',
     deepOrange: 'rgb(244,81,30)',
     brown: 'rgb(109,76,65)',
-  	grey: 'rgb(117,117,117)',
+    grey: 'rgb(117,117,117)',
     blueGrey: 'rgb(84,110,122)'
   };
 
@@ -202,11 +211,11 @@
       axisLabel: "Listeners",
       defaultChartFunction: "timeSeriesSteppedArea",
       func: function (entries) {
-    		const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+        const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
-    		function newDateString(timestamp) {
-    			return moment(""+timestamp, "X").format(timeFormat);
-    		}
+        function newDateString(timestamp) {
+          return moment(""+timestamp, "X").format(timeFormat);
+        }
 
         let earliest, latest, deltas = {}, data = [];
 
@@ -706,11 +715,11 @@
     bar: {
       name: "Bar Chart",
       func: function (app, label, axisLabel, data, canvas, eventHandlers) {
-    		const color = Chart.helpers.color;
-    		const config = {
+        const color = Chart.helpers.color;
+        const config = {
           type: 'bar',
           data: {
-    				labels: data.map((v) => v.x),
+            labels: data.map((v) => v.x),
             datasets: [{
               label: axisLabel,
               backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
@@ -750,19 +759,19 @@
           }
         };
 
-  			const ctx = canvas.getContext("2d");
-  			return {context: ctx, chart: new Chart(ctx, config)};
+        const ctx = canvas.getContext("2d");
+        return {context: ctx, chart: new Chart(ctx, config)};
       }
     },
 
     horizontalBar: {
       name: "Horizontal Bar Chart",
       func: function (app, label, axisLabel, data, canvas, eventHandlers) {
-    		const color = Chart.helpers.color;
-    		const config = {
+        const color = Chart.helpers.color;
+        const config = {
           type: 'horizontalBar',
           data: {
-    				labels: data.map((v) => v.x),
+            labels: data.map((v) => v.x),
             datasets: [{
               label: axisLabel,
               backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
@@ -802,20 +811,20 @@
           }
         };
 
-  			const ctx = canvas.getContext("2d");
-  			return {context: ctx, chart: new Chart(ctx, config)};
+        const ctx = canvas.getContext("2d");
+        return {context: ctx, chart: new Chart(ctx, config)};
       }
     },
 
     pie: {
       name: "Pie Chart",
       func: function (app, label, axisLabel, data, canvas, eventHandlers) {
-    		const color = Chart.helpers.color;
+        const color = Chart.helpers.color;
         const chartColorsKeys = Object.keys(chartColors);
-    		const config = {
+        const config = {
           type: 'pie',
           data: {
-    				labels: data.map((v) => v.x),
+            labels: data.map((v) => v.x),
             datasets: [{
               label: axisLabel,
               backgroundColor: data.map((v, i) => color(chartColors[chartColorsKeys[i % chartColorsKeys.length]]).alpha(0.5).rgbString()),
@@ -843,8 +852,8 @@
           }
         };
 
-  			const ctx = canvas.getContext("2d");
-  			return {context: ctx, chart: new Chart(ctx, config)};
+        const ctx = canvas.getContext("2d");
+        return {context: ctx, chart: new Chart(ctx, config)};
       }
     }
   };
@@ -968,11 +977,21 @@
 </script>
 
 <style>
-	.chart-canvas {
-		-moz-user-select: none;
-		-webkit-user-select: none;
-		-ms-user-select: none;
-	}
+  .w-auto {
+    width: auto;
+  }
+
+  .query-editor h2 {
+    border-bottom: 1px solid #000;
+    padding-bottom: .5em;
+    margin-bottom: .5em;
+  }
+
+  .chart-canvas {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+  }
   .loader,
   .loader:after {
     border-radius: 50%;
