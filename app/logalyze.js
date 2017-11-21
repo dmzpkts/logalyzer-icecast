@@ -1,11 +1,15 @@
 const fs = require('fs');
+const readline = require('readline');
+const Writable = require('stream').Writable;
 const nReadlines = require('n-readlines');
 const argv = require('minimist')(process.argv.slice(2));
 const uaParser = require('ua-parser-js');
 const curl = require('curl');
 
 // Nymph Node client for the win.
-const Nymph = require('nymph-client-node');
+const NymphNode = require('nymph-client-node');
+NymphNode.enableCookies();
+const Nymph = NymphNode.Nymph;
 
 // Making gratuitous requests to someone else's service isn't very nice.
 const ipDataCache = {};
@@ -27,14 +31,33 @@ if (argv._.length !== 1) {
 }
 
 // Set up Nymph.
-const nymphOptions = require('./conf/config.js').config;
 Nymph.init({
   restURL: 'http://localhost:8080/rest.php'
 });
 const LogEntry = require('./build/LogEntry').LogEntry;
 
-// Did they download the GeoLite2 database?
+const User = require('tilmeld').User;
+const Group = require('tilmeld').Group;
+
+const mutableStdout = new Writable({
+  write: function(chunk, encoding, callback) {
+    if (!this.muted) {
+      process.stdout.write(chunk, encoding);
+    }
+    callback();
+  }
+});
+
+mutableStdout.muted = false;
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: mutableStdout,
+  terminal: true
+});
+
 (async () => {
+  // Did they download the GeoLite2 database?
   try {
     await LogEntry.getIpInfo('8.8.8.8');
   } catch (e) {
@@ -46,9 +69,45 @@ const LogEntry = require('./build/LogEntry').LogEntry;
       process.exit(1);
     }
   }
-})();
 
-(async () => {
+  // Did they provide a username?
+  let username = '';
+  if (argv.username) {
+    username = argv.username;
+  } else if (argv.u) {
+    username = argv.u;
+  } else {
+    username = await new Promise((resolve) => rl.question('Username for Lagalyzer server: ', (answer) => resolve(answer)));
+  }
+
+  // Did they provide a password?
+  let password = '';
+  if (argv.password) {
+    password = argv.password;
+  } else if (argv.p) {
+    password = argv.p;
+  } else {
+    password = await new Promise((resolve) => {
+      rl.question('Password for Lagalyzer server: ', (answer) => resolve(answer));
+      mutableStdout.muted = true;
+    });
+    console.log('');
+    mutableStdout.muted = false;
+  }
+
+  // Can we log in?
+  try {
+    let data = await User.loginUser({username, password});
+    if (!data.result) {
+      console.log("Couldn't log in: ", data.message);
+      process.exit(1);
+    }
+  } catch (err) {
+    console.log("err: ", err);
+    process.exit(1);
+  }
+
+  // Main function.
   switch (argv._[0]) {
     case 'add':
     case 'remove':
@@ -283,7 +342,7 @@ const LogEntry = require('./build/LogEntry').LogEntry;
       break;
   }
 
-  return;
+  process.exit(0);
 })();
 
 function printVersion() {
