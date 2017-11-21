@@ -43,6 +43,15 @@ use MaxMind\Db\Reader;
 class LogEntry extends \Nymph\Entity {
   const ETYPE = 'logentry';
   static $clientEnabledStaticMethods = ['getIpInfo'];
+  // These don't need to be private, they just take up space going over the
+  // wire.
+  protected $privateData = [
+    'user',
+    'group',
+    'ac_user',
+    'ac_group',
+    'ac_other'
+  ];
   protected $whitelistData = [
     'line',
     'remoteHost',
@@ -90,7 +99,7 @@ class LogEntry extends \Nymph\Entity {
   }
 
   public static function getIpInfo($ipAddress) {
-    $databaseFile = '../geolite2db/GeoLite2-City.mmdb';
+    $databaseFile = __DIR__.'/../geolite2db/GeoLite2-City.mmdb';
 
     if (!file_exists($databaseFile)) {
       throw new Exception("The database file is missing.", 4000);
