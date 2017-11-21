@@ -12,16 +12,13 @@
       (typeof Promise !== "undefined" && typeof Promise.all === "function") || document.getElementsByTagName('head')[0].appendChild(s);
     })();
     NymphOptions = {
-      restURL: '/rest.php',
-      pubsubURL: 'ws://'+window.location.hostname+':8081',
-      rateLimit: 100
+      restURL: '/rest.php'
     };
   </script>
 
   <!-- Nymph JS -->
   <script src="/node_modules/nymph-client/lib/Nymph.js"></script>
   <script src="/node_modules/nymph-client/lib/Entity.js"></script>
-  <script src="/node_modules/nymph-client/lib/PubSub.js"></script>
 
   <!-- Tilmeld JS -->
   <script src="/node_modules/tilmeld/lib/Entities/User.js"></script>

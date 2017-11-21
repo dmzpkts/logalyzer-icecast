@@ -12,6 +12,7 @@ require __DIR__.'/vendor/autoload.php';
 
 // Nymph's configuration.
 $nymphConfig = [
+  'pubsub' => false, // We don't use pubsub in this app.
   'MySQL' => [
     'host' => getenv('MYSQL_HOST'),
     'database' => getenv('MYSQL_DATABASE'),
@@ -23,9 +24,9 @@ $nymphConfig = [
 \Nymph\Nymph::configure($nymphConfig);
 
 // Nymph PubSub's configuration.
-\Nymph\PubSub\Server::configure(
-    ['entries' => ['ws://'.getenv('PUBSUB_HOST').'/']]
-);
+// \Nymph\PubSub\Server::configure(
+//     ['entries' => ['ws://'.getenv('PUBSUB_HOST').'/']]
+// );
 
 // uMailPHP's configuration.
 \uMailPHP\Mail::configure([
