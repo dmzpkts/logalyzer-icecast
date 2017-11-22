@@ -589,7 +589,7 @@
 			},
 
 			h: function hydrate() {
-				div.className = "container-fluid mt-3";
+				div.className = "container mt-3";
 				div_1.className = "row";
 				div_2.className = "col-sm-4 order-sm-2";
 				div_3.className = "col-sm-8 order-sm-1";
