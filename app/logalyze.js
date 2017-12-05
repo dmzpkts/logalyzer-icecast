@@ -3,8 +3,6 @@ const readline = require('readline');
 const Writable = require('stream').Writable;
 const nReadlines = require('n-readlines');
 const argv = require('minimist')(process.argv.slice(2));
-const uaParser = require('ua-parser-js');
-const curl = require('curl');
 
 // Nymph Node client for the win.
 const NymphNode = require('nymph-client-node');
@@ -57,19 +55,6 @@ const rl = readline.createInterface({
 });
 
 (async () => {
-  // Did they download the GeoLite2 database?
-  try {
-    await LogEntry.getIpInfo('8.8.8.8');
-  } catch (e) {
-    if (e.code === 4000) {
-      printIpDbInstructions();
-      process.exit(1);
-    } else {
-      console.log("Can't communicate with backend to lookup IPs.");
-      process.exit(1);
-    }
-  }
-
   // Did they provide a username?
   let username = '';
   if (argv.username) {
@@ -105,6 +90,19 @@ const rl = readline.createInterface({
   } catch (err) {
     console.log("err: ", err);
     process.exit(1);
+  }
+
+  // Did they download the GeoLite2 database?
+  try {
+    await LogEntry.getGeoLite2IpInfo('8.8.8.8');
+  } catch (e) {
+    if (e.code === 4000) {
+      printIpDbInstructions();
+      process.exit(1);
+    } else {
+      console.log("Can't communicate with backend to lookup IPs.");
+      process.exit(1);
+    }
   }
 
   // Main function.
@@ -152,144 +150,15 @@ const rl = readline.createInterface({
           continue;
         }
 
-        // Read each field. They're separated by spaces, but can be put together with quotes or square brackets.
-        let fieldsBroken = line.split(' '), fields = [], searching = null;
-        for (let k = 0; k < fieldsBroken.length; k++) {
-          if (searching) {
-            fields[fields.length - 1] += ' ' + fieldsBroken[k];
-            if (fieldsBroken[k].substr(-1) === searching) {
-              searching = null;
-            }
-          } else {
-            fields.push(fieldsBroken[k]);
-            if (fieldsBroken[k].substr(0, 1) === '"' && (fieldsBroken[k].length === 1 || fieldsBroken[k].substr(-1) !== '"')) {
-              searching = '"';
-            } else if (fieldsBroken[k].substr(0, 1) === '[' && fieldsBroken[k].substr(-1) !== ']') {
-              searching = ']';
-            }
-          }
-        }
-        if (fields.length !== 10) {
-          console.log('\nThis line doesn\'t have 10 fields like the usual Icecast log line. I\'m going to ignore it.');
-          console.log(line, '\n');
-        }
+        // Parse the log line.
+        const entry = new LogEntry();
+        const parseResult = await entry.parseAndSet(line, argv, ipDataCache);
 
-        // Now let's analyze the fields.
-        let [
-          remoteHost,
-          userIdentity,
-          userName,
-          timeString,
-          requestLine,
-          statusCode,
-          responseBytes,
-          referer,
-          userAgent,
-          duration
-        ] = fields;
-        duration = parseInt(duration, 10);
-        timeString = timeString.slice(1, -1);
-        requestLine = requestLine.slice(1, -1);
-        statusCode = parseInt(statusCode, 10);
-        responseBytes = parseInt(responseBytes, 10);
-        referer = referer.slice(1, -1);
-        userAgent = userAgent.slice(1, -1);
-        const time = Date.parse(timeString.replace(/\//g, '-').replace(/:/, ' ')) / 1000;
-        const timeEnd = time + duration;
-        const [method, resource, protocol] = requestLine.split(' ');
-        if (!argv['dont-skip-status'] && resource === '/status.xsl') {
+        if (!parseResult) {
           continue;
         }
-        if (!argv['dont-skip-metadata'] && resource === '/admin/metadata') {
-          continue;
-        }
-
-        // Parse user agent string.
-        const uaParts = uaParser(userAgent);
-
-        // These go in the entity.
-        const uaBrowserName = uaParts.browser.name;
-        const uaBrowserVersion = uaParts.browser.version;
-        const uaCpuArchitecture = uaParts.cpu.architecture;
-        const uaDeviceModel = uaParts.device.model;
-        const uaDeviceType = uaParts.device.type;
-        const uaDeviceVendor = uaParts.device.vendor;
-        const uaEngineName = uaParts.engine.name;
-        const uaEngineVersion = uaParts.engine.version;
-        const uaOsName = uaParts.os.name;
-        const uaOsVersion = uaParts.os.version;
-        let ipInfo;
-
-        // Check whether this log entry has already been added.
-        if (!argv['skip-dupe-check']) {
-          let dupes;
-          [ipInfo, dupes] = await Promise.all([
-            getIpLocationData(remoteHost),
-            Nymph.getEntities({'class': LogEntry.class}, {'type': '&', 'strict': ['line', line]}).then((e) => e, (err) => {
-              console.log('\nCouldn\'t check for dupes. Got err: ', err, '\n');
-            })
-          ]);
-          if (dupes.length) {
-            console.log(`\nSkipping duplicate log entry, already in the db ${dupes.length} time(s):\n${line}\n`);
-            continue;
-          }
-        } else {
-          ipInfo = await getIpLocationData(remoteHost);
-        }
-
-        const {
-          timeZone,
-          continentCode,
-          continent,
-          countryCode,
-          country,
-          provinceCode,
-          province,
-          postalCode,
-          city
-        } = ipInfo;
 
         // Save the entry to the DB.
-        const entry = new LogEntry();
-        entry.set({
-          line,
-          remoteHost,
-          userIdentity,
-          userName,
-          timeString,
-          requestLine,
-          statusCode,
-          responseBytes,
-          referer,
-          userAgent,
-          uaBrowserName,
-          uaBrowserVersion,
-          uaCpuArchitecture,
-          uaDeviceModel,
-          uaDeviceType,
-          uaDeviceVendor,
-          uaEngineName,
-          uaEngineVersion,
-          uaOsName,
-          uaOsVersion,
-          duration,
-          time,
-          timeStart: time,
-          timeEnd,
-          method,
-          resource,
-          protocol,
-          timeZone,
-          continentCode,
-          continent,
-          countryCode,
-          country,
-          provinceCode,
-          province,
-          postalCode,
-          city
-        });
-
         console.log('Saving log entry: ', ++i);
         await entry.save();
         if (!entry.guid) {
@@ -398,78 +267,4 @@ that now.
 
 Kudos to MaxMind for providing this DB for free!
 `);
-}
-
-function getIpLocationData(ip) {
-  if (ipDataCache[ip]) {
-    return Promise.resolve(ipDataCache[ip]);
-  }
-
-  console.log("Looking up location data for IP: "+ip);
-
-  return new Promise((resolve, reject) => {
-    LogEntry.getIpInfo(ip).then((ipInfo) => {
-      let nonNullFound = false;
-      for (let p in ipInfo) {
-        if (ipInfo[p] !== null) {
-          nonNullFound = true;
-          break;
-        }
-      }
-      if (!nonNullFound) {
-        console.log("IP location data not found in GeoLite2 DB.");
-        console.log("Falling back to ip2c.org...");
-        fallback();
-        return;
-      }
-      ipDataCache[ip] = ipInfo;
-      resolve(ipInfo);
-    }, (err) => {
-      console.log("Couldn't get location data from GeoLite2 DB: "+err);
-      console.log("Falling back to ip2c.org...");
-      fallback();
-    });
-    function fallback() {
-      const ipInfoUrl = `http://ip2c.org/${ip}`;
-      curl.get(ipInfoUrl, null, function(err, response, body) {
-        if (err) {
-          console.log("Couldn't get location data: "+err);
-          reject(err);
-          return;
-        }
-        const [result, countryCode, unused, country] = body.split(';', 4);
-        switch (result) {
-          case '0':
-          case '2':
-          default:
-            ipDataCache[ip] = {
-              timeZone: null,
-              continentCode: null,
-              continent: null,
-              countryCode: null,
-              country: null,
-              provinceCode: null,
-              province: null,
-              postalCode: null,
-              city: null
-            };
-            break;
-          case '1':
-            ipDataCache[ip] = {
-              timeZone: null,
-              continentCode: null,
-              continent: null,
-              countryCode,
-              country,
-              provinceCode: null,
-              province: null,
-              postalCode: null,
-              city: null
-            };
-            break;
-        }
-        resolve(ipDataCache[ip]);
-      });
-    }
-  });
 }

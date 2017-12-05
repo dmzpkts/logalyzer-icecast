@@ -49,7 +49,12 @@
   <div style="position: relative; height: 60vh;">
     <div class="loader {{__loading ? '' : 'd-none'}}"></div>
     <div class="chart-container" ref:canvascontainer style="position: relative; height: 140%; width: 100%">
-      <canvas class="chart-canvas" ref:canvas></canvas>
+      <div class="{{(__currentChart && __currentChart.raw) ? 'card' : 'hidden'}}">
+        <div class="card-body">
+          <pre class="raw-elem" ref:rawelem></pre>
+        </div>
+      </div>
+      <canvas class="{{(__currentChart && __currentChart.chart) ? 'chart-canvas' : 'hidden'}}" ref:chartcanvas></canvas>
     </div>
   </div>
 </div>
@@ -82,538 +87,11 @@
   };
 
   ///////////////////////////////////////
-  //  Aggregetor Functions
-  ///////////////////////////////////////
-
-  const extractBy = function(property, unknownIsCalled, appendProperty) {
-    return function (entries) {
-      const values = {};
-      const data = [], eventHandlers = {};
-
-      for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
-        const value = entry.get(property);
-
-        if (!value || value === "-") {
-          if (values[unknownIsCalled]) {
-            values[unknownIsCalled].value++;
-          } else {
-            values[unknownIsCalled] = {value: 1};
-          }
-        } else {
-          let finalVal = value, valueAppend;
-          if (appendProperty) {
-            valueAppend = entry.get(appendProperty);
-            if (!valueAppend) {
-              valueAppend = '-';
-            }
-            finalVal += ' '+valueAppend;
-          }
-          if (values[finalVal]) {
-            values[finalVal].value++;
-          } else {
-            if (appendProperty) {
-              values[finalVal] = {
-                propValue: value,
-                appendValue: valueAppend,
-                value: 1
-              };
-            } else {
-              values[finalVal] = {
-                propValue: value,
-                value: 1
-              };
-            }
-          }
-        }
-      }
-
-      // Convert every entry to an array.
-      for (let k in values) {
-        const label = k + " (" + (Math.round(values[k].value / entries.length * 10000) / 100) + "%, " + values[k].value + ")";
-        data.push({
-          x: label,
-          y: values[k].value
-        });
-        if (k === unknownIsCalled) {
-          eventHandlers[label] = function(app) {
-            const selectors = app.get("selectors");
-            selectors.push({
-              type: "|",
-              data: [
-                [property, false]
-              ],
-              strict: [
-                [property, "-"]
-              ],
-              "!isset": [property]
-            });
-            app.set({selectors});
-            alert("Added selector to filter for an unknown " + property + ".");
-          };
-        } else {
-          eventHandlers[label] = function(app) {
-            const selectors = app.get("selectors");
-            if (appendProperty) {
-              if (values[k].appendValue === "-") {
-                selectors.push({
-                  type: "&",
-                  "1": {
-                    type: "|",
-                    data: [
-                      [appendProperty, false]
-                    ],
-                    strict: [
-                      [appendProperty, "-"]
-                    ],
-                    "!isset": [appendProperty]
-                  },
-                  strict: [
-                    [property, values[k].propValue]
-                  ]
-                });
-              } else {
-                selectors.push({
-                  type: "&",
-                  strict: [
-                    [property, values[k].propValue],
-                    [appendProperty, values[k].appendValue]
-                  ]
-                });
-              }
-            } else {
-              selectors.push({
-                type: "&",
-                strict: [
-                  [property, values[k].propValue]
-                ]
-              });
-            }
-            app.set({selectors});
-            alert("Added selector to filter for this " + property + (appendProperty ? " and " + appendProperty : "") + ".");
-          };
-        }
-      }
-
-      data.sort((a, b) => b.y - a.y);
-
-      return {data, eventHandlers};
-    };
-  };
-
-  const aggregateFunctions = {
-    totalListenersOverTime: {
-      name: "Total Listeners Over Time",
-      axisLabel: "Listeners",
-      defaultChartFunction: "timeSeriesSteppedArea",
-      func: function (entries) {
-        const timeFormat = 'YYYY-MM-DD HH:mm:ss';
-
-        function newDateString(timestamp) {
-          return moment(""+timestamp, "X").format(timeFormat);
-        }
-
-        let earliest, latest, deltas = {}, data = [];
-
-        // Go through and save every time someone logs on and off and the
-        // earliest/latest delta.
-        for (let i = 0; i < entries.length; i++) {
-          const entry = entries[i];
-          const timeOn = Math.floor(entry.get("time"));
-          const timeOff = Math.floor(entry.get("timeEnd"));
-
-          if (timeOn < earliest || earliest === undefined) {
-            earliest = timeOn;
-          }
-          if (timeOff > latest || latest === undefined) {
-            latest = timeOff;
-          }
-          if (deltas[timeOn]) {
-            deltas[timeOn]++;
-          } else {
-            deltas[timeOn] = 1;
-          }
-          if (deltas[timeOff]) {
-            deltas[timeOff]--;
-          } else {
-            deltas[timeOff] = -1;
-          }
-        }
-
-        // Now comes the hard part. Going through every second from earliest to
-        // latest and calculating number of listeners.
-        let currentListeners = 0;
-        for (let i = earliest; i <= latest; i++) {
-          if (deltas[i]) {
-            currentListeners += deltas[i];
-
-            data.push({
-              x: newDateString(i),
-              y: currentListeners
-            });
-          }
-        }
-
-        return {data};
-      }
-    },
-
-    remoteHost: {
-      name: "Remote Host (Unique Visitors)",
-      axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
-      func: extractBy("remoteHost", "Unknown")
-    },
-
-    resources: {
-      name: "Requested Resources",
-      axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
-      func: extractBy("resource", "Unknown")
-    },
-
-    refererByDomain: {
-      name: "Referer By Domain",
-      axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
-      func: function (entries) {
-        const values = {
-          "Direct Request": 0,
-          "Unknown": 0
-        };
-        const refererDomainRegex = /^\w+:\/\/(?:www\.)?([A-Za-z0-9-:.]+)/g;
-        const data = [], eventHandlers = {};
-
-        // Go through and parse out the domain of the referer.
-        for (let i = 0; i < entries.length; i++) {
-          const entry = entries[i];
-          const value = entry.get("referer");
-
-          if (!value || value === "-") {
-            values["Direct Request"]++;
-          } else {
-            const match = refererDomainRegex.exec(value);
-            if (match !== null && match.length > 1) {
-              if (values[match[1]]) {
-                values[match[1]]++;
-              } else {
-                values[match[1]] = 1;
-              }
-            } else {
-              values["Unknown"]++;
-            }
-          }
-        }
-
-        // Convert every entry to an array.
-        for (let k in values) {
-          data.push({
-            x: k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")",
-            y: values[k]
-          });
-        }
-
-        data.sort((a, b) => b.y - a.y);
-
-        return {data, eventHandlers};
-      }
-    },
-
-    searchTerms: {
-      name: "Search Terms",
-      axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
-      func: function (entries) {
-        const values = {};
-        const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?[A-Za-z0-9-:.]+\/.*q=([^&]+)(?:&|$)/g;
-        const data = [], eventHandlers = {};
-
-        // Go through and parse out the search terms and service.
-        for (let i = 0; i < entries.length; i++) {
-          const entry = entries[i];
-          const value = entry.get("referer");
-
-          if (!(!value || value === "-")) {
-            const match = searchTermsByServiceRegex.exec(value);
-            if (match !== null && match.length > 1) {
-              const key = decodeURIComponent(match[1].replace(/\+/g, ' '));
-              if (values[key]) {
-                values[key]++;
-              } else {
-                values[key] = 1;
-              }
-            }
-          }
-        }
-
-        // Convert every entry to an array.
-        for (let k in values) {
-          const label = k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")";
-          data.push({
-            x: label,
-            y: values[k]
-          });
-          eventHandlers[label] = function(app) {
-            const selectors = app.get("selectors");
-            selectors.push({
-              type: "&",
-              like: [
-                ["referer", "%q="+(encodeURIComponent(k).replace(/%20/g, '+').replace(/%/g, '\%').replace(/_/g, '\_'))+"%"]
-              ]
-            });
-            app.set({selectors});
-            alert("Added selector to filter for this searth term.");
-          };
-        }
-
-        data.sort((a, b) => b.y - a.y);
-
-        return {data, eventHandlers};
-      }
-    },
-
-    searchTermsByService: {
-      name: "Search Terms by Service",
-      axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
-      func: function (entries) {
-        const values = {};
-        const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?([A-Za-z0-9-:.]+)\/.*q=([^&]+)(?:&|$)/g;
-        const data = [], eventHandlers = {};
-
-        // Go through and parse out the search terms and service.
-        for (let i = 0; i < entries.length; i++) {
-          const entry = entries[i];
-          const value = entry.get("referer");
-
-          if (!(!value || value === "-")) {
-            const match = searchTermsByServiceRegex.exec(value);
-            if (match !== null && match.length > 2) {
-              const key = match[1] + ": " + decodeURIComponent(match[2].replace(/\+/g, ' '));
-              if (values[key]) {
-                values[key]++;
-              } else {
-                values[key] = 1;
-              }
-            }
-          }
-        }
-
-        // Convert every entry to an array.
-        for (let k in values) {
-          const label = k + " (" + (Math.round(values[k] / entries.length * 10000) / 100) + "%, " + values[k] + ")";
-          data.push({
-            x: label,
-            y: values[k]
-          });
-          eventHandlers[label] = function(app) {
-            const selectors = app.get("selectors");
-            selectors.push({
-              type: "&",
-              like: [
-                ["referer", "%"+k.split(": ", 2)[0]+"/%q="+(encodeURIComponent(k.split(": ", 2)[1]).replace(/%20/g, '+').replace(/%/g, '\%').replace(/_/g, '\_'))+"%"]
-              ]
-            });
-            app.set({selectors});
-            alert("Added selector to filter for this searth term and service.");
-          };
-        }
-
-        data.sort((a, b) => b.y - a.y);
-
-        return {data, eventHandlers};
-      }
-    },
-
-    allReferers: {
-      name: "All Referers",
-      axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
-      func: extractBy("referer", "Direct Request")
-    },
-
-    browser: {
-      name: "Browser",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaBrowserName", "Unknown")
-    },
-
-    browserVersion: {
-      name: "Browser Version",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaBrowserName", "Unknown", "uaBrowserVersion")
-    },
-
-    cpuArchitecture: {
-      name: "CPU Architecture",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaCpuArchitecture", "Unknown")
-    },
-
-    deviceType: {
-      name: "Device Type",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaDeviceType", "Unknown")
-    },
-
-    deviceVendor: {
-      name: "Device Vendor",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaDeviceVendor", "Unknown")
-    },
-
-    deviceModel: {
-      name: "Device Model",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaDeviceVendor", "Unknown", "uaDeviceModel")
-    },
-
-    engine: {
-      name: "Engine",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaEngineName", "Unknown")
-    },
-
-    engineVersion: {
-      name: "Engine Version",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaEngineName", "Unknown", "uaEngineVersion")
-    },
-
-    os: {
-      name: "OS",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaOsName", "Unknown")
-    },
-
-    osVersion: {
-      name: "OS Version",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("uaOsName", "Unknown", "uaOsVersion")
-    },
-
-    allUserAgents: {
-      name: "All User Agents",
-      axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
-      func: extractBy("userAgent", "Unknown")
-    },
-
-    timeZone: {
-      name: "Timezone",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("timeZone", "Unknown")
-    },
-
-    continentCode: {
-      name: "Continent Code",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("continentCode", "Unknown")
-    },
-
-    continent: {
-      name: "Continent",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("continent", "Unknown")
-    },
-
-    countryCode: {
-      name: "Country Code",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("countryCode", "Unknown")
-    },
-
-    country: {
-      name: "Country",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("country", "Unknown")
-    },
-
-    provinceCode: {
-      name: "Province Code",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("provinceCode", "Unknown")
-    },
-
-    province: {
-      name: "Province",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("province", "Unknown")
-    },
-
-    postalCode: {
-      name: "Postal Code",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("postalCode", "Unknown")
-    },
-
-    city: {
-      name: "City",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("city", "Unknown")
-    },
-
-    countryProvince: {
-      name: "Country and Province",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("country", "Unknown", "province")
-    },
-
-    countryCity: {
-      name: "Country and City",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("country", "Unknown", "city")
-    },
-
-    countryPostalCode: {
-      name: "Country and Postal Code",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("country", "Unknown", "postalCode")
-    },
-
-    provinceCity: {
-      name: "Province and City",
-      axisLabel: "Requests",
-      defaultChartFunction: "pie",
-      func: extractBy("province", "Unknown", "city")
-    },
-
-    responseStatusCode: {
-      name: "Response Status Code",
-      axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
-      func: extractBy("statusCode", "Unknown")
-    },
-  };
-
-  ///////////////////////////////////////
   //  Charting Functions
   ///////////////////////////////////////
 
   const timeSeries = function(graphType, area, stepped) {
-    return function (app, label, axisLabel, data, canvas, eventHandlers) {
+    return function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
       const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
       const color = Chart.helpers.color;
@@ -629,7 +107,7 @@
             steppedLine: !!stepped,
             lineTension: 0,
             // cubicInterpolationMode: 'monotone',
-            data: data
+            data: data.map((v) => ({x: v.label, y: v.value}))
           }]
         },
         options: {
@@ -658,10 +136,6 @@
                 labelString: axisLabel
               }
             }]
-          },
-          zoom: {
-              enabled: true,
-              mode: 'x',
           },
           onClick: function(ev, elements) {
             if (
@@ -710,18 +184,18 @@
 
     bar: {
       name: "Bar Chart",
-      func: function (app, label, axisLabel, data, canvas, eventHandlers) {
+      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
         const color = Chart.helpers.color;
         const config = {
           type: 'bar',
           data: {
-            labels: data.map((v) => v.x),
+            labels: data.map((v) => v.label),
             datasets: [{
               label: axisLabel,
               backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
               borderColor: chartColors.blueGrey,
               borderWidth: 1,
-              data: data.map((v) => v.y)
+              data: data.map((v) => v.value)
             }]
           },
           options: {
@@ -762,18 +236,18 @@
 
     horizontalBar: {
       name: "Horizontal Bar Chart",
-      func: function (app, label, axisLabel, data, canvas, eventHandlers) {
+      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
         const color = Chart.helpers.color;
         const config = {
           type: 'horizontalBar',
           data: {
-            labels: data.map((v) => v.x),
+            labels: data.map((v) => v.label),
             datasets: [{
               label: axisLabel,
               backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
               borderColor: chartColors.blueGrey,
               borderWidth: 1,
-              data: data.map((v) => v.y)
+              data: data.map((v) => v.value)
             }]
           },
           options: {
@@ -814,17 +288,17 @@
 
     pie: {
       name: "Pie Chart",
-      func: function (app, label, axisLabel, data, canvas, eventHandlers) {
+      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
         const color = Chart.helpers.color;
         const chartColorsKeys = Object.keys(chartColors);
         const config = {
           type: 'pie',
           data: {
-            labels: data.map((v) => v.x),
+            labels: data.map((v) => v.label),
             datasets: [{
               label: axisLabel,
               backgroundColor: data.map((v, i) => color(chartColors[chartColorsKeys[i % chartColorsKeys.length]]).alpha(0.5).rgbString()),
-              data: data.map((v) => v.y)
+              data: data.map((v) => v.value)
             }]
           },
           options: {
@@ -840,9 +314,9 @@
                   elements[0]._index !== undefined &&
                   data[elements[0]._index] !== undefined &&
                   eventHandlers !== undefined &&
-                  eventHandlers.hasOwnProperty(data[elements[0]._index].x)
+                  eventHandlers.hasOwnProperty(data[elements[0]._index].label)
                 ) {
-                eventHandlers[data[elements[0]._index].x](app);
+                eventHandlers[data[elements[0]._index].label](app);
               }
             }
           }
@@ -850,6 +324,33 @@
 
         const ctx = canvas.getContext("2d");
         return {context: ctx, chart: new Chart(ctx, config)};
+      }
+    },
+
+    rawDataColonSeparated: {
+      name: "Raw Data (No Chart), Colon Separated",
+      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
+        const sanitizer = document.createElement("span");
+        const sanitizeText = (text) => {
+          sanitizer.innerText = text;
+          return sanitizer.innerHTML;
+        };
+        rawelem.innerHTML = data.map((v) => "<var>"+sanitizeText(v.label)+"</var>: "+sanitizeText(v.value)).join("\n");
+        return {raw: rawelem};
+      }
+    },
+
+    rawDataColumns: {
+      name: "Raw Data (No Chart), Columns",
+      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
+        const sanitizer = document.createElement("span");
+        const sanitizeText = (text) => {
+          sanitizer.innerText = text;
+          return sanitizer.innerHTML;
+        };
+        const maxWidth = data.reduce((currentMaxWidth, currentElem) => currentElem.label.length > currentMaxWidth ? currentElem.label.length : currentMaxWidth, 0);
+        rawelem.innerHTML = data.map((v) => sanitizeText(v.label)+(Array(maxWidth - v.label.length + 1).join(" "))+" "+sanitizeText(v.value)).join("\n");
+        return {raw: rawelem};
       }
     }
   };
@@ -878,6 +379,18 @@
           updateFromHash(currentHash);
         }
       }, 5);
+
+      this.observe('options', (newVal, oldVal) => {
+        if (oldVal !== undefined && newVal.class === oldVal.class) {
+          return;
+        }
+        const __aggregateFunctions = this.get("__aggregateFunctions");
+        const aggregateFunction = this.get("aggregateFunction");
+        if (!__aggregateFunctions.hasOwnProperty(aggregateFunction)) {
+          const __aggregateFunctionsKeys = this.get("__aggregateFunctionsKeys");
+          this.set({aggregateFunction: __aggregateFunctionsKeys[0]});
+        }
+      });
     },
 
     data () {
@@ -886,9 +399,7 @@
         __showQueryEditor: false,
         __loading: false,
         __currentChart: null,
-        __aggregateFunctions: aggregateFunctions,
         __chartFunctions: chartFunctions,
-        __aggregateFunctionsKeys: Object.keys(aggregateFunctions),
         __chartFunctionsKeys: Object.keys(chartFunctions),
         aggregateFunction: "totalListenersOverTime",
         chartFunction: "timeSeriesSteppedArea",
@@ -915,6 +426,8 @@
     },
 
     computed: {
+      __aggregateFunctions: (options) => Nymph.getEntityClass(options.class).aggregateFunctions,
+      __aggregateFunctionsKeys: (options) => Object.keys(Nymph.getEntityClass(options.class).aggregateFunctions),
       query: (options, selectors) => [options, ...selectors],
       urlHashUpdate: (aggregateFunction, chartFunction, options, selectors) => {
         currentHash = JSON.stringify({aggregateFunction, chartFunction, options, selectors});
@@ -929,15 +442,23 @@
         const aggregateFunction = this.get("aggregateFunction");
         const chartFunction = this.get("chartFunction");
 
-        if (__currentChart) {
+        if (__currentChart && __currentChart.chart) {
           __currentChart.chart.destroy();
-          __currentChart.context.clearRect(0, 0, this.refs.canvas.width, this.refs.canvas.height);
+        }
+        if (__currentChart && __currentChart.context) {
+          __currentChart.context.clearRect(0, 0, this.refs.chartcanvas.width, this.refs.chartcanvas.height);
+        }
+        if (__currentChart && __currentChart.raw) {
+          __currentChart.raw.innerHTML = "";
         }
 
-        this.set({__loading: true});
+        this.set({
+          __currentChart: null,
+          __loading: true
+        });
         const query = this.get("query");
         Nymph.getEntities(...query).then((entries) => {
-          const aggFuncObj = aggregateFunctions[aggregateFunction];
+          const aggFuncObj = this.get("__aggregateFunctions")[aggregateFunction];
           const chartFuncObj = chartFunctions[chartFunction];
           // Run the aggregator:
           const aggResults = aggFuncObj.func(entries);
@@ -946,7 +467,7 @@
 
           // Create the chart:
           this.set({
-            __currentChart: chartFuncObj.func(this, aggFuncObj.name, aggFuncObj.axisLabel, data, this.refs.canvas, eventHandlers),
+            __currentChart: chartFuncObj.func(this, aggFuncObj.name, aggFuncObj.axisLabel, data, this.refs.chartcanvas, this.refs.rawelem, eventHandlers),
             __loading: false
           });
         }, (err) => {
@@ -984,6 +505,9 @@
     margin-bottom: .5em;
   }
 
+  .chart-container > .hidden {
+    display: none;
+  }
   .chart-canvas {
     -moz-user-select: none;
     -webkit-user-select: none;

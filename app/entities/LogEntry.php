@@ -1,6 +1,7 @@
 <?php
 
 use MaxMind\Db\Reader;
+use Tilmeld\Tilmeld;
 
 /**
  * @property string $line The log entry's original log line.
@@ -42,7 +43,7 @@ use MaxMind\Db\Reader;
  */
 class LogEntry extends \Nymph\Entity {
   const ETYPE = 'logentry';
-  static $clientEnabledStaticMethods = ['getIpInfo'];
+  static $clientEnabledStaticMethods = ['getGeoLite2IpInfo'];
   // These don't need to be private, they just take up space going over the
   // wire.
   protected $privateData = [
@@ -98,7 +99,11 @@ class LogEntry extends \Nymph\Entity {
     parent::__construct($id);
   }
 
-  public static function getIpInfo($ipAddress) {
+  public static function getGeoLite2IpInfo($ipAddress) {
+    if (!Tilmeld::gatekeeper()) {
+      return false;
+    }
+
     $databaseFile = __DIR__.'/../geolite2db/GeoLite2-City.mmdb';
 
     if (!file_exists($databaseFile)) {
