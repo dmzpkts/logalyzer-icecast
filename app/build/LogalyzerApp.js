@@ -1,16 +1,16 @@
 (function (global, factory) {
 	if (typeof define === "function" && define.amd) {
-		define(['exports', 'QueryEditor', 'Nymph', 'LogEntry'], factory);
+		define(['exports', 'QueryEditor', 'Nymph', 'IceCastAccessLogEntry'], factory);
 	} else if (typeof exports !== "undefined") {
-		factory(exports, require('QueryEditor'), require('Nymph'), require('LogEntry'));
+		factory(exports, require('QueryEditor'), require('Nymph'), require('IceCastAccessLogEntry'));
 	} else {
 		var mod = {
 			exports: {}
 		};
-		factory(mod.exports, global.QueryEditor, global.Nymph, global.LogEntry);
+		factory(mod.exports, global.QueryEditor, global.Nymph, global.IceCastAccessLogEntry);
 		global.LogalyzerApp = mod.exports;
 	}
-})(this, function (exports, _QueryEditor, _Nymph, _LogEntry) {
+})(this, function (exports, _QueryEditor, _Nymph, _IceCastAccessLogEntry) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -21,7 +21,7 @@
 
 	var _Nymph2 = _interopRequireDefault(_Nymph);
 
-	var _LogEntry2 = _interopRequireDefault(_LogEntry);
+	var _IceCastAccessLogEntry2 = _interopRequireDefault(_IceCastAccessLogEntry);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -320,7 +320,7 @@
 
 	function data() {
 		return {
-			__supportedClasses: [_LogEntry2.default],
+			__supportedClasses: [_IceCastAccessLogEntry2.default],
 			__showQueryEditor: false,
 			__loading: false,
 			__currentChart: null,
@@ -329,7 +329,7 @@
 			aggregateFunction: "totalListenersOverTime",
 			chartFunction: "timeSeriesSteppedArea",
 			options: {
-				"class": _LogEntry2.default.class
+				"class": _IceCastAccessLogEntry2.default.class
 			},
 			selectors: [{
 				"type": "&",
@@ -433,13 +433,13 @@
 	};
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2081910188", "");
+		setAttribute(node, "svelte-2617574304", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2081910188-style';
-		style.textContent = "[svelte-2081910188].w-auto,[svelte-2081910188] .w-auto{width:auto}[svelte-2081910188].query-editor h2,[svelte-2081910188] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-2081910188].chart-container > .hidden,[svelte-2081910188] .chart-container > .hidden{display:none}[svelte-2081910188].chart-canvas,[svelte-2081910188] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2081910188].loader,[svelte-2081910188] .loader,[svelte-2081910188].loader:after,[svelte-2081910188] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2081910188].loader,[svelte-2081910188] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2081910188-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2081910188]0%,[svelte-2081910188] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2081910188]100%,[svelte-2081910188] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2081910188-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-2617574304-style';
+		style.textContent = "[svelte-2617574304].w-auto,[svelte-2617574304] .w-auto{width:auto}[svelte-2617574304].query-editor h2,[svelte-2617574304] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-2617574304].chart-container > .hidden,[svelte-2617574304] .chart-container > .hidden{display:none}[svelte-2617574304].chart-canvas,[svelte-2617574304] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2617574304].loader,[svelte-2617574304] .loader,[svelte-2617574304].loader:after,[svelte-2617574304] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2617574304].loader,[svelte-2617574304] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2617574304-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2617574304]0%,[svelte-2617574304] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2617574304]100%,[svelte-2617574304] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2617574304-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -1065,7 +1065,7 @@
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2081910188-style")) add_css();
+		if (!document.getElementById("svelte-2617574304-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 

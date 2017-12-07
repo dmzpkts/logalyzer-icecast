@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const readline = require('readline');
 const Writable = require('stream').Writable;
 const nReadlines = require('n-readlines');
@@ -30,9 +31,16 @@ if (argv._.length !== 1) {
 
 // Set up Nymph.
 Nymph.init({
-  restURL: 'http://localhost:8080/rest.php'
+  restURL: argv['rest-url'] || 'http://localhost:8080/rest.php'
 });
-const LogEntry = require('./build/LogEntry').LogEntry;
+const logEntryTypes = {};
+const logEntryFiles = fs.readdirSync('./entities/');
+for (let file of logEntryFiles) {
+  if (file.match(/\.js$/) && file !== 'LogEntry.js') {
+    const name = path.basename(file, '.js');
+    logEntryTypes[name] = require('./build/'+file.replace(/\.js$/, ''))[name];
+  }
+}
 
 const User = require('tilmeld').User;
 const Group = require('tilmeld').Group;
@@ -55,6 +63,34 @@ const rl = readline.createInterface({
 });
 
 (async () => {
+  let LogEntry;
+  if (argv.type || argv.t) {
+    LogEntry = logEntryTypes[argv.type || argv.t];
+  } else if (argv.f) {
+    const matchedLogEntryTypes = [];
+    for (let logEntryType in logEntryTypes) {
+      if (path.basename(argv.f).match(logEntryTypes[logEntryType].filePattern)) {
+        matchedLogEntryTypes.push(logEntryType);
+      }
+    }
+    if (matchedLogEntryTypes.length === 1) {
+      LogEntry = logEntryTypes[matchedLogEntryTypes[0]];
+    } else if (matchedLogEntryTypes.length > 1) {
+      console.log('Log file matches multiple log entry type patterns. You must specify from the following log types:\n');
+      for (let logEntryType of matchedLogEntryTypes) {
+        console.log('*', logEntryType, '-', logEntryTypes[logEntryType].title);
+      }
+      console.log('');
+    }
+  }
+  if (!LogEntry) {
+    console.log('Couldn\'t determine the log type. You need to provide one.');
+    printHelp();
+    process.exit(1);
+  } else {
+    console.log('Using Log Type:', LogEntry.class, '-', LogEntry.title);
+  }
+
   // Did they provide a username?
   let username = '';
   if (argv.username) {
@@ -92,16 +128,18 @@ const rl = readline.createInterface({
     process.exit(1);
   }
 
-  // Did they download the GeoLite2 database?
-  try {
-    await LogEntry.getGeoLite2IpInfo('8.8.8.8');
-  } catch (e) {
-    if (e.code === 4000) {
-      printIpDbInstructions();
-      process.exit(1);
-    } else {
-      console.log("Can't communicate with backend to lookup IPs.");
-      process.exit(1);
+  if (LogEntry.usesIpLocationInfo) {
+    // Did they download the GeoLite2 database?
+    try {
+      await LogEntry.getGeoLite2IpInfo('8.8.8.8');
+    } catch (e) {
+      if (e.code === 4000) {
+        printIpDbInstructions();
+        process.exit(1);
+      } else {
+        console.log("Can't communicate with backend to lookup IPs.");
+        process.exit(1);
+      }
     }
   }
 
@@ -215,7 +253,7 @@ const rl = readline.createInterface({
 })();
 
 function printVersion() {
-  console.log(`Icecast Logalyzer by Hunter Perrin
+  console.log(`Logalyzer Client by Hunter Perrin
 Version 1.0.0`);
 }
 
@@ -225,45 +263,54 @@ function printHelp() {
 This Logalyzer client requires you to have a Logalyzer server.
 TODO(hperrin): expand this help printout.
 
-Once you've done that, you can run this script file and give it an action.
+usage: node logalyzer.js <command> [--rest-url=<Logalyzer server Rest URL>]
+                         [--username=<username> | -u <username>]
+                         [--password=<password> | -p <password>]
+                         [--type=<type> | -t <type>]
 
-Actions are:
+If you don't specify a Rest URL, 'http://localhost:8080/rest.php' will be used.
 
-  node logalyzer.js add -f <file> [--skip-dupe-check] [--dont-skip-status] [--dont-skip-metadata]
+Commands are:
+
+  add -f <file> [--skip-dupe-check] [--dont-skip-status] [--dont-skip-metadata]
     Reads the log file <file> and adds all the entries to the database.
-    --skip-dupe-check will cause Logalyzer to skip the duplicate entry check it does for each
-      entry. (Use this if you know you've never imported these entries before.)
+    --skip-dupe-check will cause Logalyzer to skip the duplicate entry check it
+      does for each entry. (Use this if you know you've never imported these
+      entries before.)
     --dont-skip-status will cause Logalyzer to not skip /status.xsl requests.
-    --dont-skip-metadata will cause Logalyzer to not skip /admin/metadata requests.
+    --dont-skip-metadata will cause Logalyzer to not skip /admin/metadata
+      requests.
 
-  node logalyzer.js remove -f <file>
+  remove -f <file>
     Reads the log file <file> and removes all the matching entries from the
     database. Don't you hate when you accidentally import the wrong file and you
     have to rebuild the entire database? Not anymore, you don't.
 
-  node logalyzer.js prune -h <hostname>
-    Removes log entries from the database that are from <hostname>. You
-    probably want to do this with your own hostname so that you don't have
-    to filter out your own requests each time you view the logs.
+  prune -h <hostname>
+    Removes log entries from the database that are from <hostname>. You probably
+    want to do this with your own hostname so that you don't have to filter out
+    your own requests each time you view the logs.
 
-  node logalyzer.js purge
+  purge
     Removes all logs from the database.
 
 
-Thanks for using the logalyzer. I hope you find it useful.
+Thanks for using Logalyzer. I hope you find it useful.
 `);
 }
 
 function printIpDbInstructions() {
   console.log(`
-It looks like you haven't set up the IP geolocation database on your server. You should do
-that now.
+It looks like you haven't set up the IP geolocation database on your server. You
+should do that now.
 
 1. Go to https://dev.maxmind.com/geoip/geoip2/geolite2/
 2. Download the GeoLite2 City database in "MaxMind DB binary, gzipped" format.
 3. Extract it, and take the "GeoLite2-City.mmdb" file.
-4. Put that file in the "geolite2db" folder in the Logalyzer folder on your server.
-5. MaxMind releases an updated DB the first Tuesday of each month, so remember to update it.
+4. Put that file in the "geolite2db" folder in the Logalyzer folder on your
+   server.
+5. MaxMind releases an updated DB the first Tuesday of each month, so remember
+   to update it.
 
 Kudos to MaxMind for providing this DB for free!
 `);

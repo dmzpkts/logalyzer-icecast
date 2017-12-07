@@ -28,20 +28,6 @@
     };
   }
 
-  var _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
   var _slicedToArray = function () {
     function sliceIterator(arr, i) {
       var _arr = [];
@@ -113,7 +99,8 @@
 
     // === Constructor ===
 
-    // The name of the server class
+    // === Static Properties ===
+
     constructor(id) {
       super(id);
     }
@@ -124,123 +111,40 @@
      * @return {boolean} True is the line was parsed, false if the entry should be skipped according to options.
      */
 
-
-    // === Static Properties ===
-
+    // The name of the server class
     parseAndSet(line, options, ipDataCache) {
-      var _this = this;
-
       return _asyncToGenerator(function* () {
-        // Read each field. They're separated by spaces, but can be put together with quotes or square brackets.
-        let fieldsBroken = line.split(' '),
-            fields = [],
+        return false;
+      })();
+    }
+
+    parseFields(line, maxFields, separator = ' ', enclosingPairs = ['""', '[]']) {
+      // Parse fields and place them back together for things enclosed in pairs.
+      let fieldsBroken = line.split(separator),
+          fields = [],
+          searching = null;
+      for (let k = 0; k < fieldsBroken.length; k++) {
+        if (searching || fields.length >= maxFields) {
+          fields[fields.length - 1] += separator + fieldsBroken[k];
+          if (searching && fieldsBroken[k].substr(-1) === searching) {
             searching = null;
-        for (let k = 0; k < fieldsBroken.length; k++) {
-          if (searching) {
-            fields[fields.length - 1] += ' ' + fieldsBroken[k];
-            if (fieldsBroken[k].substr(-1) === searching) {
-              searching = null;
-            }
-          } else {
-            fields.push(fieldsBroken[k]);
-            if (fieldsBroken[k].substr(0, 1) === '"' && (fieldsBroken[k].length === 1 || fieldsBroken[k].substr(-1) !== '"')) {
-              searching = '"';
-            } else if (fieldsBroken[k].substr(0, 1) === '[' && fieldsBroken[k].substr(-1) !== ']') {
-              searching = ']';
-            }
-          }
-        }
-        if (fields.length !== 10) {
-          console.log('\nThis line doesn\'t have 10 fields like the usual Icecast log line. I\'m going to ignore it.');
-          console.log(line, '\n');
-        }
-
-        // Now let's analyze the fields.
-        let remoteHost = fields[0],
-            userIdentity = fields[1],
-            userName = fields[2],
-            timeString = fields[3],
-            requestLine = fields[4],
-            statusCode = fields[5],
-            responseBytes = fields[6],
-            referer = fields[7],
-            userAgent = fields[8],
-            duration = fields[9];
-
-        duration = parseInt(duration, 10);
-        timeString = timeString.slice(1, -1);
-        requestLine = requestLine.slice(1, -1);
-        statusCode = parseInt(statusCode, 10);
-        responseBytes = parseInt(responseBytes, 10);
-        referer = referer.slice(1, -1);
-        userAgent = userAgent.slice(1, -1);
-        const time = Date.parse(timeString.replace(/\//g, '-').replace(/:/, ' ')) / 1000;
-        const timeEnd = time + duration;
-
-        var _requestLine$split = requestLine.split(' '),
-            _requestLine$split2 = _slicedToArray(_requestLine$split, 3);
-
-        const method = _requestLine$split2[0],
-              resource = _requestLine$split2[1],
-              protocol = _requestLine$split2[2];
-
-        if (!options['dont-skip-status'] && resource === '/status.xsl') {
-          return false;
-        }
-        if (!options['dont-skip-metadata'] && resource === '/admin/metadata') {
-          return false;
-        }
-
-        // Parse user agent string.
-        const uaParts = _this.parseUAString(userAgent);
-
-        // Check whether this log entry has already been added.
-        let ipInfo;
-        if (!options['skip-dupe-check']) {
-          let dupes;
-
-          var _ref = yield Promise.all([LogEntry.getIpLocationData(remoteHost, ipDataCache), _Nymph2.default.getEntities({ 'class': LogEntry.class }, { 'type': '&', 'strict': ['line', line] }).then(function (e) {
-            return e;
-          }, function (err) {
-            console.log('\nCouldn\'t check for dupes. Got err: ', err, '\n');
-          })]);
-
-          var _ref2 = _slicedToArray(_ref, 2);
-
-          ipInfo = _ref2[0];
-          dupes = _ref2[1];
-
-          if (dupes.length) {
-            console.log(`\nSkipping duplicate log entry, already in the db ${dupes.length} time(s):\n${line}\n`);
-            return false;
           }
         } else {
-          ipInfo = yield LogEntry.getIpLocationData(remoteHost);
+          fields.push(fieldsBroken[k]);
+          for (let pair of enclosingPairs) {
+            var _pair$split = pair.split(''),
+                _pair$split2 = _slicedToArray(_pair$split, 2);
+
+            let start = _pair$split2[0],
+                end = _pair$split2[1];
+
+            if (fieldsBroken[k].substr(0, 1) === start && (start === end && fieldsBroken[k].length === 1 || fieldsBroken[k].substr(-1) !== end)) {
+              searching = end;
+            }
+          }
         }
-
-        _this.set(_extends({
-          line,
-          remoteHost,
-          userIdentity,
-          userName,
-          timeString,
-          requestLine,
-          statusCode,
-          responseBytes,
-          referer,
-          userAgent
-        }, uaParts, {
-          duration,
-          time,
-          timeStart: time,
-          timeEnd,
-          method,
-          resource,
-          protocol
-        }, ipInfo));
-
-        return true;
-      })();
+      }
+      return fields;
     }
 
     parseUAString(userAgent) {
@@ -461,66 +365,11 @@
   exports.default = LogEntry;
   LogEntry.etype = "logentry";
   LogEntry.class = "LogEntry";
-  LogEntry.aggregateFunctions = {
-    totalListenersOverTime: {
-      name: "Total Listeners Over Time",
-      axisLabel: "Listeners",
-      defaultChartFunction: "timeSeriesSteppedArea",
-      func: function func(entries) {
-        const timeFormat = 'YYYY-MM-DD HH:mm:ss';
-
-        function newDateString(timestamp) {
-          return moment("" + timestamp, "X").format(timeFormat);
-        }
-
-        let earliest,
-            latest,
-            deltas = {},
-            data = [];
-
-        // Go through and save every time someone logs on and off and the
-        // earliest/latest delta.
-        for (let i = 0; i < entries.length; i++) {
-          const entry = entries[i];
-          const timeOn = Math.floor(entry.get("time"));
-          const timeOff = Math.floor(entry.get("timeEnd"));
-
-          if (timeOn < earliest || earliest === undefined) {
-            earliest = timeOn;
-          }
-          if (timeOff > latest || latest === undefined) {
-            latest = timeOff;
-          }
-          if (deltas[timeOn]) {
-            deltas[timeOn]++;
-          } else {
-            deltas[timeOn] = 1;
-          }
-          if (deltas[timeOff]) {
-            deltas[timeOff]--;
-          } else {
-            deltas[timeOff] = -1;
-          }
-        }
-
-        // Now comes the hard part. Going through every second from earliest to
-        // latest and calculating number of listeners.
-        let currentListeners = 0;
-        for (let i = earliest; i <= latest; i++) {
-          if (deltas[i]) {
-            currentListeners += deltas[i];
-
-            data.push({
-              label: newDateString(i),
-              value: currentListeners
-            });
-          }
-        }
-
-        return { data };
-      }
-    },
-
+  LogEntry.title = "Generic Log Entry";
+  LogEntry.usesIpLocationInfo = false;
+  LogEntry.filePattern = /^not_a_real_log_class/;
+  LogEntry.aggregateFunctions = {};
+  LogEntry.httpRequestBasedAggregateFunctions = {
     remoteHost: {
       name: "Remote Host (Unique Visitors)",
       axisLabel: "Requests",
@@ -535,6 +384,14 @@
       func: LogEntry.aggregateExtractBy("resource", "Unknown")
     },
 
+    responseStatusCode: {
+      name: "Response Status Code",
+      axisLabel: "Requests",
+      defaultChartFunction: "horizontalBar",
+      func: LogEntry.aggregateExtractBy("statusCode", "Unknown")
+    }
+  };
+  LogEntry.refererBasedAggregateFunctions = {
     refererByDomain: {
       name: "Referer By Domain",
       axisLabel: "Requests",
@@ -692,8 +549,9 @@
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
       func: LogEntry.aggregateExtractBy("referer", "Direct Request")
-    },
-
+    }
+  };
+  LogEntry.userAgentBasedAggregateFunctions = {
     browser: {
       name: "Browser",
       axisLabel: "Requests",
@@ -769,8 +627,9 @@
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
       func: LogEntry.aggregateExtractBy("userAgent", "Unknown")
-    },
-
+    }
+  };
+  LogEntry.geoBasedAggregateFunctions = {
     timeZone: {
       name: "Timezone",
       axisLabel: "Requests",
@@ -860,13 +719,6 @@
       axisLabel: "Requests",
       defaultChartFunction: "pie",
       func: LogEntry.aggregateExtractBy("province", "Unknown", "city")
-    },
-
-    responseStatusCode: {
-      name: "Response Status Code",
-      axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
-      func: LogEntry.aggregateExtractBy("statusCode", "Unknown")
     } };
   _Nymph2.default.setEntityClass(LogEntry.class, LogEntry);
   exports.LogEntry = LogEntry;

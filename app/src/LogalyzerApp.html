@@ -62,7 +62,7 @@
 <script>
   import QueryEditor from 'QueryEditor';
   import Nymph from 'Nymph';
-  import LogEntry from 'LogEntry';
+  import IceCastAccessLogEntry from 'IceCastAccessLogEntry';
 
   const chartColors = {
     red: 'rgb(229,57,53)',
@@ -395,7 +395,7 @@
 
     data () {
       return {
-        __supportedClasses: [LogEntry],
+        __supportedClasses: [IceCastAccessLogEntry],
         __showQueryEditor: false,
         __loading: false,
         __currentChart: null,
@@ -404,7 +404,7 @@
         aggregateFunction: "totalListenersOverTime",
         chartFunction: "timeSeriesSteppedArea",
         options: {
-          "class": LogEntry.class
+          "class": IceCastAccessLogEntry.class
         },
         selectors: [
           {
