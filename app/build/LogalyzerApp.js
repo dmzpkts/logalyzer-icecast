@@ -198,32 +198,32 @@
 
 	const chartFunctions = {
 		timeSeriesSteppedArea: {
-			name: "Chart.js - Time Series Stepped Area",
+			name: "Time Series Stepped Area, Chart.js",
 			func: timeSeries("line", true, true)
 		},
 
 		timeSeriesStepped: {
-			name: "Chart.js - Time Series Stepped",
+			name: "Time Series Stepped, Chart.js",
 			func: timeSeries("line", false, true)
 		},
 
 		timeSeriesLine: {
-			name: "Chart.js - Time Series Line",
+			name: "Time Series Line, Chart.js",
 			func: timeSeries("line")
 		},
 
 		timeSeriesArea: {
-			name: "Chart.js - Time Series Area",
+			name: "Time Series Area, Chart.js",
 			func: timeSeries("line", true)
 		},
 
 		timeSeriesBar: {
-			name: "Chart.js - Time Series Bar",
+			name: "Time Series Bar, Chart.js",
 			func: timeSeries("bar")
 		},
 
 		bar: {
-			name: "Chart.js - Bar Chart",
+			name: "Bar Chart, Chart.js",
 			func: function func(app, label, axisLabel, data, elems, eventHandlers) {
 				const color = Chart.helpers.color;
 				const config = {
@@ -269,17 +269,17 @@
 		},
 
 		categoryBarC3: {
-			name: "C3.js - Category Bar Chart",
+			name: "Bar Chart - Category, C3.js",
 			func: c3CategoryChart('bar')
 		},
 
 		barC3: {
-			name: "C3.js - Bar Chart",
+			name: "Bar Chart, C3.js",
 			func: c3Chart('bar')
 		},
 
 		horizontalBar: {
-			name: "Chart.js - Horizontal Bar Chart",
+			name: "Horizontal Bar Chart, Chart.js",
 			func: function func(app, label, axisLabel, data, elems, eventHandlers) {
 				const color = Chart.helpers.color;
 				const config = {
@@ -325,17 +325,17 @@
 		},
 
 		categoryHorizontalBarC3: {
-			name: "C3.js - Category Horizontal Bar Chart",
+			name: "Horizontal Bar Chart - Category, C3.js",
 			func: c3CategoryChart('bar', true)
 		},
 
 		horizontalBarC3: {
-			name: "C3.js - Horizontal Bar Chart",
+			name: "Horizontal Bar Chart, C3.js",
 			func: c3Chart('bar', true)
 		},
 
 		pie: {
-			name: "Chart.js - Pie Chart",
+			name: "Pie Chart, Chart.js",
 			func: function func(app, label, axisLabel, data, elems, eventHandlers) {
 				const color = Chart.helpers.color;
 				const chartColorsKeys = Object.keys(chartColors);
@@ -370,7 +370,7 @@
 		},
 
 		pieC3: {
-			name: "C3.js - Pie Chart",
+			name: "Pie Chart, C3.js",
 			func: c3Chart('pie')
 		},
 
@@ -539,13 +539,13 @@
 	};
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2433428829", "");
+		setAttribute(node, "svelte-1592505416", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2433428829-style';
-		style.textContent = "[svelte-2433428829].w-auto,[svelte-2433428829] .w-auto{width:auto}[svelte-2433428829].query-editor h2,[svelte-2433428829] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-2433428829].chart-container > .hidden,[svelte-2433428829] .chart-container > .hidden{display:none}[svelte-2433428829].chart-canvas,[svelte-2433428829] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2433428829].loader,[svelte-2433428829] .loader,[svelte-2433428829].loader:after,[svelte-2433428829] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2433428829].loader,[svelte-2433428829] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2433428829-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2433428829]0%,[svelte-2433428829] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2433428829]100%,[svelte-2433428829] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2433428829-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-1592505416-style';
+		style.textContent = "[svelte-1592505416].w-auto,[svelte-1592505416] .w-auto{width:auto}[svelte-1592505416].query-editor h2,[svelte-1592505416] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-1592505416].chart-container > .hidden,[svelte-1592505416] .chart-container > .hidden{display:none}[svelte-1592505416].chart-canvas,[svelte-1592505416] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-1592505416].loader,[svelte-1592505416] .loader,[svelte-1592505416].loader:after,[svelte-1592505416] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-1592505416].loader,[svelte-1592505416] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-1592505416-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-1592505416]0%,[svelte-1592505416] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-1592505416]100%,[svelte-1592505416] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-1592505416-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -1203,7 +1203,7 @@
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1, chartHeight: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2433428829-style")) add_css();
+		if (!document.getElementById("svelte-1592505416-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 

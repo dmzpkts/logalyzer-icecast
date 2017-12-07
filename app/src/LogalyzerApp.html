@@ -245,32 +245,32 @@
 
   const chartFunctions = {
     timeSeriesSteppedArea: {
-      name: "Chart.js - Time Series Stepped Area",
+      name: "Time Series Stepped Area, Chart.js",
       func: timeSeries("line", true, true)
     },
 
     timeSeriesStepped: {
-      name: "Chart.js - Time Series Stepped",
+      name: "Time Series Stepped, Chart.js",
       func: timeSeries("line", false, true)
     },
 
     timeSeriesLine: {
-      name: "Chart.js - Time Series Line",
+      name: "Time Series Line, Chart.js",
       func: timeSeries("line")
     },
 
     timeSeriesArea: {
-      name: "Chart.js - Time Series Area",
+      name: "Time Series Area, Chart.js",
       func: timeSeries("line", true)
     },
 
     timeSeriesBar: {
-      name: "Chart.js - Time Series Bar",
+      name: "Time Series Bar, Chart.js",
       func: timeSeries("bar")
     },
 
     bar: {
-      name: "Chart.js - Bar Chart",
+      name: "Bar Chart, Chart.js",
       func: function (app, label, axisLabel, data, elems, eventHandlers) {
         const color = Chart.helpers.color;
         const config = {
@@ -322,17 +322,17 @@
     },
 
     categoryBarC3: {
-      name: "C3.js - Category Bar Chart",
+      name: "Bar Chart - Category, C3.js",
       func: c3CategoryChart('bar')
     },
 
     barC3: {
-      name: "C3.js - Bar Chart",
+      name: "Bar Chart, C3.js",
       func: c3Chart('bar')
     },
 
     horizontalBar: {
-      name: "Chart.js - Horizontal Bar Chart",
+      name: "Horizontal Bar Chart, Chart.js",
       func: function (app, label, axisLabel, data, elems, eventHandlers) {
         const color = Chart.helpers.color;
         const config = {
@@ -384,17 +384,17 @@
     },
 
     categoryHorizontalBarC3: {
-      name: "C3.js - Category Horizontal Bar Chart",
+      name: "Horizontal Bar Chart - Category, C3.js",
       func: c3CategoryChart('bar', true)
     },
 
     horizontalBarC3: {
-      name: "C3.js - Horizontal Bar Chart",
+      name: "Horizontal Bar Chart, C3.js",
       func: c3Chart('bar', true)
     },
 
     pie: {
-      name: "Chart.js - Pie Chart",
+      name: "Pie Chart, Chart.js",
       func: function (app, label, axisLabel, data, elems, eventHandlers) {
         const color = Chart.helpers.color;
         const chartColorsKeys = Object.keys(chartColors);
@@ -435,7 +435,7 @@
     },
 
     pieC3: {
-      name: "C3.js - Pie Chart",
+      name: "Pie Chart, C3.js",
       func: c3Chart('pie')
     },
 
