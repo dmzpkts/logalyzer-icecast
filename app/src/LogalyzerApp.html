@@ -1,6 +1,9 @@
 <div>
   <div class="d-flex">
-    <label class="mx-3 mb-0">
+    <button type="button" class="btn btn-secondary" on:click="toggleQueryEditor()">
+      {{#if __showQueryEditor}}Hide{{else}}Show{{/if}} Query Editor
+    </button>
+    <label class="mx-2 mb-0">
       Aggregrator
       <select class="form-control d-inline w-auto ml-2" bind:value="aggregateFunction" on:change="set({chartFunction: __aggregateFunctions[aggregateFunction].defaultChartFunction})">
         {{#each __aggregateFunctionsKeys as key}}
@@ -10,7 +13,7 @@
         {{/each}}
       </select>
     </label>
-    <label class="mx-3 mb-0">
+    <label class="mx-2 mb-0">
       Chart
       <select class="form-control d-inline w-auto ml-2" bind:value="chartFunction">
         {{#each __chartFunctionsKeys as key}}
@@ -20,10 +23,11 @@
         {{/each}}
       </select>
     </label>
-    <button type="button" class="btn btn-secondary mx-3" on:click="toggleQueryEditor()">
-      {{#if __showQueryEditor}}Hide{{else}}Show{{/if}} Query Editor
-    </button>
-    <button type="button" class="btn btn-primary ml-auto" on:click="runQuery()">Run Query</button>
+    <div class="display-inline-block ml-auto">
+      <button type="button" class="btn btn-secondary" on:click="set({chartHeight: chartHeight+40})">Increase Height</button>
+      <button type="button" class="btn btn-secondary" on:click="set({chartHeight: chartHeight-40})">Decrease Height</button>
+      <button type="button" class="btn btn-primary" on:click="runQuery()">Run Query</button>
+    </div>
   </div>
   <div class="mb-3 {{__showQueryEditor ? '' : 'd-none'}}">
     <QueryEditor
@@ -38,20 +42,13 @@
         classButton="btn btn-sm btn-secondary mx-1"></QueryEditor>
   </div>
   <hr />
-
-  <div class="d-flex align-items-start justify-content-between">
-    <h4>Results</h4>
-    <div>
-      <button class="btn btn-secondary" on:click="set({chartHeight: chartHeight+40})">Increase Height</button>
-      <button class="btn btn-secondary" on:click="set({chartHeight: chartHeight-40})">Decrease Height</button>
-    </div>
-  </div>
   <div style="position: relative;">
     <div class="loader {{__loading ? '' : 'd-none'}}"></div>
     <div class="chart-container" ref:canvascontainer style="position: relative; height: {{chartHeight}}px; width: 100%">
         <div class="{{(__currentChart && __currentChart.raw) ? 'card' : 'hidden'}}">
+          <div class="card-header" ref:titleraw></div>
           <div class="card-body">
-            <pre class="raw-elem" ref:rawelem></pre>
+            <pre class="raw-elem" ref:chartraw></pre>
           </div>
         </div>
         <div class="{{(__currentChart && __currentChart.svg) ? 'chart-svg' : 'hidden'}}">
@@ -450,6 +447,7 @@
           sanitizer.innerText = text;
           return sanitizer.innerHTML;
         };
+        elems.titleraw.innerText = label + " (" + data.length + " total)";
         elems.raw.innerHTML = data.map((v) => "<var>"+sanitizeText(v.label)+"</var>: "+sanitizeText(v.value)).join("\n");
         return {raw: elems.raw};
       }
@@ -464,6 +462,7 @@
           return sanitizer.innerHTML;
         };
         const maxWidth = data.reduce((currentMaxWidth, currentElem) => currentElem.label.length > currentMaxWidth ? currentElem.label.length : currentMaxWidth, 0);
+        elems.titleraw.innerText = label + " (" + data.length + " total)";
         elems.raw.innerHTML = data.map((v) => sanitizeText(v.label)+(Array(maxWidth - v.label.length + 1).join(" "))+" "+sanitizeText(v.value)).join("\n");
         return {raw: elems.raw};
       }
@@ -587,7 +586,8 @@
               canvas: this.refs.chartcanvas,
               titlesvg: this.refs.titlesvg,
               svg: this.refs.chartsvg,
-              raw: this.refs.rawelem
+              titleraw: this.refs.titleraw,
+              raw: this.refs.chartraw
             }, eventHandlers),
             __loading: false
           });
