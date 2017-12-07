@@ -40,20 +40,24 @@
   <hr />
 
   <div class="d-flex align-items-start justify-content-between">
-    <h1>Logalyzer Results</h1>
+    <h4>Results</h4>
     <div>
-      <button class="btn btn-secondary" on:click="increaseChartHeight()">Increase Height</button>
-      <button class="btn btn-secondary" on:click="decreaseChartHeight()">Decrease Height</button>
+      <button class="btn btn-secondary" on:click="set({chartHeight: chartHeight+40})">Increase Height</button>
+      <button class="btn btn-secondary" on:click="set({chartHeight: chartHeight-40})">Decrease Height</button>
     </div>
   </div>
-  <div style="position: relative; height: 60vh;">
+  <div style="position: relative;">
     <div class="loader {{__loading ? '' : 'd-none'}}"></div>
-    <div class="chart-container" ref:canvascontainer style="position: relative; height: 140%; width: 100%">
-      <div class="{{(__currentChart && __currentChart.raw) ? 'card' : 'hidden'}}">
-        <div class="card-body">
-          <pre class="raw-elem" ref:rawelem></pre>
+    <div class="chart-container" ref:canvascontainer style="position: relative; height: {{chartHeight}}px; width: 100%">
+        <div class="{{(__currentChart && __currentChart.raw) ? 'card' : 'hidden'}}">
+          <div class="card-body">
+            <pre class="raw-elem" ref:rawelem></pre>
+          </div>
         </div>
-      </div>
+        <div class="{{(__currentChart && __currentChart.svg) ? 'chart-svg' : 'hidden'}}">
+          <h5 ref:titlesvg class="text-center"></h5>
+          <div ref:chartsvg></div>
+        </div>
       <canvas class="{{(__currentChart && __currentChart.chart) ? 'chart-canvas' : 'hidden'}}" ref:chartcanvas></canvas>
     </div>
   </div>
@@ -91,7 +95,7 @@
   ///////////////////////////////////////
 
   const timeSeries = function(graphType, area, stepped) {
-    return function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
+    return function (app, label, axisLabel, data, elems, eventHandlers) {
       const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
       const color = Chart.helpers.color;
@@ -151,40 +155,126 @@
         }
       };
 
-      const ctx = canvas.getContext("2d");
+      const ctx = elems.canvas.getContext("2d");
       return {context: ctx, chart: new Chart(ctx, config)};
     }
   };
 
+  const c3CategoryChart = function(graphType, rotated) {
+    return function (app, label, axisLabel, data, elems, eventHandlers) {
+      const config = {
+        bindto: elems.svg,
+        data: {
+          type: graphType,
+          json: data.map(v => {v[axisLabel] = v.value; return v;}),
+          keys: {
+            x: 'label',
+            value: [axisLabel]
+          },
+          onclick: function(d, element) {
+            if (
+                d.name !== undefined &&
+                eventHandlers !== undefined &&
+                eventHandlers.hasOwnProperty(d.name)
+              ) {
+              eventHandlers[d.name](app);
+            }
+          }
+        },
+        axis: {
+          x: {
+            type: 'category'
+          },
+          rotated: rotated
+        },
+        size: {
+          height: app.get('chartHeight')
+        },
+        zoom: {
+          enabled: true
+        }
+      };
+
+      elems.titlesvg.innerText = label + " (" + data.length + " total)";
+
+      return {svg: c3.generate(config)};
+    };
+  };
+
+  const c3Chart = function(graphType, rotated) {
+    return function (app, label, axisLabel, data, elems, eventHandlers) {
+      const config = {
+        bindto: elems.svg,
+        data: {
+          type: graphType,
+          columns: data.map((v) => [v.label, v.value]),
+          onclick: function(d, element) {
+            if (
+                d.name !== undefined &&
+                eventHandlers !== undefined &&
+                eventHandlers.hasOwnProperty(d.name)
+              ) {
+              eventHandlers[d.name](app);
+            }
+          }
+        },
+        bar: {
+          width: {
+            ratio: 1
+          }
+        },
+        axis: {
+          y: {
+            label: {
+              text: axisLabel,
+              position: 'outer-middle'
+            }
+          },
+          rotated: rotated
+        },
+        size: {
+          height: app.get('chartHeight')
+        },
+        zoom: {
+          enabled: true
+        }
+      };
+
+      elems.titlesvg.innerText = label + " (" + data.length + " total)";
+
+      return {svg: c3.generate(config)};
+    };
+  };
+
   const chartFunctions = {
     timeSeriesSteppedArea: {
-      name: "Time Series Stepped Area",
+      name: "Chart.js - Time Series Stepped Area",
       func: timeSeries("line", true, true)
     },
 
     timeSeriesStepped: {
-      name: "Time Series Stepped",
+      name: "Chart.js - Time Series Stepped",
       func: timeSeries("line", false, true)
     },
 
     timeSeriesLine: {
-      name: "Time Series Line",
+      name: "Chart.js - Time Series Line",
       func: timeSeries("line")
     },
 
     timeSeriesArea: {
-      name: "Time Series Area",
+      name: "Chart.js - Time Series Area",
       func: timeSeries("line", true)
     },
 
     timeSeriesBar: {
-      name: "Time Series Bar",
+      name: "Chart.js - Time Series Bar",
       func: timeSeries("bar")
     },
 
     bar: {
-      name: "Bar Chart",
-      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
+      name: "Chart.js - Bar Chart",
+      func: function (app, label, axisLabel, data, elems, eventHandlers) {
         const color = Chart.helpers.color;
         const config = {
           type: 'bar',
@@ -229,14 +319,24 @@
           }
         };
 
-        const ctx = canvas.getContext("2d");
+        const ctx = elems.canvas.getContext("2d");
         return {context: ctx, chart: new Chart(ctx, config)};
       }
     },
 
+    categoryBarC3: {
+      name: "C3.js - Category Bar Chart",
+      func: c3CategoryChart('bar')
+    },
+
+    barC3: {
+      name: "C3.js - Bar Chart",
+      func: c3Chart('bar')
+    },
+
     horizontalBar: {
-      name: "Horizontal Bar Chart",
-      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
+      name: "Chart.js - Horizontal Bar Chart",
+      func: function (app, label, axisLabel, data, elems, eventHandlers) {
         const color = Chart.helpers.color;
         const config = {
           type: 'horizontalBar',
@@ -281,14 +381,24 @@
           }
         };
 
-        const ctx = canvas.getContext("2d");
+        const ctx = elems.canvas.getContext("2d");
         return {context: ctx, chart: new Chart(ctx, config)};
       }
     },
 
+    categoryHorizontalBarC3: {
+      name: "C3.js - Category Horizontal Bar Chart",
+      func: c3CategoryChart('bar', true)
+    },
+
+    horizontalBarC3: {
+      name: "C3.js - Horizontal Bar Chart",
+      func: c3Chart('bar', true)
+    },
+
     pie: {
-      name: "Pie Chart",
-      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
+      name: "Chart.js - Pie Chart",
+      func: function (app, label, axisLabel, data, elems, eventHandlers) {
         const color = Chart.helpers.color;
         const chartColorsKeys = Object.keys(chartColors);
         const config = {
@@ -322,35 +432,40 @@
           }
         };
 
-        const ctx = canvas.getContext("2d");
+        const ctx = elems.canvas.getContext("2d");
         return {context: ctx, chart: new Chart(ctx, config)};
       }
     },
 
+    pieC3: {
+      name: "C3.js - Pie Chart",
+      func: c3Chart('pie')
+    },
+
     rawDataColonSeparated: {
       name: "Raw Data (No Chart), Colon Separated",
-      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
+      func: function (app, label, axisLabel, data, elems, eventHandlers) {
         const sanitizer = document.createElement("span");
         const sanitizeText = (text) => {
           sanitizer.innerText = text;
           return sanitizer.innerHTML;
         };
-        rawelem.innerHTML = data.map((v) => "<var>"+sanitizeText(v.label)+"</var>: "+sanitizeText(v.value)).join("\n");
-        return {raw: rawelem};
+        elems.raw.innerHTML = data.map((v) => "<var>"+sanitizeText(v.label)+"</var>: "+sanitizeText(v.value)).join("\n");
+        return {raw: elems.raw};
       }
     },
 
     rawDataColumns: {
       name: "Raw Data (No Chart), Columns",
-      func: function (app, label, axisLabel, data, canvas, rawelem, eventHandlers) {
+      func: function (app, label, axisLabel, data, elems, eventHandlers) {
         const sanitizer = document.createElement("span");
         const sanitizeText = (text) => {
           sanitizer.innerText = text;
           return sanitizer.innerHTML;
         };
         const maxWidth = data.reduce((currentMaxWidth, currentElem) => currentElem.label.length > currentMaxWidth ? currentElem.label.length : currentMaxWidth, 0);
-        rawelem.innerHTML = data.map((v) => sanitizeText(v.label)+(Array(maxWidth - v.label.length + 1).join(" "))+" "+sanitizeText(v.value)).join("\n");
-        return {raw: rawelem};
+        elems.raw.innerHTML = data.map((v) => sanitizeText(v.label)+(Array(maxWidth - v.label.length + 1).join(" "))+" "+sanitizeText(v.value)).join("\n");
+        return {raw: elems.raw};
       }
     }
   };
@@ -401,6 +516,7 @@
         __currentChart: null,
         __chartFunctions: chartFunctions,
         __chartFunctionsKeys: Object.keys(chartFunctions),
+        chartHeight: 500,
         aggregateFunction: "totalListenersOverTime",
         chartFunction: "timeSeriesSteppedArea",
         options: {
@@ -429,8 +545,8 @@
       __aggregateFunctions: (options) => Nymph.getEntityClass(options.class).aggregateFunctions,
       __aggregateFunctionsKeys: (options) => Object.keys(Nymph.getEntityClass(options.class).aggregateFunctions),
       query: (options, selectors) => [options, ...selectors],
-      urlHashUpdate: (aggregateFunction, chartFunction, options, selectors) => {
-        currentHash = JSON.stringify({aggregateFunction, chartFunction, options, selectors});
+      urlHashUpdate: (aggregateFunction, chartFunction, options, selectors, chartHeight) => {
+        currentHash = JSON.stringify({aggregateFunction, chartFunction, options, selectors, chartHeight});
         window.location.hash = currentHash;
         return null;
       }
@@ -467,7 +583,12 @@
 
           // Create the chart:
           this.set({
-            __currentChart: chartFuncObj.func(this, aggFuncObj.name, aggFuncObj.axisLabel, data, this.refs.chartcanvas, this.refs.rawelem, eventHandlers),
+            __currentChart: chartFuncObj.func(this, aggFuncObj.name, aggFuncObj.axisLabel, data, {
+              canvas: this.refs.chartcanvas,
+              titlesvg: this.refs.titlesvg,
+              svg: this.refs.chartsvg,
+              raw: this.refs.rawelem
+            }, eventHandlers),
             __loading: false
           });
         }, (err) => {
@@ -477,14 +598,6 @@
 
       toggleQueryEditor () {
         this.set({__showQueryEditor: !this.get("__showQueryEditor")});
-      },
-
-      increaseChartHeight () {
-        this.refs.canvascontainer.style.height = (parseInt(this.refs.canvascontainer.style.height, 10) + 40) + "%";
-      },
-
-      decreaseChartHeight () {
-        this.refs.canvascontainer.style.height = (parseInt(this.refs.canvascontainer.style.height, 10) - 40) + "%";
       }
     },
 
