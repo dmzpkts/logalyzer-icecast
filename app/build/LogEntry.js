@@ -167,6 +167,11 @@
 
     // === Static Methods ===
 
+    static isLogLineStart(line) {
+      // Just check the line doesn't start with white space.
+      return !line.match(/^\s/);
+    }
+
     static getIpLocationData(ip, ipDataCache) {
 
       if (ipDataCache[ip]) {
@@ -175,7 +180,7 @@
 
       console.log("Looking up location data for IP: " + ip);
 
-      return new Promise((resolve, reject) => {
+      ipDataCache[ip] = new Promise((resolve, reject) => {
         LogEntry.getGeoLite2IpInfo(ip).then(ipInfo => {
           let nonNullFound = false;
           for (let p in ipInfo) {
@@ -190,7 +195,6 @@
             fallback();
             return;
           }
-          ipDataCache[ip] = ipInfo;
           resolve(ipInfo);
         }, err => {
           console.log("Couldn't get location data from GeoLite2 DB: " + err);
@@ -218,7 +222,7 @@
               case '0':
               case '2':
               default:
-                ipDataCache[ip] = {
+                resolve({
                   timeZone: null,
                   continentCode: null,
                   continent: null,
@@ -228,10 +232,10 @@
                   province: null,
                   postalCode: null,
                   city: null
-                };
-                break;
+                });
+                return;
               case '1':
-                ipDataCache[ip] = {
+                resolve({
                   timeZone: null,
                   continentCode: null,
                   continent: null,
@@ -241,13 +245,15 @@
                   province: null,
                   postalCode: null,
                   city: null
-                };
-                break;
+                });
+                return;
             }
-            resolve(ipDataCache[ip]);
+            resolve({});
           });
         }
       });
+
+      return ipDataCache[ip];
     }
 
     static getGeoLite2IpInfo(...args) {

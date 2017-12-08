@@ -166,12 +166,11 @@ const rl = readline.createInterface({
         inputFile = argv.f;
       }
 
-      console.log(`Beginning reading input file ${inputFile}...`);
-      const lineReader = new nReadlines(inputFile);
-      let i = 0, liner;
-      while (liner = lineReader.next()) {
-        const line = liner.toString('utf-8');
+      let concurrent = (parseInt(argv.concurrent || argv.c || '1', 10));
+      console.log("Going to "+argv._[0]+" "+concurrent+" at a time...");
 
+      let i = 0;
+      const processLogEntry = async (line) => {
         // Removes are super easy to handle.
         if (argv._[0] === 'remove') {
           try {
@@ -185,7 +184,7 @@ const rl = readline.createInterface({
           } catch (err) {
             console.log('\nCouldn\'t check for entry. Got err: ', err, '\n');
           }
-          continue;
+          return;
         }
 
         // Parse the log line.
@@ -193,7 +192,7 @@ const rl = readline.createInterface({
         const parseResult = await entry.parseAndSet(line, argv, ipDataCache);
 
         if (!parseResult) {
-          continue;
+          return;
         }
 
         // Save the entry to the DB.
@@ -202,10 +201,33 @@ const rl = readline.createInterface({
         if (!entry.guid) {
           console.log('\nCouldn\'t save log entry: ', entry, '\n');
         }
+      };
 
-        // Wait 5 msec between each request, to not overload the server.
-        // await new Promise((r) => {setTimeout(() => r(), 5)});
+      console.log(`Beginning reading input file ${inputFile}...`);
+      const lineReader = new nReadlines(inputFile);
+      let liner, currentEntry = [], currentProcesses = [];
+      while (liner = lineReader.next()) {
+        const line = liner.toString('utf-8');
+
+        // Read lines into currentEntry until a new entry is found, then add
+        // currentEntry.
+        if (LogEntry.isLogLineStart(line) && currentEntry.length) {
+          currentProcesses.push(processLogEntry(currentEntry.join("\n")));
+          currentEntry = [];
+        }
+
+        currentEntry.push(line);
+
+        // Run multiple at a time to speed up processing.
+        if (currentProcesses.length >= concurrent) {
+          await Promise.all(currentProcesses);
+          currentProcesses = [];
+        }
       }
+      if (currentEntry.length) {
+        currentProcesses.push(processLogEntry(currentEntry.join("\n")));
+      }
+      await Promise.all(currentProcesses);
 
       if (argv.f.match(/\.gz$/)) {
         console.log("Removing uncompressed input file.");
@@ -273,6 +295,7 @@ If you don't specify a Rest URL, 'http://localhost:8080/rest.php' will be used.
 Commands are:
 
   add -f <file> [--skip-dupe-check] [--dont-skip-status] [--dont-skip-metadata]
+                [--concurrent=<concurrent> | -c <concurrent>]
     Reads the log file <file> and adds all the entries to the database.
     --skip-dupe-check will cause Logalyzer to skip the duplicate entry check it
       does for each entry. (Use this if you know you've never imported these
@@ -280,11 +303,14 @@ Commands are:
     --dont-skip-status will cause Logalyzer to not skip /status.xsl requests.
     --dont-skip-metadata will cause Logalyzer to not skip /admin/metadata
       requests.
+    --concurrent will save <concurrent> entries at a time. This may affect
+      checking for duplicates.
 
-  remove -f <file>
+  remove -f <file> [--concurrent=<concurrent> | -c <concurrent>]
     Reads the log file <file> and removes all the matching entries from the
     database. Don't you hate when you accidentally import the wrong file and you
     have to rebuild the entire database? Not anymore, you don't.
+    --concurrent will remove <concurrent> entries at a time.
 
   prune -h <hostname>
     Removes log entries from the database that are from <hostname>. You probably

@@ -1,8 +1,5 @@
 <?php
 
-use MaxMind\Db\Reader;
-use Tilmeld\Tilmeld;
-
 /**
  * @property string $line The log entry's original log line.
  * @property string $remoteHost
@@ -42,7 +39,7 @@ use Tilmeld\Tilmeld;
  * @property string $city
  */
 class IceCastAccessLogEntry extends LogEntry {
-  const ETYPE = 'logentry_icecast';
+  const ETYPE = 'logentry_icecast_access';
   static $clientEnabledStaticMethods = [];
   // These don't need to be private, they just take up space going over the
   // wire.
