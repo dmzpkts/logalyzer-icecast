@@ -373,6 +373,10 @@ export default class LogEntry extends Entity {
 
   constructor(id) {
     super(id);
+
+    // === Instance Properties ===
+
+    this.logLines = [];
   }
 
   // === Instance Methods ===
@@ -423,6 +427,22 @@ export default class LogEntry extends Entity {
       uaOsName: uaParts.os.name,
       uaOsVersion: uaParts.os.version,
     }
+  }
+
+  addLine(line) {
+    this.logLines.push(line);
+  }
+
+  getLogLine() {
+    return this.logLines.join("\n");
+  }
+
+  isLogLineContinuation(line) {
+    return false;
+  }
+
+  isLogLineComplete() {
+    return !!this.logLines.length;
   }
 
   // === Static Methods ===

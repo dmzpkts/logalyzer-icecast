@@ -103,6 +103,10 @@
 
     constructor(id) {
       super(id);
+
+      // === Instance Properties ===
+
+      this.logLines = [];
     }
 
     // === Instance Methods ===
@@ -163,6 +167,22 @@
         uaOsName: uaParts.os.name,
         uaOsVersion: uaParts.os.version
       };
+    }
+
+    addLine(line) {
+      this.logLines.push(line);
+    }
+
+    getLogLine() {
+      return this.logLines.join("\n");
+    }
+
+    isLogLineContinuation(line) {
+      return false;
+    }
+
+    isLogLineComplete() {
+      return !!this.logLines.length;
     }
 
     // === Static Methods ===

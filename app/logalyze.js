@@ -169,12 +169,12 @@ const rl = readline.createInterface({
       let concurrent = (parseInt(argv.concurrent || argv.c || '1', 10));
       console.log("Going to "+argv._[0]+" "+concurrent+" at a time...");
 
-      let i = 0;
-      const processLogEntry = async (line) => {
+      let processedEntriesCount = 0;
+      const processLogEntry = async (entry) => {
         // Removes are super easy to handle.
         if (argv._[0] === 'remove') {
           try {
-            const removes = await Nymph.getEntities({'class': LogEntry.class}, {'type': '&', 'strict': ['line', line]});
+            const removes = await Nymph.getEntities({'class': LogEntry.class}, {'type': '&', 'strict': ['line', entry.getLogLine()]});
             if (removes.length) {
               console.log(`\nRemoving ${removes.length} entries...`);
               console.log(await Nymph.deleteEntities(removes));
@@ -188,15 +188,14 @@ const rl = readline.createInterface({
         }
 
         // Parse the log line.
-        const entry = new LogEntry();
-        const parseResult = await entry.parseAndSet(line, argv, ipDataCache);
+        const parseResult = await entry.parseAndSet(argv, ipDataCache);
 
         if (!parseResult) {
           return;
         }
 
         // Save the entry to the DB.
-        console.log('Saving log entry: ', ++i);
+        console.log('Saving log entry: ', ++processedEntriesCount);
         await entry.save();
         if (!entry.guid) {
           console.log('\nCouldn\'t save log entry: ', entry, '\n');
@@ -205,18 +204,30 @@ const rl = readline.createInterface({
 
       console.log(`Beginning reading input file ${inputFile}...`);
       const lineReader = new nReadlines(inputFile);
-      let liner, currentEntry = [], currentProcesses = [];
+      let liner, pendingEntries = [], currentProcesses = [];
       while (liner = lineReader.next()) {
         const line = liner.toString('utf-8');
 
-        // Read lines into currentEntry until a new entry is found, then add
-        // currentEntry.
-        if (LogEntry.isLogLineStart(line) && currentEntry.length) {
-          currentProcesses.push(processLogEntry(currentEntry.join("\n")));
-          currentEntry = [];
+        // Read lines into pendingEntries until they are complete.
+        for (let idx in pendingEntries) {
+          let entry = pendingEntries[idx];
+          if (entry.isLogLineContinuation(line)) {
+            entry.addLine(line);
+          }
+          if (entry.isLogLineComplete()) {
+            currentProcesses.push(processLogEntry(entry));
+            pendingEntries.splice(idx, 1);
+          }
         }
-
-        currentEntry.push(line);
+        if (LogEntry.isLogLineStart(line)) {
+          const entry = new LogEntry();
+          entry.addLine(line);
+          if (entry.isLogLineComplete()) {
+            currentProcesses.push(processLogEntry(entry));
+          } else {
+            pendingEntries.push(entry);
+          }
+        }
 
         // Run multiple at a time to speed up processing.
         if (currentProcesses.length >= concurrent) {
@@ -224,10 +235,12 @@ const rl = readline.createInterface({
           currentProcesses = [];
         }
       }
-      if (currentEntry.length) {
-        currentProcesses.push(processLogEntry(currentEntry.join("\n")));
+      if (pendingEntries.length) {
+        console.log(`Incomplete entries: ${pendingEntries.length}`);
       }
       await Promise.all(currentProcesses);
+
+      console.log(`Processed entries: ${processedEntriesCount}`);
 
       if (argv.f.match(/\.gz$/)) {
         console.log("Removing uncompressed input file.");

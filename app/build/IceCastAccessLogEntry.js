@@ -128,10 +128,12 @@
      */
 
     // The name of the server class
-    parseAndSet(line, options, ipDataCache) {
+    parseAndSet(options, ipDataCache) {
       var _this = this;
 
       return _asyncToGenerator(function* () {
+        const line = _this.getLogLine();
+
         // Read each field. They're separated by spaces, but can be put together with quotes or square brackets.
         let fields = _this.parseFields(line, 10);
         if (fields.length !== 10) {
@@ -203,7 +205,7 @@
             return false;
           }
         } else {
-          ipInfo = yield _LogEntry2.default.getIpLocationData(remoteHost);
+          ipInfo = yield _LogEntry2.default.getIpLocationData(remoteHost, ipDataCache);
         }
 
         _this.set(_extends({

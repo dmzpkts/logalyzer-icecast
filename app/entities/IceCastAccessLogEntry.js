@@ -91,7 +91,9 @@ export default class IceCastAccessLogEntry extends LogEntry {
   /**
    * @return {boolean} True if the line was parsed, false if the entry should be skipped according to options.
    */
-  async parseAndSet(line, options, ipDataCache) {
+  async parseAndSet(options, ipDataCache) {
+    const line = this.getLogLine();
+
     // Read each field. They're separated by spaces, but can be put together with quotes or square brackets.
     let fields = this.parseFields(line, 10);
     if (fields.length !== 10) {
@@ -148,7 +150,7 @@ export default class IceCastAccessLogEntry extends LogEntry {
         return false;
       }
     } else {
-      ipInfo = await LogEntry.getIpLocationData(remoteHost);
+      ipInfo = await LogEntry.getIpLocationData(remoteHost, ipDataCache);
     }
 
     this.set({
