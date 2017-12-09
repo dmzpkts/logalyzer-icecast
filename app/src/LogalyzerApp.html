@@ -91,7 +91,7 @@
   //  Charting Functions
   ///////////////////////////////////////
 
-  const timeSeries = function(graphType, area, stepped) {
+  const chartJsTimeSeries = function(graphType, area, stepped) {
     return function (app, label, axisLabel, data, elems, eventHandlers) {
       const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
@@ -154,7 +154,55 @@
 
       const ctx = elems.canvas.getContext("2d");
       return {context: ctx, chart: new Chart(ctx, config)};
-    }
+    };
+  };
+
+  const c3TimeSeries = function(graphType, area, stepped) {
+    return function (app, label, axisLabel, data, elems, eventHandlers) {
+      const config = {
+        bindto: elems.svg,
+        data: {
+          x: 'x',
+          xFormat: '%Y-%m-%d %H:%M:%S',
+          type: graphType === 'line' ? (area ? (stepped ? 'area-step' : 'area') : (stepped ? 'step' : 'line')) : graphType,
+          columns: [
+            ['x', ...data.map((v) => v.label)],
+            [axisLabel, ...data.map((v) => v.value)]
+          ]
+        },
+        line: {
+          step: {
+            type: 'step-after'
+          },
+        },
+        axis: {
+          x: {
+            type: 'timeseries',
+            localtime: true,
+            tick: {
+              fit: true,
+              format: '%e %b %y %H:%M:%S',
+              rotate: -60,
+              multiline: false
+            },
+            height: 100
+          }
+        },
+        size: {
+          height: app.get('chartHeight')
+        },
+        zoom: {
+          enabled: true
+        },
+        subchart: {
+          show: true
+        }
+      };
+
+      elems.titlesvg.innerText = label;
+
+      return {svg: c3.generate(config)};
+    };
   };
 
   const c3CategoryChart = function(graphType, rotated) {
@@ -246,27 +294,52 @@
   const chartFunctions = {
     timeSeriesSteppedArea: {
       name: "Time Series Stepped Area, Chart.js",
-      func: timeSeries("line", true, true)
+      func: chartJsTimeSeries("line", true, true)
+    },
+
+    timeSeriesSteppedAreaC3: {
+      name: "Time Series Stepped Area, C3.js",
+      func: c3TimeSeries("line", true, true)
     },
 
     timeSeriesStepped: {
       name: "Time Series Stepped, Chart.js",
-      func: timeSeries("line", false, true)
+      func: chartJsTimeSeries("line", false, true)
+    },
+
+    timeSeriesSteppedC3: {
+      name: "Time Series Stepped, C3.js",
+      func: c3TimeSeries("line", false, true)
     },
 
     timeSeriesLine: {
       name: "Time Series Line, Chart.js",
-      func: timeSeries("line")
+      func: chartJsTimeSeries("line")
+    },
+
+    timeSeriesLineC3: {
+      name: "Time Series Line, C3.js",
+      func: c3TimeSeries("line")
     },
 
     timeSeriesArea: {
       name: "Time Series Area, Chart.js",
-      func: timeSeries("line", true)
+      func: chartJsTimeSeries("line", true)
+    },
+
+    timeSeriesAreaC3: {
+      name: "Time Series Area, C3.js",
+      func: c3TimeSeries("line", true)
     },
 
     timeSeriesBar: {
       name: "Time Series Bar, Chart.js",
-      func: timeSeries("bar")
+      func: chartJsTimeSeries("bar")
+    },
+
+    timeSeriesBarC3: {
+      name: "Time Series Bar, C3.js",
+      func: c3TimeSeries("bar")
     },
 
     bar: {
@@ -515,9 +588,9 @@
         __currentChart: null,
         __chartFunctions: chartFunctions,
         __chartFunctionsKeys: Object.keys(chartFunctions),
-        chartHeight: 500,
+        chartHeight: 700,
         aggregateFunction: "totalListenersOverTime",
-        chartFunction: "timeSeriesSteppedArea",
+        chartFunction: "timeSeriesSteppedAreaC3",
         options: {
           "class": IceCastAccessLogEntry.class
         },
