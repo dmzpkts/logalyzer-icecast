@@ -2,13 +2,13 @@ import Nymph from "Nymph";
 import Entity from "NymphEntity";
 import LogEntry from "./LogEntry";
 
-export default class IceCastAccessLogEntry extends LogEntry {
+export default class IcecastAccessLogEntry extends LogEntry {
 
   // === Static Properties ===
 
   static etype = "logentry_icecast_access";
   // The name of the server class
-  static class = "IceCastAccessLogEntry";
+  static class = "IcecastAccessLogEntry";
 
   static title = "IceCast Access Log Entry";
   static usesIpLocationInfo = true;
@@ -141,7 +141,7 @@ export default class IceCastAccessLogEntry extends LogEntry {
       let dupes;
       [ipInfo, dupes] = await Promise.all([
         LogEntry.getIpLocationData(remoteHost, ipDataCache),
-        Nymph.getEntities({'class': IceCastAccessLogEntry.class}, {'type': '&', 'strict': ['line', line]}).then((e) => e, (err) => {
+        Nymph.getEntities({'class': IcecastAccessLogEntry.class}, {'type': '&', 'strict': ['line', line]}).then((e) => e, (err) => {
           console.log('\nCouldn\'t check for dupes. Got err: ', err, '\n');
         })
       ]);
@@ -179,5 +179,5 @@ export default class IceCastAccessLogEntry extends LogEntry {
   }
 }
 
-Nymph.setEntityClass(IceCastAccessLogEntry.class, IceCastAccessLogEntry);
-export {IceCastAccessLogEntry};
+Nymph.setEntityClass(IcecastAccessLogEntry.class, IcecastAccessLogEntry);
+export {IcecastAccessLogEntry};

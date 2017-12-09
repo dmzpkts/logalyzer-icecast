@@ -8,7 +8,7 @@
       exports: {}
     };
     factory(mod.exports, global.Nymph, global.NymphEntity, global.LogEntry);
-    global.IceCastAccessLogEntry = mod.exports;
+    global.IcecastAccessLogEntry = mod.exports;
   }
 })(this, function (exports, _Nymph, _NymphEntity, _LogEntry) {
   "use strict";
@@ -16,7 +16,7 @@
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.IceCastAccessLogEntry = undefined;
+  exports.IcecastAccessLogEntry = undefined;
 
   var _Nymph2 = _interopRequireDefault(_Nymph);
 
@@ -111,7 +111,7 @@
     };
   }
 
-  class IceCastAccessLogEntry extends _LogEntry2.default {
+  class IcecastAccessLogEntry extends _LogEntry2.default {
 
     // === Constructor ===
 
@@ -189,7 +189,7 @@
         if (!options['skip-dupe-check']) {
           let dupes;
 
-          var _ref = yield Promise.all([_LogEntry2.default.getIpLocationData(remoteHost, ipDataCache), _Nymph2.default.getEntities({ 'class': IceCastAccessLogEntry.class }, { 'type': '&', 'strict': ['line', line] }).then(function (e) {
+          var _ref = yield Promise.all([_LogEntry2.default.getIpLocationData(remoteHost, ipDataCache), _Nymph2.default.getEntities({ 'class': IcecastAccessLogEntry.class }, { 'type': '&', 'strict': ['line', line] }).then(function (e) {
             return e;
           }, function (err) {
             console.log('\nCouldn\'t check for dupes. Got err: ', err, '\n');
@@ -234,13 +234,13 @@
     }
   }
 
-  exports.default = IceCastAccessLogEntry;
-  IceCastAccessLogEntry.etype = "logentry_icecast_access";
-  IceCastAccessLogEntry.class = "IceCastAccessLogEntry";
-  IceCastAccessLogEntry.title = "IceCast Access Log Entry";
-  IceCastAccessLogEntry.usesIpLocationInfo = true;
-  IceCastAccessLogEntry.filePattern = /^access.log/;
-  IceCastAccessLogEntry.aggregateFunctions = _extends({
+  exports.default = IcecastAccessLogEntry;
+  IcecastAccessLogEntry.etype = "logentry_icecast_access";
+  IcecastAccessLogEntry.class = "IcecastAccessLogEntry";
+  IcecastAccessLogEntry.title = "IceCast Access Log Entry";
+  IcecastAccessLogEntry.usesIpLocationInfo = true;
+  IcecastAccessLogEntry.filePattern = /^access.log/;
+  IcecastAccessLogEntry.aggregateFunctions = _extends({
     totalListenersOverTime: {
       name: "Total Listeners Over Time",
       axisLabel: "Listeners",
@@ -301,6 +301,6 @@
     }
 
   }, _LogEntry2.default.httpRequestBasedAggregateFunctions, _LogEntry2.default.refererBasedAggregateFunctions, _LogEntry2.default.userAgentBasedAggregateFunctions, _LogEntry2.default.geoBasedAggregateFunctions);
-  _Nymph2.default.setEntityClass(IceCastAccessLogEntry.class, IceCastAccessLogEntry);
-  exports.IceCastAccessLogEntry = IceCastAccessLogEntry;
+  _Nymph2.default.setEntityClass(IcecastAccessLogEntry.class, IcecastAccessLogEntry);
+  exports.IcecastAccessLogEntry = IcecastAccessLogEntry;
 });
