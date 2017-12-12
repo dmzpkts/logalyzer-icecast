@@ -28,6 +28,20 @@
     };
   }
 
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
   var _slicedToArray = function () {
     function sliceIterator(arr, i) {
       var _arr = [];
@@ -99,8 +113,7 @@
 
     // === Constructor ===
 
-    // === Static Properties ===
-
+    // The name of the server class
     constructor(id) {
       super(id);
 
@@ -115,7 +128,9 @@
      * @return {boolean} True is the line was parsed, false if the entry should be skipped according to options.
      */
 
-    // The name of the server class
+
+    // === Static Properties ===
+
     parseAndSet(line, options, ipDataCache) {
       return _asyncToGenerator(function* () {
         return false;
@@ -394,12 +409,46 @@
   LogEntry.title = "Generic Log Entry";
   LogEntry.usesIpLocationInfo = false;
   LogEntry.filePattern = /^not_a_real_log_class/;
-  LogEntry.aggregateFunctions = {};
+  LogEntry.aggregateFunctions = _extends({}, LogEntry.defaultAggregateFunctions);
+  LogEntry.defaultAggregateFunctions = {
+    rawLogLine: {
+      name: "Raw Logs",
+      axisLabel: "Log Line",
+      defaultChartFunction: "rawDataEntries",
+      func: function func(entries) {
+        const data = [],
+              eventHandlers = {};
+
+        // Add all log entry lines.
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const label = entry.get("line");
+
+          data.push({
+            label: label,
+            value: 1
+          });
+
+          eventHandlers[label] = function (app) {
+            const selectors = app.get("selectors");
+            selectors.push({
+              type: "&",
+              strict: [["line", label]]
+            });
+            app.set({ selectors });
+            alert("Added selector to filter for this log entry.");
+          };
+        }
+
+        return { data, eventHandlers };
+      }
+    }
+  };
   LogEntry.httpRequestBasedAggregateFunctions = {
     remoteHost: {
       name: "Remote Host (Unique Visitors)",
       axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
+      defaultChartFunction: "rawDataEntries",
       func: LogEntry.aggregateExtractBy("remoteHost", "Unknown")
     },
 
@@ -408,6 +457,13 @@
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
       func: LogEntry.aggregateExtractBy("resource", "Unknown")
+    },
+
+    resources: {
+      name: "Request Methods",
+      axisLabel: "Methods",
+      defaultChartFunction: "horizontalBar",
+      func: LogEntry.aggregateExtractBy("method", "Unknown")
     },
 
     responseStatusCode: {

@@ -300,7 +300,7 @@
       }
     }
 
-  }, _LogEntry2.default.httpRequestBasedAggregateFunctions, _LogEntry2.default.refererBasedAggregateFunctions, _LogEntry2.default.userAgentBasedAggregateFunctions, _LogEntry2.default.geoBasedAggregateFunctions);
+  }, _LogEntry2.default.httpRequestBasedAggregateFunctions, _LogEntry2.default.refererBasedAggregateFunctions, _LogEntry2.default.userAgentBasedAggregateFunctions, _LogEntry2.default.geoBasedAggregateFunctions, _LogEntry2.default.defaultAggregateFunctions);
   _Nymph2.default.setEntityClass(IcecastAccessLogEntry.class, IcecastAccessLogEntry);
   exports.IcecastAccessLogEntry = IcecastAccessLogEntry;
 });

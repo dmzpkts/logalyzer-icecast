@@ -471,6 +471,20 @@
 				elems.raw.innerHTML = data.map(v => sanitizeText(v.label) + Array(maxWidth - v.label.length + 1).join(" ") + " " + sanitizeText(v.value)).join("\n");
 				return { raw: elems.raw };
 			}
+		},
+
+		rawDataEntries: {
+			name: "Raw Data (No Chart), Entries Only",
+			func: function func(app, label, axisLabel, data, elems, eventHandlers) {
+				const sanitizer = document.createElement("span");
+				const sanitizeText = text => {
+					sanitizer.innerText = text;
+					return sanitizer.innerHTML;
+				};
+				elems.titleraw.innerText = label + " (" + data.length + " total)";
+				elems.raw.innerHTML = data.map(v => sanitizeText(v.label)).join("\n");
+				return { raw: elems.raw };
+			}
 		}
 	};
 
@@ -609,13 +623,13 @@
 	};
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-1814239143", "");
+		setAttribute(node, "svelte-2600690138", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-1814239143-style';
-		style.textContent = "[svelte-1814239143].w-auto,[svelte-1814239143] .w-auto{width:auto}[svelte-1814239143].query-editor h2,[svelte-1814239143] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-1814239143].chart-container > .hidden,[svelte-1814239143] .chart-container > .hidden{display:none}[svelte-1814239143].chart-canvas,[svelte-1814239143] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-1814239143].loader,[svelte-1814239143] .loader,[svelte-1814239143].loader:after,[svelte-1814239143] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-1814239143].loader,[svelte-1814239143] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-1814239143-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-1814239143]0%,[svelte-1814239143] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-1814239143]100%,[svelte-1814239143] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-1814239143-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-2600690138-style';
+		style.textContent = "[svelte-2600690138].w-auto,[svelte-2600690138] .w-auto{width:auto}[svelte-2600690138].query-editor h2,[svelte-2600690138] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-2600690138].chart-container > .hidden,[svelte-2600690138] .chart-container > .hidden{display:none}[svelte-2600690138].chart-canvas,[svelte-2600690138] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2600690138].loader,[svelte-2600690138] .loader,[svelte-2600690138].loader:after,[svelte-2600690138] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2600690138].loader,[svelte-2600690138] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2600690138-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2600690138]0%,[svelte-2600690138] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2600690138]100%,[svelte-2600690138] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2600690138-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -1273,7 +1287,7 @@
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1, chartHeight: 1 }, this._state);
 
-		if (!document.getElementById("svelte-1814239143-style")) add_css();
+		if (!document.getElementById("svelte-2600690138-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 

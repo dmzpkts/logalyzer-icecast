@@ -539,6 +539,20 @@
         elems.raw.innerHTML = data.map((v) => sanitizeText(v.label)+(Array(maxWidth - v.label.length + 1).join(" "))+" "+sanitizeText(v.value)).join("\n");
         return {raw: elems.raw};
       }
+    },
+
+    rawDataEntries: {
+      name: "Raw Data (No Chart), Entries Only",
+      func: function (app, label, axisLabel, data, elems, eventHandlers) {
+        const sanitizer = document.createElement("span");
+        const sanitizeText = (text) => {
+          sanitizer.innerText = text;
+          return sanitizer.innerHTML;
+        };
+        elems.titleraw.innerText = label + " (" + data.length + " total)";
+        elems.raw.innerHTML = data.map((v) => sanitizeText(v.label)).join("\n");
+        return {raw: elems.raw};
+      }
     }
   };
 

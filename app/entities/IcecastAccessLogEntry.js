@@ -78,6 +78,8 @@ export default class IcecastAccessLogEntry extends LogEntry {
     ...LogEntry.userAgentBasedAggregateFunctions,
 
     ...LogEntry.geoBasedAggregateFunctions,
+
+    ...LogEntry.defaultAggregateFunctions
   }
 
   // === Constructor ===

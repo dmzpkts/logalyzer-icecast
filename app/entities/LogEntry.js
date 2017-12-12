@@ -13,13 +13,50 @@ export default class LogEntry extends Entity {
   static usesIpLocationInfo = false;
   static filePattern = /^not_a_real_log_class/;
 
-  static aggregateFunctions = {}
+  static aggregateFunctions = {
+    ...LogEntry.defaultAggregateFunctions
+  }
 
+  static defaultAggregateFunctions = {
+    rawLogLine: {
+      name: "Raw Logs",
+      axisLabel: "Log Line",
+      defaultChartFunction: "rawDataEntries",
+      func: function (entries) {
+        const data = [], eventHandlers = {};
+
+        // Add all log entry lines.
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const label = entry.get("line");
+
+          data.push({
+            label: label,
+            value: 1
+          });
+
+          eventHandlers[label] = function(app) {
+            const selectors = app.get("selectors");
+            selectors.push({
+              type: "&",
+              strict: [
+                ["line", label]
+              ]
+            });
+            app.set({selectors});
+            alert("Added selector to filter for this log entry.");
+          };
+        }
+
+        return {data, eventHandlers};
+      }
+    }
+  }
   static httpRequestBasedAggregateFunctions = {
     remoteHost: {
       name: "Remote Host (Unique Visitors)",
       axisLabel: "Requests",
-      defaultChartFunction: "horizontalBar",
+      defaultChartFunction: "rawDataEntries",
       func: LogEntry.aggregateExtractBy("remoteHost", "Unknown")
     },
 
@@ -28,6 +65,13 @@ export default class LogEntry extends Entity {
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
       func: LogEntry.aggregateExtractBy("resource", "Unknown")
+    },
+
+    resources: {
+      name: "Request Methods",
+      axisLabel: "Methods",
+      defaultChartFunction: "horizontalBar",
+      func: LogEntry.aggregateExtractBy("method", "Unknown")
     },
 
     responseStatusCode: {
