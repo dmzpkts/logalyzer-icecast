@@ -578,7 +578,7 @@
 				tilmeldlogin._fragment.c();
 				text_1 = createText("\n      ");
 				div_3 = createElement("div");
-				div_3.innerHTML = "<div class=\"jumbotron\"><h1 class=\"display-4\">Logalyzer for Icecast!</h1>\n          <p class=\"lead\">Log analyzer for Icecast servers.</p>\n          <hr class=\"my-4\">\n          <p>Logalyzer can disect your server logs and aggregate the results into charts and graphs, helping you gain valuable insight on your users' activities and preferences.</p>\n          <p class=\"lead\"><a class=\"btn btn-primary btn-lg\" href=\"https://github.com/sciactive/logalyzer-icecast\" role=\"button\">Logalyzer on GitHub</a></p></div>";
+				div_3.innerHTML = "<div class=\"jumbotron\"><h1 class=\"display-4\">Logalyzer for Icecast!</h1>\n          <p class=\"lead\">Log analyzer for Icecast servers.</p>\n          <hr class=\"my-4\">\n          <p>Logalyzer can dissect your server logs and aggregate the results into charts and graphs, helping you gain valuable insight on your users' activities and preferences.</p>\n          <p class=\"lead\"><a class=\"btn btn-primary btn-lg\" href=\"https://github.com/sciactive/logalyzer-icecast\" role=\"button\">Logalyzer on GitHub</a></p></div>";
 				this.h();
 			},
 

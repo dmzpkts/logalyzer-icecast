@@ -401,6 +401,89 @@
         return { data, eventHandlers };
       };
     }
+
+    static aggregateExtractArray(property) {
+      return function (entries) {
+        const values = {};
+        const data = [],
+              eventHandlers = {};
+
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const value = entry.get(property);
+
+          if (value === []) {
+            if (values["Empty"]) {
+              values["Empty"].value++;
+            } else {
+              values["Empty"] = { value: 1 };
+            }
+          } else if (!value) {
+            if (values["Invalid"]) {
+              values["Invalid"].value++;
+            } else {
+              values["Invalid"] = { value: 1 };
+            }
+          } else {
+            for (let finalValue of value) {
+              if (values[finalVal]) {
+                values[finalVal].value++;
+              } else {
+                values[finalVal] = {
+                  propValue: value,
+                  value: 1
+                };
+              }
+            }
+          }
+        }
+
+        // Convert every entry to an array.
+        for (let k in values) {
+          const label = k + " (" + Math.round(values[k].value / entries.length * 10000) / 100 + "%, " + values[k].value + ")";
+          data.push({
+            label: label,
+            value: values[k].value
+          });
+          if (k === "Invalid") {
+            eventHandlers[label] = function (app) {
+              const selectors = app.get("selectors");
+              selectors.push({
+                type: "|",
+                strict: [[property, false]],
+                "!isset": [property]
+              });
+              app.set({ selectors });
+              alert("Added selector to filter for invalid " + property + ".");
+            };
+          } else if (k === "Empty") {
+            eventHandlers[label] = function (app) {
+              const selectors = app.get("selectors");
+              selectors.push({
+                type: "&",
+                strict: [[property, []]]
+              });
+              app.set({ selectors });
+              alert("Added selector to filter for empty " + property + ".");
+            };
+          } else {
+            eventHandlers[label] = function (app) {
+              const selectors = app.get("selectors");
+              selectors.push({
+                type: "&",
+                array: [[property, values[k].propValue]]
+              });
+              app.set({ selectors });
+              alert("Added selector to filter for this value in " + property + ".");
+            };
+          }
+        }
+
+        data.sort((a, b) => b.value - a.value);
+
+        return { data, eventHandlers };
+      };
+    }
   }
 
   exports.default = LogEntry;
@@ -461,7 +544,7 @@
 
     resources: {
       name: "Request Methods",
-      axisLabel: "Methods",
+      axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
       func: LogEntry.aggregateExtractBy("method", "Unknown")
     },

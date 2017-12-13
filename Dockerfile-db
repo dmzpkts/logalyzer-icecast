@@ -1,0 +1,5 @@
+FROM mysql:latest
+
+# Max Allowed Packet
+RUN echo "[mysqld]" > /etc/mysql/conf.d/max-allowed-packet.ini
+RUN echo "max_allowed_packet=100M" >> /etc/mysql/conf.d/max-allowed-packet.ini
