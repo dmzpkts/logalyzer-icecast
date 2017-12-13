@@ -210,13 +210,17 @@ const rl = readline.createInterface({
 
         // Read lines into pendingEntries until they are complete.
         for (let idx in pendingEntries) {
-          let entry = pendingEntries[idx];
+          let entry = pendingEntries[idx], breakNow = false;
           if (entry.isLogLineContinuation(line)) {
             entry.addLine(line);
+            breakNow = true;
           }
           if (entry.isLogLineComplete()) {
             currentProcesses.push(processLogEntry(entry));
             pendingEntries.splice(idx, 1);
+          }
+          if (breakNow) {
+            break;
           }
         }
         if (LogEntry.isLogLineStart(line)) {
