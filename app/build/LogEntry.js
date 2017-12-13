@@ -425,7 +425,7 @@
               values["Invalid"] = { value: 1 };
             }
           } else {
-            for (let finalValue of value) {
+            for (let finalVal of value) {
               if (values[finalVal]) {
                 values[finalVal].value++;
               } else {
