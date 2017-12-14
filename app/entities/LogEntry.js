@@ -664,7 +664,7 @@ export default class LogEntry extends Entity {
         const entry = entries[i];
         const value = entry.get(property);
 
-        if (!value || value === "-") {
+        if ((!value && value !== 0) || value === "-") {
           if (values[unknownIsCalled]) {
             values[unknownIsCalled].value++;
           } else {
@@ -704,20 +704,26 @@ export default class LogEntry extends Entity {
         data.push({
           label: label,
           value: values[k].value,
-          sortProperty: k.toLowerCase()
+          sortProperty: (k.match(/^[0-9.]+$/) && parseFloat(k, 10) !== NaN) ? parseFloat(k, 10) : k.toLowerCase()
         });
         if (k === unknownIsCalled) {
           eventHandlers[label] = function(app) {
             const selectors = app.get("selectors");
             selectors.push({
-              type: "|",
-              data: [
-                [property, false]
-              ],
-              strict: [
-                [property, "-"]
-              ],
-              "!isset": [property]
+              type: "&",
+              "1": {
+                type: "|",
+                data: [
+                  [property, false]
+                ],
+                strict: [
+                  [property, "-"]
+                ],
+                "!isset": [property]
+              },
+              "!strict": [
+                [property, 0]
+              ]
             });
             app.set({selectors});
             alert("Added selector to filter for an unknown " + property + ".");
@@ -739,6 +745,9 @@ export default class LogEntry extends Entity {
                     ],
                     "!isset": [appendProperty]
                   },
+                  "!strict": [
+                    [appendProperty, 0]
+                  ],
                   strict: [
                     [property, values[k].propValue]
                   ]
@@ -770,7 +779,11 @@ export default class LogEntry extends Entity {
         data.sort((a, b) => b.value - a.value);
       } else if (sort === "property") {
         data.sort((a, b) => {
-          if (a.sortProperty < b.sortProperty) {
+          if (typeof a.sortProperty === "number" && typeof b.sortProperty !== "number") {
+            return -1;
+          } else if (typeof b.sortProperty === "number" && typeof a.sortProperty !== "number") {
+            return 1;
+          } else if (a.sortProperty < b.sortProperty) {
             return -1;
           } else if (b.sortProperty < a.sortProperty) {
             return 1;
@@ -799,7 +812,7 @@ export default class LogEntry extends Entity {
           } else {
             values["Empty"] = {value: 1};
           }
-        } else if (!value) {
+        } else if (!value && value !== 0) {
           if (values["Invalid"]) {
             values["Invalid"].value++;
           } else {
@@ -825,7 +838,7 @@ export default class LogEntry extends Entity {
         data.push({
           label: label,
           value: values[k].value,
-          sortProperty: k.toLowerCase()
+          sortProperty: (k.match(/^[0-9.]+$/) && parseFloat(k, 10) !== NaN) ? parseFloat(k, 10) : k.toLowerCase()
         });
         if (k === "Invalid") {
           eventHandlers[label] = function(app) {
@@ -871,7 +884,11 @@ export default class LogEntry extends Entity {
         data.sort((a, b) => b.value - a.value);
       } else if (sort === "property") {
         data.sort((a, b) => {
-          if (a.sortProperty < b.sortProperty) {
+          if (typeof a.sortProperty === "number" && typeof b.sortProperty !== "number") {
+            return -1;
+          } else if (typeof b.sortProperty === "number" && typeof a.sortProperty !== "number") {
+            return 1;
+          } else if (a.sortProperty < b.sortProperty) {
             return -1;
           } else if (b.sortProperty < a.sortProperty) {
             return 1;
