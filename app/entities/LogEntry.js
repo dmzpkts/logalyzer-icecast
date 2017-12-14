@@ -812,7 +812,7 @@ export default class LogEntry extends Entity {
           } else {
             values["Empty"] = {value: 1};
           }
-        } else if (!value && value !== 0) {
+        } else if (!value) {
           if (values["Invalid"]) {
             values["Invalid"].value++;
           } else {
@@ -840,20 +840,7 @@ export default class LogEntry extends Entity {
           value: values[k].value,
           sortProperty: (k.match(/^[0-9.]+$/) && parseFloat(k, 10) !== NaN) ? parseFloat(k, 10) : k.toLowerCase()
         });
-        if (k === "Invalid") {
-          eventHandlers[label] = function(app) {
-            const selectors = app.get("selectors");
-            selectors.push({
-              type: "|",
-              strict: [
-                [property, false]
-              ],
-              "!isset": [property]
-            });
-            app.set({selectors});
-            alert("Added selector to filter for invalid " + property + ".");
-          };
-        } else if (k === "Empty") {
+        if (k === "Empty") {
           eventHandlers[label] = function(app) {
             const selectors = app.get("selectors");
             selectors.push({
@@ -864,6 +851,19 @@ export default class LogEntry extends Entity {
             });
             app.set({selectors});
             alert("Added selector to filter for empty " + property + ".");
+          };
+        } else if (k === "Invalid") {
+          eventHandlers[label] = function(app) {
+            const selectors = app.get("selectors");
+            selectors.push({
+              type: "|",
+              data: [
+                [property, false]
+              ],
+              "!isset": [property]
+            });
+            app.set({selectors});
+            alert("Added selector to filter for invalid " + property + ".");
           };
         } else {
           eventHandlers[label] = function(app) {
