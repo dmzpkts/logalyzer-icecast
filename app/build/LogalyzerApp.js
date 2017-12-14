@@ -488,7 +488,7 @@
 		}
 	};
 
-	const originalHash = window.location.hash.replace(/^#/, '');
+	const originalHash = window.location.hash.replace(/^#/, "");
 	let currentHash = originalHash;
 
 	function __aggregateFunctions(options) {
@@ -503,8 +503,8 @@
 		return [options, ...selectors];
 	}
 
-	function urlHashUpdate(aggregateFunction, chartFunction, options, selectors, chartHeight) {
-		currentHash = JSON.stringify({ aggregateFunction, chartFunction, options, selectors, chartHeight });
+	function urlHashUpdate(aggregateFunction, chartFunction, options, selectors, sort, chartHeight) {
+		currentHash = JSON.stringify({ aggregateFunction, chartFunction, options, selectors, sort, chartHeight });
 		window.location.hash = currentHash;
 		return null;
 	}
@@ -520,6 +520,7 @@
 			chartHeight: 700,
 			aggregateFunction: "totalListenersOverTime",
 			chartFunction: "timeSeriesSteppedAreaC3",
+			sort: "value",
 			options: {
 				"class": _IcecastAccessLogEntry2.default.class
 			},
@@ -561,9 +562,10 @@
 			const query = this.get("query");
 			_Nymph2.default.getEntities(...query).then(entries => {
 				const aggFuncObj = this.get("__aggregateFunctions")[aggregateFunction];
+				const sort = this.get("sort");
 				const chartFuncObj = chartFunctions[chartFunction];
 				// Run the aggregator:
-				const aggResults = aggFuncObj.func(entries);
+				const aggResults = aggFuncObj.func(entries, sort);
 				const data = aggResults.data;
 				const eventHandlers = aggResults.eventHandlers;
 
@@ -609,7 +611,7 @@
 			}
 		}, 5);
 
-		this.observe('options', (newVal, oldVal) => {
+		this.observe("options", (newVal, oldVal) => {
 			if (oldVal !== undefined && newVal.class === oldVal.class) {
 				return;
 			}
@@ -620,16 +622,24 @@
 				this.set({ aggregateFunction: __aggregateFunctionsKeys[0] });
 			}
 		});
+
+		this.observe("aggregateFunction", value => {
+			const sort = this.get("sort");
+			const aggregate = this.get("__aggregateFunctions")[value];
+			if (aggregate.sorting.indexOf(sort) === -1) {
+				this.set({ sort: aggregate.sorting[0] });
+			}
+		});
 	};
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2600690138", "");
+		setAttribute(node, "svelte-2304385131", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2600690138-style';
-		style.textContent = "[svelte-2600690138].w-auto,[svelte-2600690138] .w-auto{width:auto}[svelte-2600690138].query-editor h2,[svelte-2600690138] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-2600690138].chart-container > .hidden,[svelte-2600690138] .chart-container > .hidden{display:none}[svelte-2600690138].chart-canvas,[svelte-2600690138] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2600690138].loader,[svelte-2600690138] .loader,[svelte-2600690138].loader:after,[svelte-2600690138] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2600690138].loader,[svelte-2600690138] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2600690138-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2600690138]0%,[svelte-2600690138] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2600690138]100%,[svelte-2600690138] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2600690138-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-2304385131-style';
+		style.textContent = "[svelte-2304385131].w-auto,[svelte-2304385131] .w-auto{width:auto}[svelte-2304385131].query-editor h2,[svelte-2304385131] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-2304385131].chart-container > .hidden,[svelte-2304385131] .chart-container > .hidden{display:none}[svelte-2304385131].chart-canvas,[svelte-2304385131] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2304385131].loader,[svelte-2304385131] .loader,[svelte-2304385131].loader:after,[svelte-2304385131] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2304385131].loader,[svelte-2304385131] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2304385131-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2304385131]0%,[svelte-2304385131] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2304385131]100%,[svelte-2304385131] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2304385131-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -649,37 +659,43 @@
 		    select_1,
 		    select_1_updating = false,
 		    text_7,
+		    label_2,
+		    text_8,
+		    select_2,
+		    select_2_updating = false,
+		    text_10,
 		    div_2,
-		    button_1,
-		    text_9,
-		    button_2,
 		    text_11,
-		    button_3,
+		    button_1,
+		    text_13,
+		    button_2,
 		    text_15,
+		    button_3,
+		    text_19,
 		    div_3,
 		    div_3_class_value,
 		    queryeditor_updating = {},
-		    text_17,
+		    text_21,
 		    hr,
-		    text_18,
+		    text_22,
 		    div_4,
 		    div_5,
 		    div_5_class_value,
-		    text_19,
+		    text_23,
 		    div_6,
 		    div_7,
 		    div_7_class_value,
 		    div_8,
-		    text_20,
+		    text_24,
 		    div_9,
 		    pre,
-		    text_23,
+		    text_27,
 		    div_10,
 		    div_10_class_value,
 		    h5,
-		    text_24,
+		    text_28,
 		    div_11,
-		    text_26,
+		    text_30,
 		    canvas,
 		    canvas_class_value;
 
@@ -723,6 +739,21 @@
 			var selectedOption = select_1.querySelector(':checked') || select_1.options[0];
 			component.set({ chartFunction: selectedOption && selectedOption.__value });
 			select_1_updating = false;
+		}
+
+		var sorting = state.__aggregateFunctions[state.aggregateFunction].sorting;
+
+		var each_2_blocks = [];
+
+		for (var i = 0; i < sorting.length; i += 1) {
+			each_2_blocks[i] = create_each_block_2(state, sorting, sorting[i], i, component);
+		}
+
+		function select_2_change_handler() {
+			select_2_updating = true;
+			var selectedOption = select_2.querySelector(':checked') || select_2.options[0];
+			component.set({ sort: selectedOption && selectedOption.__value });
+			select_2_updating = false;
 		}
 
 		function click_handler_1(event) {
@@ -816,7 +847,7 @@
 				text = createText(" Query Editor");
 				text_1 = createText("\n    ");
 				label = createElement("label");
-				text_2 = createText("Aggregrator\n      ");
+				text_2 = createText("Aggreg.\n      ");
 				select = createElement("select");
 
 				for (var i = 0; i < each_blocks.length; i += 1) {
@@ -833,36 +864,46 @@
 				}
 
 				text_7 = createText("\n    ");
+				label_2 = createElement("label");
+				text_8 = createText("Sort\n      ");
+				select_2 = createElement("select");
+
+				for (var i = 0; i < each_2_blocks.length; i += 1) {
+					each_2_blocks[i].c();
+				}
+
+				text_10 = createText("\n    ");
 				div_2 = createElement("div");
+				text_11 = createText("Height\n      ");
 				button_1 = createElement("button");
-				button_1.textContent = "Increase Height";
-				text_9 = createText("\n      ");
+				button_1.textContent = "+";
+				text_13 = createText("\n      ");
 				button_2 = createElement("button");
-				button_2.textContent = "Decrease Height";
-				text_11 = createText("\n      ");
+				button_2.textContent = "-";
+				text_15 = createText("\n      ");
 				button_3 = createElement("button");
-				button_3.textContent = "Run Query";
-				text_15 = createText("\n  ");
+				button_3.textContent = "Run";
+				text_19 = createText("\n  ");
 				div_3 = createElement("div");
 				queryeditor._fragment.c();
-				text_17 = createText("\n  ");
+				text_21 = createText("\n  ");
 				hr = createElement("hr");
-				text_18 = createText("\n  ");
+				text_22 = createText("\n  ");
 				div_4 = createElement("div");
 				div_5 = createElement("div");
-				text_19 = createText("\n    ");
+				text_23 = createText("\n    ");
 				div_6 = createElement("div");
 				div_7 = createElement("div");
 				div_8 = createElement("div");
-				text_20 = createText("\n          ");
+				text_24 = createText("\n          ");
 				div_9 = createElement("div");
 				pre = createElement("pre");
-				text_23 = createText("\n        ");
+				text_27 = createText("\n        ");
 				div_10 = createElement("div");
 				h5 = createElement("h5");
-				text_24 = createText("\n          ");
+				text_28 = createText("\n          ");
 				div_11 = createElement("div");
-				text_26 = createText("\n      ");
+				text_30 = createText("\n      ");
 				canvas = createElement("canvas");
 				this.h();
 			},
@@ -886,6 +927,12 @@
 				if (!('chartFunction' in state)) component._root._beforecreate.push(select_1_change_handler);
 
 				addListener(select_1, "change", select_1_change_handler);
+				label_2.className = "mx-2 mb-0";
+				select_2.className = "form-control d-inline w-auto ml-2";
+
+				if (!('sort' in state)) component._root._beforecreate.push(select_2_change_handler);
+
+				addListener(select_2, "change", select_2_change_handler);
 				div_2.className = "display-inline-block ml-auto";
 				button_1.type = "button";
 				button_1.className = "btn btn-secondary";
@@ -957,38 +1004,58 @@
 				}
 
 				appendNode(text_7, div_1);
+				appendNode(label_2, div_1);
+				appendNode(text_8, label_2);
+				appendNode(select_2, label_2);
+
+				for (var i = 0; i < each_2_blocks.length; i += 1) {
+					each_2_blocks[i].m(select_2, null);
+				}
+
+				var value_2 = state.sort;
+				for (var i = 0; i < select_2.options.length; i += 1) {
+					var option_2 = select_2.options[i];
+
+					if (option_2.__value === value_2) {
+						option_2.selected = true;
+						break;
+					}
+				}
+
+				appendNode(text_10, div_1);
 				appendNode(div_2, div_1);
-				appendNode(button_1, div_2);
-				appendNode(text_9, div_2);
-				appendNode(button_2, div_2);
 				appendNode(text_11, div_2);
+				appendNode(button_1, div_2);
+				appendNode(text_13, div_2);
+				appendNode(button_2, div_2);
+				appendNode(text_15, div_2);
 				appendNode(button_3, div_2);
-				appendNode(text_15, div);
+				appendNode(text_19, div);
 				appendNode(div_3, div);
 				queryeditor._mount(div_3, null);
-				appendNode(text_17, div);
+				appendNode(text_21, div);
 				appendNode(hr, div);
-				appendNode(text_18, div);
+				appendNode(text_22, div);
 				appendNode(div_4, div);
 				appendNode(div_5, div_4);
-				appendNode(text_19, div_4);
+				appendNode(text_23, div_4);
 				appendNode(div_6, div_4);
 				component.refs.canvascontainer = div_6;
 				appendNode(div_7, div_6);
 				appendNode(div_8, div_7);
 				component.refs.titleraw = div_8;
-				appendNode(text_20, div_7);
+				appendNode(text_24, div_7);
 				appendNode(div_9, div_7);
 				appendNode(pre, div_9);
 				component.refs.chartraw = pre;
-				appendNode(text_23, div_6);
+				appendNode(text_27, div_6);
 				appendNode(div_10, div_6);
 				appendNode(h5, div_10);
 				component.refs.titlesvg = h5;
-				appendNode(text_24, div_10);
+				appendNode(text_28, div_10);
 				appendNode(div_11, div_10);
 				component.refs.chartsvg = div_11;
-				appendNode(text_26, div_6);
+				appendNode(text_30, div_6);
 				appendNode(canvas, div_6);
 				component.refs.chartcanvas = canvas;
 			},
@@ -1066,6 +1133,38 @@
 					}
 				}
 
+				var sorting = state.__aggregateFunctions[state.aggregateFunction].sorting;
+
+				if (changed.__aggregateFunctions || changed.aggregateFunction) {
+					for (var i = 0; i < sorting.length; i += 1) {
+						if (each_2_blocks[i]) {
+							each_2_blocks[i].p(changed, state, sorting, sorting[i], i);
+						} else {
+							each_2_blocks[i] = create_each_block_2(state, sorting, sorting[i], i, component);
+							each_2_blocks[i].c();
+							each_2_blocks[i].m(select_2, null);
+						}
+					}
+
+					for (; i < each_2_blocks.length; i += 1) {
+						each_2_blocks[i].u();
+						each_2_blocks[i].d();
+					}
+					each_2_blocks.length = sorting.length;
+				}
+
+				if (!select_2_updating) {
+					var value_2 = state.sort;
+					for (var i = 0; i < select_2.options.length; i += 1) {
+						var option_2 = select_2.options[i];
+
+						if (option_2.__value === value_2) {
+							option_2.selected = true;
+							break;
+						}
+					}
+				}
+
 				if (changed.__showQueryEditor && div_3_class_value !== (div_3_class_value = "mb-3 " + (state.__showQueryEditor ? '' : 'd-none'))) {
 					div_3.className = div_3_class_value;
 				}
@@ -1120,6 +1219,10 @@
 				for (var i = 0; i < each_1_blocks.length; i += 1) {
 					each_1_blocks[i].u();
 				}
+
+				for (var i = 0; i < each_2_blocks.length; i += 1) {
+					each_2_blocks[i].u();
+				}
 			},
 
 			d: function destroy() {
@@ -1134,6 +1237,10 @@
 				destroyEach(each_1_blocks);
 
 				removeListener(select_1, "change", select_1_change_handler);
+
+				destroyEach(each_2_blocks);
+
+				removeListener(select_2, "change", select_2_change_handler);
 				removeListener(button_1, "click", click_handler_1);
 				removeListener(button_2, "click", click_handler_2);
 				removeListener(button_3, "click", click_handler_3);
@@ -1276,6 +1383,49 @@
 		};
 	}
 
+	// (29:8) {{#each __aggregateFunctions[aggregateFunction].sorting as sortOption}}
+	function create_each_block_2(state, sorting, sortOption, sortOption_index, component) {
+		var option,
+		    option_value_value,
+		    text_value = sortOption.charAt(0).toUpperCase() + sortOption.substr(1),
+		    text;
+
+		return {
+			c: function create() {
+				option = createElement("option");
+				text = createText(text_value);
+				this.h();
+			},
+
+			h: function hydrate() {
+				option.__value = option_value_value = sortOption;
+				option.value = option.__value;
+			},
+
+			m: function mount(target, anchor) {
+				insertNode(option, target, anchor);
+				appendNode(text, option);
+			},
+
+			p: function update(changed, state, sorting, sortOption, sortOption_index) {
+				if ((changed.__aggregateFunctions || changed.aggregateFunction || changed.__aggregateFunctionsKeys) && option_value_value !== (option_value_value = sortOption)) {
+					option.__value = option_value_value;
+				}
+
+				option.value = option.__value;
+				if ((changed.__aggregateFunctions || changed.aggregateFunction || changed.__aggregateFunctionsKeys) && text_value !== (text_value = sortOption.charAt(0).toUpperCase() + sortOption.substr(1))) {
+					text.data = text_value;
+				}
+			},
+
+			u: function unmount() {
+				detachNode(option);
+			},
+
+			d: noop
+		};
+	}
+
 	function select_block_type(state) {
 		if (state.__showQueryEditor) return create_if_block;
 		return create_if_block_1;
@@ -1285,9 +1435,9 @@
 		init(this, options);
 		this.refs = {};
 		this._state = assign(data(), options.data);
-		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1, chartHeight: 1 }, this._state);
+		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1, sort: 1, chartHeight: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2600690138-style")) add_css();
+		if (!document.getElementById("svelte-2304385131-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 
@@ -1336,8 +1486,8 @@
 			if (differs(state.query, state.query = query(state.options, state.selectors))) changed.query = true;
 		}
 
-		if (changed.aggregateFunction || changed.chartFunction || changed.options || changed.selectors || changed.chartHeight) {
-			if (differs(state.urlHashUpdate, state.urlHashUpdate = urlHashUpdate(state.aggregateFunction, state.chartFunction, state.options, state.selectors, state.chartHeight))) changed.urlHashUpdate = true;
+		if (changed.aggregateFunction || changed.chartFunction || changed.options || changed.selectors || changed.sort || changed.chartHeight) {
+			if (differs(state.urlHashUpdate, state.urlHashUpdate = urlHashUpdate(state.aggregateFunction, state.chartFunction, state.options, state.selectors, state.sort, state.chartHeight))) changed.urlHashUpdate = true;
 		}
 	};
 

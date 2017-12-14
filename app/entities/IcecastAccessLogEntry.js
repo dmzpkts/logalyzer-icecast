@@ -20,8 +20,9 @@ export default class IcecastAccessLogEntry extends LogEntry {
       name: "Total Listeners Over Time",
       axisLabel: "Listeners",
       defaultChartFunction: "timeSeriesSteppedArea",
-      func: function (entries) {
-        const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+      sorting: ["unchanged"],
+      func: function (entries, sort) {
+        const timeFormat = "YYYY-MM-DD HH:mm:ss";
 
         function newDateString(timestamp) {
           return moment(""+timestamp, "X").format(timeFormat);

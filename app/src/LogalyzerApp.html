@@ -4,7 +4,7 @@
       {{#if __showQueryEditor}}Hide{{else}}Show{{/if}} Query Editor
     </button>
     <label class="mx-2 mb-0">
-      Aggregrator
+      Aggreg.
       <select class="form-control d-inline w-auto ml-2" bind:value="aggregateFunction" on:change="set({chartFunction: __aggregateFunctions[aggregateFunction].defaultChartFunction})">
         {{#each __aggregateFunctionsKeys as key}}
           <option value="{{key}}">
@@ -23,10 +23,21 @@
         {{/each}}
       </select>
     </label>
+    <label class="mx-2 mb-0">
+      Sort
+      <select class="form-control d-inline w-auto ml-2" bind:value="sort">
+        {{#each __aggregateFunctions[aggregateFunction].sorting as sortOption}}
+          <option value="{{sortOption}}">
+            {{sortOption.charAt(0).toUpperCase() + sortOption.substr(1)}}
+          </option>
+        {{/each}}
+      </select>
+    </label>
     <div class="display-inline-block ml-auto">
-      <button type="button" class="btn btn-secondary" on:click="set({chartHeight: chartHeight+40})">Increase Height</button>
-      <button type="button" class="btn btn-secondary" on:click="set({chartHeight: chartHeight-40})">Decrease Height</button>
-      <button type="button" class="btn btn-primary" on:click="runQuery()">Run Query</button>
+      Height
+      <button type="button" class="btn btn-secondary" on:click="set({chartHeight: chartHeight+40})">+</button>
+      <button type="button" class="btn btn-secondary" on:click="set({chartHeight: chartHeight-40})">-</button>
+      <button type="button" class="btn btn-primary" on:click="runQuery()">Run</button>
     </div>
   </div>
   <div class="mb-3 {{__showQueryEditor ? '' : 'd-none'}}">
@@ -556,7 +567,7 @@
     }
   };
 
-  const originalHash = window.location.hash.replace(/^#/, '');
+  const originalHash = window.location.hash.replace(/^#/, "");
   let currentHash = originalHash;
 
   export default {
@@ -581,7 +592,7 @@
         }
       }, 5);
 
-      this.observe('options', (newVal, oldVal) => {
+      this.observe("options", (newVal, oldVal) => {
         if (oldVal !== undefined && newVal.class === oldVal.class) {
           return;
         }
@@ -590,6 +601,14 @@
         if (!__aggregateFunctions.hasOwnProperty(aggregateFunction)) {
           const __aggregateFunctionsKeys = this.get("__aggregateFunctionsKeys");
           this.set({aggregateFunction: __aggregateFunctionsKeys[0]});
+        }
+      });
+
+      this.observe("aggregateFunction", (value) => {
+        const sort = this.get("sort");
+        const aggregate = this.get("__aggregateFunctions")[value];
+        if (aggregate.sorting.indexOf(sort) === -1) {
+          this.set({sort: aggregate.sorting[0]});
         }
       });
     },
@@ -605,6 +624,7 @@
         chartHeight: 700,
         aggregateFunction: "totalListenersOverTime",
         chartFunction: "timeSeriesSteppedAreaC3",
+        sort: "value",
         options: {
           "class": IcecastAccessLogEntry.class
         },
@@ -631,8 +651,8 @@
       __aggregateFunctions: (options) => Nymph.getEntityClass(options.class).aggregateFunctions,
       __aggregateFunctionsKeys: (options) => Object.keys(Nymph.getEntityClass(options.class).aggregateFunctions),
       query: (options, selectors) => [options, ...selectors],
-      urlHashUpdate: (aggregateFunction, chartFunction, options, selectors, chartHeight) => {
-        currentHash = JSON.stringify({aggregateFunction, chartFunction, options, selectors, chartHeight});
+      urlHashUpdate: (aggregateFunction, chartFunction, options, selectors, sort, chartHeight) => {
+        currentHash = JSON.stringify({aggregateFunction, chartFunction, options, selectors, sort, chartHeight});
         window.location.hash = currentHash;
         return null;
       }
@@ -661,9 +681,10 @@
         const query = this.get("query");
         Nymph.getEntities(...query).then((entries) => {
           const aggFuncObj = this.get("__aggregateFunctions")[aggregateFunction];
+          const sort = this.get("sort");
           const chartFuncObj = chartFunctions[chartFunction];
           // Run the aggregator:
-          const aggResults = aggFuncObj.func(entries);
+          const aggResults = aggFuncObj.func(entries, sort);
           const data = aggResults.data;
           const eventHandlers = aggResults.eventHandlers;
 

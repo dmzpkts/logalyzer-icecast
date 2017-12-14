@@ -302,7 +302,7 @@
     ///////////////////////////////////////
 
     static aggregateExtractBy(property, unknownIsCalled, appendProperty) {
-      return function (entries) {
+      return function (entries, sort) {
         const values = {};
         const data = [],
               eventHandlers = {};
@@ -351,7 +351,8 @@
           const label = k + " (" + Math.round(values[k].value / entries.length * 10000) / 100 + "%, " + values[k].value + ")";
           data.push({
             label: label,
-            value: values[k].value
+            value: values[k].value,
+            sortProperty: k.toLowerCase()
           });
           if (k === unknownIsCalled) {
             eventHandlers[label] = function (app) {
@@ -398,14 +399,26 @@
           }
         }
 
-        data.sort((a, b) => b.value - a.value);
+        if (sort === "value") {
+          data.sort((a, b) => b.value - a.value);
+        } else if (sort === "property") {
+          data.sort((a, b) => {
+            if (a.sortProperty < b.sortProperty) {
+              return -1;
+            } else if (b.sortProperty < a.sortProperty) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+        }
 
         return { data, eventHandlers };
       };
     }
 
     static aggregateExtractArray(property) {
-      return function (entries) {
+      return function (entries, sort) {
         const values = {};
         const data = [],
               eventHandlers = {};
@@ -445,7 +458,8 @@
           const label = k + " (" + Math.round(values[k].value / entries.length * 10000) / 100 + "%, " + values[k].value + ")";
           data.push({
             label: label,
-            value: values[k].value
+            value: values[k].value,
+            sortProperty: k.toLowerCase()
           });
           if (k === "Invalid") {
             eventHandlers[label] = function (app) {
@@ -481,7 +495,19 @@
           }
         }
 
-        data.sort((a, b) => b.value - a.value);
+        if (sort === "value") {
+          data.sort((a, b) => b.value - a.value);
+        } else if (sort === "property") {
+          data.sort((a, b) => {
+            if (a.sortProperty < b.sortProperty) {
+              return -1;
+            } else if (b.sortProperty < a.sortProperty) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+        }
 
         return { data, eventHandlers };
       };
@@ -502,7 +528,8 @@
       name: "Raw Logs",
       axisLabel: "Log Line",
       defaultChartFunction: "rawDataEntries",
-      func: function func(entries) {
+      sorting: ["unchanged"],
+      func: function func(entries, sort) {
         const data = [],
               eventHandlers = {};
 
@@ -536,6 +563,7 @@
       name: "Remote Host (Unique Visitors)",
       axisLabel: "Requests",
       defaultChartFunction: "rawDataEntries",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("remoteHost", "Unknown")
     },
 
@@ -543,6 +571,7 @@
       name: "Requested Resources",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("resource", "Unknown")
     },
 
@@ -550,6 +579,7 @@
       name: "Request Methods",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("method", "Unknown")
     },
 
@@ -557,6 +587,7 @@
       name: "Response Status Code",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("statusCode", "Unknown")
     }
   };
@@ -565,7 +596,8 @@
       name: "Referer By Domain",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
-      func: function func(entries) {
+      sorting: ["value", "property"],
+      func: function func(entries, sort) {
         const values = {
           "Direct Request": 0,
           "Unknown": 0
@@ -599,11 +631,24 @@
         for (let k in values) {
           data.push({
             label: k + " (" + Math.round(values[k] / entries.length * 10000) / 100 + "%, " + values[k] + ")",
-            value: values[k]
+            value: values[k],
+            sortProperty: k.toLowerCase()
           });
         }
 
-        data.sort((a, b) => b.value - a.value);
+        if (sort === "value") {
+          data.sort((a, b) => b.value - a.value);
+        } else if (sort === "property") {
+          data.sort((a, b) => {
+            if (a.sortProperty < b.sortProperty) {
+              return -1;
+            } else if (b.sortProperty < a.sortProperty) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+        }
 
         return { data, eventHandlers };
       }
@@ -613,7 +658,8 @@
       name: "Search Terms",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
-      func: function func(entries) {
+      sorting: ["value", "property"],
+      func: function func(entries, sort) {
         const values = {};
         const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?[A-Za-z0-9-:.]+\/.*q=([^&]+)(?:&|$)/g;
         const data = [],
@@ -642,7 +688,8 @@
           const label = k + " (" + Math.round(values[k] / entries.length * 10000) / 100 + "%, " + values[k] + ")";
           data.push({
             label: label,
-            value: values[k]
+            value: values[k],
+            sortProperty: k.toLowerCase()
           });
           eventHandlers[label] = function (app) {
             const selectors = app.get("selectors");
@@ -655,7 +702,19 @@
           };
         }
 
-        data.sort((a, b) => b.value - a.value);
+        if (sort === "value") {
+          data.sort((a, b) => b.value - a.value);
+        } else if (sort === "property") {
+          data.sort((a, b) => {
+            if (a.sortProperty < b.sortProperty) {
+              return -1;
+            } else if (b.sortProperty < a.sortProperty) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+        }
 
         return { data, eventHandlers };
       }
@@ -665,7 +724,8 @@
       name: "Search Terms by Service",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
-      func: function func(entries) {
+      sorting: ["value", "property"],
+      func: function func(entries, sort) {
         const values = {};
         const searchTermsByServiceRegex = /^\w+:\/\/(?:www\.)?([A-Za-z0-9-:.]+)\/.*q=([^&]+)(?:&|$)/g;
         const data = [],
@@ -694,7 +754,8 @@
           const label = k + " (" + Math.round(values[k] / entries.length * 10000) / 100 + "%, " + values[k] + ")";
           data.push({
             label: label,
-            value: values[k]
+            value: values[k],
+            sortProperty: k.toLowerCase()
           });
           eventHandlers[label] = function (app) {
             const selectors = app.get("selectors");
@@ -707,7 +768,19 @@
           };
         }
 
-        data.sort((a, b) => b.value - a.value);
+        if (sort === "value") {
+          data.sort((a, b) => b.value - a.value);
+        } else if (sort === "property") {
+          data.sort((a, b) => {
+            if (a.sortProperty < b.sortProperty) {
+              return -1;
+            } else if (b.sortProperty < a.sortProperty) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+        }
 
         return { data, eventHandlers };
       }
@@ -717,6 +790,7 @@
       name: "All Referers",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("referer", "Direct Request")
     }
   };
@@ -725,6 +799,7 @@
       name: "Browser",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaBrowserName", "Unknown")
     },
 
@@ -732,6 +807,7 @@
       name: "Browser Version",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaBrowserName", "Unknown", "uaBrowserVersion")
     },
 
@@ -739,6 +815,7 @@
       name: "CPU Architecture",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaCpuArchitecture", "Unknown")
     },
 
@@ -746,6 +823,7 @@
       name: "Device Type",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaDeviceType", "Unknown")
     },
 
@@ -753,6 +831,7 @@
       name: "Device Vendor",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaDeviceVendor", "Unknown")
     },
 
@@ -760,6 +839,7 @@
       name: "Device Model",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaDeviceVendor", "Unknown", "uaDeviceModel")
     },
 
@@ -767,6 +847,7 @@
       name: "Engine",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaEngineName", "Unknown")
     },
 
@@ -774,6 +855,7 @@
       name: "Engine Version",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaEngineName", "Unknown", "uaEngineVersion")
     },
 
@@ -781,6 +863,7 @@
       name: "OS",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaOsName", "Unknown")
     },
 
@@ -788,6 +871,7 @@
       name: "OS Version",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("uaOsName", "Unknown", "uaOsVersion")
     },
 
@@ -795,6 +879,7 @@
       name: "All User Agents",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("userAgent", "Unknown")
     }
   };
@@ -803,6 +888,7 @@
       name: "Timezone",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("timeZone", "Unknown")
     },
 
@@ -810,6 +896,7 @@
       name: "Continent Code",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("continentCode", "Unknown")
     },
 
@@ -817,6 +904,7 @@
       name: "Continent",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("continent", "Unknown")
     },
 
@@ -824,6 +912,7 @@
       name: "Country Code",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("countryCode", "Unknown")
     },
 
@@ -831,6 +920,7 @@
       name: "Country",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("country", "Unknown")
     },
 
@@ -838,6 +928,7 @@
       name: "Province Code",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("provinceCode", "Unknown")
     },
 
@@ -845,6 +936,7 @@
       name: "Province",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("province", "Unknown")
     },
 
@@ -852,6 +944,7 @@
       name: "Postal Code",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("postalCode", "Unknown")
     },
 
@@ -859,6 +952,7 @@
       name: "City",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("city", "Unknown")
     },
 
@@ -866,6 +960,7 @@
       name: "Country and Province",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("country", "Unknown", "province")
     },
 
@@ -873,6 +968,7 @@
       name: "Country and City",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("country", "Unknown", "city")
     },
 
@@ -880,6 +976,7 @@
       name: "Country and Postal Code",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("country", "Unknown", "postalCode")
     },
 
@@ -887,6 +984,7 @@
       name: "Province and City",
       axisLabel: "Requests",
       defaultChartFunction: "pie",
+      sorting: ["value", "property"],
       func: LogEntry.aggregateExtractBy("province", "Unknown", "city")
     } };
   _Nymph2.default.setEntityClass(LogEntry.class, LogEntry);

@@ -247,8 +247,9 @@
       name: "Total Listeners Over Time",
       axisLabel: "Listeners",
       defaultChartFunction: "timeSeriesSteppedArea",
-      func: function func(entries) {
-        const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+      sorting: ["unchanged"],
+      func: function func(entries, sort) {
+        const timeFormat = "YYYY-MM-DD HH:mm:ss";
 
         function newDateString(timestamp) {
           return moment("" + timestamp, "X").format(timeFormat);
