@@ -32,7 +32,7 @@
     "compressing": "^1.2.3",
     "curl": "^0.1.4",
     "minimist": "^1.2.0",
-    "moment": "^2.19.2",
+    "moment": "^2.19.4",
     "n-readlines": "^0.2.8",
     "nymph-client": "^3.0.2",
     "nymph-client-node": "^2.0.1",
@@ -47,6 +47,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-stage-3": "^6.24.1",
     "babel-watch": "^2.0.7",
+    "svelte": "^1.48.0",
     "svelte-cli": "^1.4.0"
   }
 }
