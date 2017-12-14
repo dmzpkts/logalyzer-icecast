@@ -55,6 +55,72 @@ export default class LogEntry extends Entity {
       }
     }
   }
+  static timeBasedAggregateFunctions = {
+    entriesPerSecond: {
+      name: "Entries Per Second",
+      axisLabel: "Entries",
+      defaultChartFunction: "timeSeriesStepped",
+      sorting: ["unchanged"],
+      func: LogEntry.aggregateExtractPerTime("time", "s")
+    },
+
+    entriesPerMinute: {
+      name: "Entries Per Minute",
+      axisLabel: "Entries",
+      defaultChartFunction: "timeSeriesStepped",
+      sorting: ["unchanged"],
+      func: LogEntry.aggregateExtractPerTime("time", "m")
+    },
+
+    entriesPerHour: {
+      name: "Entries Per Hour",
+      axisLabel: "Entries",
+      defaultChartFunction: "timeSeriesStepped",
+      sorting: ["unchanged"],
+      func: LogEntry.aggregateExtractPerTime("time", "h")
+    },
+
+    entriesPerDay: {
+      name: "Entries Per Day",
+      axisLabel: "Entries",
+      defaultChartFunction: "timeSeriesStepped",
+      sorting: ["unchanged"],
+      func: LogEntry.aggregateExtractPerTime("time", "d")
+    }
+  }
+  static timeLongTermBasedAggregateFunctions = {
+    entriesPerWeek: {
+      name: "Entries Per Week",
+      axisLabel: "Entries",
+      defaultChartFunction: "timeSeriesStepped",
+      sorting: ["unchanged"],
+      func: LogEntry.aggregateExtractPerTime("time", "w")
+    },
+
+    entriesPerMonth: {
+      name: "Entries Per Month",
+      axisLabel: "Entries",
+      defaultChartFunction: "timeSeriesStepped",
+      sorting: ["unchanged"],
+      func: LogEntry.aggregateExtractPerTime("time", "M")
+    },
+
+    entriesPerQuarter: {
+      name: "Entries Per Quarter",
+      axisLabel: "Entries",
+      defaultChartFunction: "timeSeriesStepped",
+      sorting: ["unchanged"],
+      func: LogEntry.aggregateExtractPerTime("time", "Q")
+    },
+
+    entriesPerYear: {
+      name: "Entries Per Year",
+      axisLabel: "Entries",
+      defaultChartFunction: "timeSeriesStepped",
+      sorting: ["unchanged"],
+      func: LogEntry.aggregateExtractPerTime("time", "y")
+    }
+  }
   static httpRequestBasedAggregateFunctions = {
     remoteHost: {
       name: "Remote Host (Unique Visitors)",
@@ -900,6 +966,76 @@ export default class LogEntry extends Entity {
 
       return {data, eventHandlers};
     };
+  }
+
+  static aggregateExtractPerTime(property, timeUnit) {
+    return function (entries, sort) {
+      const timeFormat = "YYYY-MM-DD HH:mm:ss";
+
+      function newDateString(timestamp) {
+        return moment(""+timestamp, "X").format(timeFormat);
+      }
+
+      let earliest, latest, timePer = {}, data = [];
+
+      // Go through and save every entry per time unit and save earliest/latest.
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        let timeCalc = moment(Math.floor(entry.get(property)) * 1000);
+        switch (timeUnit) {
+          case 'y':
+            timeCalc = timeCalc.dayOfYear(0).hours(0).minutes(0).seconds(0);
+            break;
+          case 'Q':
+            const quarter = timeCalc.quarter();
+            timeCalc = timeCalc.dayOfYear(0).hours(0).minutes(0).seconds(0).quarter(quarter);
+            break;
+          case 'M':
+            timeCalc = timeCalc.date(0).hours(0).minutes(0).seconds(0);
+            break;
+          case 'w':
+            timeCalc = timeCalc.day(0);
+            // Fall through
+          case 'd':
+            timeCalc = timeCalc.hours(0);
+            // Fall through
+          case 'h':
+            timeCalc = timeCalc.minutes(0);
+            // Fall through
+          case 'm':
+            timeCalc = timeCalc.seconds(0);
+        }
+        const time = timeCalc.unix();
+
+        if (time < earliest || earliest === undefined) {
+          earliest = time;
+        }
+        if (time > latest || latest === undefined) {
+          latest = time;
+        }
+        if (timePer[time]) {
+          timePer[time]++;
+        } else {
+          timePer[time] = 1;
+        }
+      }
+
+      // Now comes the hard part. Going through every time unit from earliest to
+      // latest and calculating number of entries.
+      let previous;
+      for (let i = earliest; i <= latest; i = moment(i * 1000).add(1, timeUnit).unix()) {
+        const qps = timePer.hasOwnProperty(i) ? timePer[i] : 0;
+        if (qps != previous || previous === undefined) {
+          previous = qps;
+          data.push({
+            label: newDateString(i),
+            value: qps
+          });
+        }
+      }
+
+      return {data};
+    }
   }
 }
 
