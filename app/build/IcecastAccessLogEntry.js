@@ -115,8 +115,7 @@
 
     // === Constructor ===
 
-    // === Static Properties ===
-
+    // The name of the server class
     constructor(id) {
       super(id);
     }
@@ -127,7 +126,9 @@
      * @return {boolean} True if the line was parsed, false if the entry should be skipped according to options.
      */
 
-    // The name of the server class
+
+    // === Static Properties ===
+
     parseAndSet(options, ipDataCache) {
       var _this = this;
 
@@ -238,8 +239,9 @@
   IcecastAccessLogEntry.etype = "logentry_icecast_access";
   IcecastAccessLogEntry.class = "IcecastAccessLogEntry";
   IcecastAccessLogEntry.title = "IceCast Access Log Entry";
-  IcecastAccessLogEntry.usesIpLocationInfo = true;
   IcecastAccessLogEntry.filePattern = /^access.log/;
+  IcecastAccessLogEntry.usesIpLocationInfo = true;
+  IcecastAccessLogEntry.checkMalformedLines = false;
   IcecastAccessLogEntry.aggregateFunctions = _extends({
     totalListenersOverTime: {
       name: "Total Listeners Over Time",

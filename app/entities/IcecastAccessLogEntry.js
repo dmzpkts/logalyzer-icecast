@@ -11,8 +11,9 @@ export default class IcecastAccessLogEntry extends LogEntry {
   static class = "IcecastAccessLogEntry";
 
   static title = "IceCast Access Log Entry";
-  static usesIpLocationInfo = true;
   static filePattern = /^access.log/;
+  static usesIpLocationInfo = true;
+  static checkMalformedLines = false;
 
   static aggregateFunctions = {
     totalListenersOverTime: {

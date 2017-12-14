@@ -10,8 +10,10 @@ export default class LogEntry extends Entity {
   static class = "LogEntry";
 
   static title = "Generic Log Entry";
-  static usesIpLocationInfo = false;
   static filePattern = /^not_a_real_log_class/;
+  static usesIpLocationInfo = false;
+  static checkMalformedLines = false;
+  static exactLinePattern = /.*$/; // Only used for checkMalformedLines.
 
   static aggregateFunctions = {
     ...LogEntry.defaultAggregateFunctions
@@ -67,7 +69,7 @@ export default class LogEntry extends Entity {
       func: LogEntry.aggregateExtractBy("resource", "Unknown")
     },
 
-    resources: {
+    methods: {
       name: "Request Methods",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",

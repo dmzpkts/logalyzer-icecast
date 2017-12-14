@@ -206,37 +206,53 @@ const rl = readline.createInterface({
       const lineReader = new nReadlines(inputFile);
       let liner, pendingEntries = [], currentProcesses = [];
       while (liner = lineReader.next()) {
-        const line = liner.toString('utf-8');
+        const origLine = liner.toString('utf-8'), lines = [];
 
-        // Read lines into pendingEntries until they are complete.
-        for (let idx in pendingEntries) {
-          let entry = pendingEntries[idx], breakNow = false;
-          if (entry.isLogLineContinuation(line)) {
-            entry.addLine(line);
-            breakNow = true;
-          }
-          if (entry.isLogLineComplete()) {
-            currentProcesses.push(processLogEntry(entry));
-            pendingEntries.splice(idx, 1);
-          }
-          if (breakNow) {
-            break;
-          }
-        }
-        if (LogEntry.isLogLineStart(line)) {
-          const entry = new LogEntry();
-          entry.addLine(line);
-          if (entry.isLogLineComplete()) {
-            currentProcesses.push(processLogEntry(entry));
+        if (LogEntry.checkMalformedLines) {
+          const match = origLine.match(LogEntry.exactLinePattern);
+          if (match && origLine.indexOf(match[0]) !== 0) {
+            lines.push(match[0]);
+            liner = lineReader.next();
+            const nextLine = liner.toString('utf-8');
+            lines.push(origLine.replace(LogEntry.exactLinePattern, nextLine));
           } else {
-            pendingEntries.push(entry);
+            lines.push(origLine);
           }
+        } else {
+          lines.push(origLine);
         }
 
-        // Run multiple at a time to speed up processing.
-        if (currentProcesses.length >= concurrent) {
-          await Promise.all(currentProcesses);
-          currentProcesses = [];
+        for (let line of lines) {
+          // Read lines into pendingEntries until they are complete.
+          for (let idx in pendingEntries) {
+            let entry = pendingEntries[idx], breakNow = false;
+            if (entry.isLogLineContinuation(line)) {
+              entry.addLine(line);
+              breakNow = true;
+            }
+            if (entry.isLogLineComplete()) {
+              currentProcesses.push(processLogEntry(entry));
+              pendingEntries.splice(idx, 1);
+            }
+            if (breakNow) {
+              break;
+            }
+          }
+          if (LogEntry.isLogLineStart(line)) {
+            const entry = new LogEntry();
+            entry.addLine(line);
+            if (entry.isLogLineComplete()) {
+              currentProcesses.push(processLogEntry(entry));
+            } else {
+              pendingEntries.push(entry);
+            }
+          }
+
+          // Run multiple at a time to speed up processing.
+          if (currentProcesses.length >= concurrent) {
+            await Promise.all(currentProcesses);
+            currentProcesses = [];
+          }
         }
       }
       if (pendingEntries.length) {

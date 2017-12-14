@@ -113,6 +113,8 @@
 
     // === Constructor ===
 
+    // Only used for checkMalformedLines.
+
     // The name of the server class
     constructor(id) {
       super(id);
@@ -490,8 +492,10 @@
   LogEntry.etype = "logentry";
   LogEntry.class = "LogEntry";
   LogEntry.title = "Generic Log Entry";
-  LogEntry.usesIpLocationInfo = false;
   LogEntry.filePattern = /^not_a_real_log_class/;
+  LogEntry.usesIpLocationInfo = false;
+  LogEntry.checkMalformedLines = false;
+  LogEntry.exactLinePattern = /.*$/;
   LogEntry.aggregateFunctions = _extends({}, LogEntry.defaultAggregateFunctions);
   LogEntry.defaultAggregateFunctions = {
     rawLogLine: {
@@ -542,7 +546,7 @@
       func: LogEntry.aggregateExtractBy("resource", "Unknown")
     },
 
-    resources: {
+    methods: {
       name: "Request Methods",
       axisLabel: "Requests",
       defaultChartFunction: "horizontalBar",
