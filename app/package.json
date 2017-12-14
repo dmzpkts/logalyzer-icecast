@@ -36,7 +36,7 @@
     "n-readlines": "^0.2.8",
     "nymph-client": "^3.0.2",
     "nymph-client-node": "^2.0.1",
-    "nymph-query-editor": "^1.1.2",
+    "nymph-query-editor": "^1.1.3",
     "tilmeld": "^1.0.0-beta.9",
     "ua-parser-js": "^0.7.17"
   },
