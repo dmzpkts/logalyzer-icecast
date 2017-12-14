@@ -592,10 +592,7 @@
         }
       }, 5);
 
-      this.observe("options", (newVal, oldVal) => {
-        if (oldVal !== undefined && newVal.class === oldVal.class) {
-          return;
-        }
+      this.observe("options", () => {
         const __aggregateFunctions = this.get("__aggregateFunctions");
         const aggregateFunction = this.get("aggregateFunction");
         if (!__aggregateFunctions.hasOwnProperty(aggregateFunction)) {

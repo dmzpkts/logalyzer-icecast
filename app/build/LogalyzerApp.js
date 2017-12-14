@@ -611,10 +611,7 @@
 			}
 		}, 5);
 
-		this.observe("options", (newVal, oldVal) => {
-			if (oldVal !== undefined && newVal.class === oldVal.class) {
-				return;
-			}
+		this.observe("options", () => {
 			const __aggregateFunctions = this.get("__aggregateFunctions");
 			const aggregateFunction = this.get("aggregateFunction");
 			if (!__aggregateFunctions.hasOwnProperty(aggregateFunction)) {
@@ -633,13 +630,13 @@
 	};
 
 	function encapsulateStyles(node) {
-		setAttribute(node, "svelte-2304385131", "");
+		setAttribute(node, "svelte-2007327576", "");
 	}
 
 	function add_css() {
 		var style = createElement("style");
-		style.id = 'svelte-2304385131-style';
-		style.textContent = "[svelte-2304385131].w-auto,[svelte-2304385131] .w-auto{width:auto}[svelte-2304385131].query-editor h2,[svelte-2304385131] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-2304385131].chart-container > .hidden,[svelte-2304385131] .chart-container > .hidden{display:none}[svelte-2304385131].chart-canvas,[svelte-2304385131] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2304385131].loader,[svelte-2304385131] .loader,[svelte-2304385131].loader:after,[svelte-2304385131] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2304385131].loader,[svelte-2304385131] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2304385131-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2304385131]0%,[svelte-2304385131] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2304385131]100%,[svelte-2304385131] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2304385131-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
+		style.id = 'svelte-2007327576-style';
+		style.textContent = "[svelte-2007327576].w-auto,[svelte-2007327576] .w-auto{width:auto}[svelte-2007327576].query-editor h2,[svelte-2007327576] .query-editor h2{border-bottom:1px solid #000;padding-bottom:.5em;margin-bottom:.5em}[svelte-2007327576].chart-container > .hidden,[svelte-2007327576] .chart-container > .hidden{display:none}[svelte-2007327576].chart-canvas,[svelte-2007327576] .chart-canvas{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}[svelte-2007327576].loader,[svelte-2007327576] .loader,[svelte-2007327576].loader:after,[svelte-2007327576] .loader:after{border-radius:50%;width:3em;height:3em}[svelte-2007327576].loader,[svelte-2007327576] .loader{margin:60px auto;font-size:10px;position:relative;text-indent:-9999em;border-top:1.1em solid rgba(0,0,0, 0.2);border-right:1.1em solid rgba(0,0,0, 0.2);border-bottom:1.1em solid rgba(0,0,0, 0.2);border-left:1.1em solid #000000;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation:load8 1.1s infinite linear;animation:svelte-2007327576-load8 1.1s infinite linear}@-webkit-keyframes load8 {[svelte-2007327576]0%,[svelte-2007327576] 0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}[svelte-2007327576]100%,[svelte-2007327576] 100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes svelte-2007327576-load8{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}";
 		appendNode(style, document.head);
 	}
 
@@ -1437,7 +1434,7 @@
 		this._state = assign(data(), options.data);
 		this._recompute({ options: 1, selectors: 1, aggregateFunction: 1, chartFunction: 1, sort: 1, chartHeight: 1 }, this._state);
 
-		if (!document.getElementById("svelte-2304385131-style")) add_css();
+		if (!document.getElementById("svelte-2007327576-style")) add_css();
 
 		var _oncreate = oncreate.bind(this);
 
