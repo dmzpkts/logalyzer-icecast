@@ -45,23 +45,6 @@ for (let file of logEntryFiles) {
 const User = require('tilmeld').User;
 const Group = require('tilmeld').Group;
 
-const mutableStdout = new Writable({
-  write: function(chunk, encoding, callback) {
-    if (!this.muted) {
-      process.stdout.write(chunk, encoding);
-    }
-    callback();
-  }
-});
-
-mutableStdout.muted = false;
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: mutableStdout,
-  terminal: true
-});
-
 (async () => {
   let LogEntry;
   if (argv.type || argv.t) {
@@ -91,6 +74,32 @@ const rl = readline.createInterface({
     console.log('Using Log Type:', LogEntry.class, '-', LogEntry.title);
   }
 
+  // Only do this if we need, in case we're reading from stdin.
+  let rl, mutableStdout;
+  const getRl = () => {
+    if (rl) {
+      return rl;
+    }
+
+    mutableStdout = new Writable({
+      write: function(chunk, encoding, callback) {
+        if (!this.muted) {
+          process.stdout.write(chunk, encoding);
+        }
+        callback();
+      }
+    });
+
+    mutableStdout.muted = false;
+
+    rl = readline.createInterface({
+      input: process.stdin,
+      output: mutableStdout,
+      terminal: true
+    });
+    return rl;
+  }
+
   // Did they provide a username?
   let username = '';
   if (argv.username) {
@@ -98,7 +107,7 @@ const rl = readline.createInterface({
   } else if (argv.u) {
     username = argv.u;
   } else {
-    username = await new Promise((resolve) => rl.question('Username for Lagalyzer server: ', (answer) => resolve(answer)));
+    username = await new Promise((resolve) => getRl().question('Username for Lagalyzer server: ', (answer) => resolve(answer)));
   }
 
   // Did they provide a password?
@@ -109,7 +118,7 @@ const rl = readline.createInterface({
     password = argv.p;
   } else {
     password = await new Promise((resolve) => {
-      rl.question('Password for Lagalyzer server: ', (answer) => resolve(answer));
+      getRl().question('Password for Lagalyzer server: ', (answer) => resolve(answer));
       mutableStdout.muted = true;
     });
     console.log('');
@@ -169,6 +178,8 @@ const rl = readline.createInterface({
       let concurrent = (parseInt(argv.concurrent || argv.c || '1', 10));
       console.log("Going to "+argv._[0]+" "+concurrent+" at a time...");
 
+      // Process a log entry. Once all the lines for an entry are pasted
+      // together below, they are processed as one unit.
       let processedEntriesCount = 0;
       const processLogEntry = async (entry) => {
         // Removes are super easy to handle.
@@ -188,32 +199,89 @@ const rl = readline.createInterface({
         }
 
         // Parse the log line.
-        const parseResult = await entry.parseAndSet(argv, ipDataCache);
+        try {
+          const parseResult = await entry.parseAndSet(argv, ipDataCache);
+        } catch (e) {
+          console.log('\nError while parsing: ', e, '\n');
+          return;
+        }
 
         if (!parseResult) {
+          // The entry class says not to save this one.
           return;
         }
 
         // Save the entry to the DB.
         console.log('Saving log entry: ', ++processedEntriesCount);
-        await entry.save();
+        try {
+          await entry.save();
+        } catch (e) {
+          console.log('\nError while saving: ', e, '\n');
+          return;
+        }
         if (!entry.guid) {
           console.log('\nCouldn\'t save log entry: ', entry, '\n');
         }
       };
 
-      console.log(`Beginning reading input file ${inputFile}...`);
-      const lineReader = new nReadlines(inputFile);
-      let liner, pendingEntries = [], currentProcesses = [];
-      while (liner = lineReader.next()) {
-        const origLine = liner.toString('utf-8'), lines = [];
+      // Read the file (or stdin) line by line. The getNextLine function returns
+      // a promise that will be resolved with the next line read.
+      let getNextLine;
+      if (inputFile === '-') {
+        // This is convoluted and weird, but it reads from stdin like we need.
+        console.log('Reading from stdin...');
+        let requested = [], cache = [];
+        process.stdin.setEncoding('utf8');
+        process.stdin.pipe(require('split')()).on('data', (line) => {
+          if (requested.length) {
+            const resolve = requested.shift();
+            resolve(line);
+          } else {
+            cache.push(Promise.resolve(line));
+          }
+        }).on('end', () => {
+          console.log('closed...');
+          if (requested.length) {
+            const resolve = requested.shift();
+            resolve(false);
+          } else {
+            cache.push(Promise.resolve(false));
+          }
+        });
+        getNextLine = () => {
+          if (cache.length) {
+            return cache.shift();
+          }
+          return new Promise((resolve) => requested.push(resolve));
+        };
+      } else {
+        // Use n-readlines for regular files.
+        console.log(`Reading input file ${inputFile}...`);
+        const lineReader = new nReadlines(inputFile);
+        getNextLine = async () => {
+          const liner = lineReader.next();
+          if (!liner) {
+            return false;
+          }
+          return liner.toString('utf-8');
+        };
+      }
 
+      // Put together each line into a log entry. This allows entries to span
+      // multiple lines before they are ultimately processed.
+      let origLine, pendingEntries = [], currentProcesses = [];
+      while (origLine = await getNextLine()) {
+        console.log(origLine);
+        const lines = [];
+
+        // Sometimes log lines can be inserted in the middle of others. (I know,
+        // it's weird.) This allows an entry class to handle those by using an
+        // exact pattern for the whole line.
         if (LogEntry.checkMalformedLines) {
           const match = origLine.match(LogEntry.exactLinePattern);
           if (match && origLine.indexOf(match[0]) !== 0) {
             lines.push(match[0]);
-            liner = lineReader.next();
-            const nextLine = liner.toString('utf-8');
+            const nextLine = await getNextLine();
             lines.push(origLine.replace(LogEntry.exactLinePattern, nextLine));
           } else {
             lines.push(origLine);
@@ -250,6 +318,8 @@ const rl = readline.createInterface({
 
           // Run multiple at a time to speed up processing.
           if (currentProcesses.length >= concurrent) {
+            // TODO(hperrin): This will stop every time 10 entries are
+            // processed. It should check for only running processes.
             await Promise.all(currentProcesses);
             currentProcesses = [];
           }
@@ -329,7 +399,8 @@ Commands are:
 
   add -f <file> [--skip-dupe-check] [--dont-skip-status] [--dont-skip-metadata]
                 [--concurrent=<concurrent> | -c <concurrent>]
-    Reads the log file <file> and adds all the entries to the database.
+    Reads the log file <file> and adds all the entries to the database. Use '-'
+    to read from stdin.
     --skip-dupe-check will cause Logalyzer to skip the duplicate entry check it
       does for each entry. (Use this if you know you've never imported these
       entries before.)
@@ -352,6 +423,14 @@ Commands are:
 
   purge
     Removes all logs from the database.
+
+
+If you want to have a long running process that adds log lines as they're
+appended into the log file, you can use \`tail -f\` and read from stdin using
+'-' as the filename. Something like:
+
+  \`tail -f /logs/server.log | node logalyze.js add -u you@example.com \\
+    -p password -t ExampleLogEntry -f -\`
 
 
 Thanks for using Logalyzer. I hope you find it useful.
