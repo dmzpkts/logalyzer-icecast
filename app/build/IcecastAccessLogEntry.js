@@ -1,8 +1,8 @@
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define(["exports", "Nymph", "NymphEntity", "./LogEntry"], factory);
+    define(["exports", "Nymph", "NymphEntity", "LogEntry"], factory);
   } else if (typeof exports !== "undefined") {
-    factory(exports, require("Nymph"), require("NymphEntity"), require("./LogEntry"));
+    factory(exports, require("Nymph"), require("NymphEntity"), require("LogEntry"));
   } else {
     var mod = {
       exports: {}

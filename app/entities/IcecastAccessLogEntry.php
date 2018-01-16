@@ -38,7 +38,7 @@
  * @property string $postalCode
  * @property string $city
  */
-class IcecastAccessLogEntry extends LogEntry {
+class IcecastAccessLogEntry extends \Logalyzer\Entities\LogEntry {
   const ETYPE = 'logentry_icecast_access';
   static $clientEnabledStaticMethods = [];
   // These don't need to be private, they just take up space going over the

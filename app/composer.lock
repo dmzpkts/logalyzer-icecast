@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e568dc110bd95a4c8d2f126d78fe9935",
+    "content-hash": "26d0f395ab0f48e0f8be460c37c9a4ce",
     "packages": [
         {
             "name": "cboden/ratchet",
@@ -491,16 +491,16 @@
         },
         {
             "name": "react/dns",
-            "version": "v0.4.11",
+            "version": "v0.4.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/dns.git",
-                "reference": "8558bba4f2784aa997670d15fc6f7461a8eb4e53"
+                "reference": "c74a0af0c7254e73600fd8c5c95f6bf23c5998f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/dns/zipball/8558bba4f2784aa997670d15fc6f7461a8eb4e53",
-                "reference": "8558bba4f2784aa997670d15fc6f7461a8eb4e53",
+                "url": "https://api.github.com/repos/reactphp/dns/zipball/c74a0af0c7254e73600fd8c5c95f6bf23c5998f4",
+                "reference": "c74a0af0c7254e73600fd8c5c95f6bf23c5998f4",
                 "shasum": ""
             },
             "require": {
@@ -514,7 +514,7 @@
             },
             "require-dev": {
                 "clue/block-react": "^1.2",
-                "phpunit/phpunit": "^5.0 || ^4.8.10"
+                "phpunit/phpunit": "^6.4 || ^5.7 || ^4.8.35"
             },
             "type": "library",
             "autoload": {
@@ -533,7 +533,7 @@
                 "dns-resolver",
                 "reactphp"
             ],
-            "time": "2017-08-25T08:22:48+00:00"
+            "time": "2018-01-14T10:04:36+00:00"
         },
         {
             "name": "react/event-loop",
@@ -820,6 +820,48 @@
             "time": "2017-10-24T00:00:00+00:00"
         },
         {
+            "name": "sciactive/logalyzer-server",
+            "version": "0.0.1-alpha.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sciactive/logalyzer-server.git",
+                "reference": "131568bfd04139db5fa068f2179a8d17f1c9f74d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sciactive/logalyzer-server/zipball/131568bfd04139db5fa068f2179a8d17f1c9f74d",
+                "reference": "131568bfd04139db5fa068f2179a8d17f1c9f74d",
+                "shasum": ""
+            },
+            "require": {
+                "maxmind-db/reader": "~1.0",
+                "sciactive/nymph-pubsub": "^3.0@beta",
+                "sciactive/nymph-server": "^3.0@beta",
+                "sciactive/tilmeld": "^1.0@beta"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Logalyzer\\": "src/"
+                },
+                "psr-4": {
+                    "Logalyzer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Hunter Perrin",
+                    "email": "hperrin@gmail.com"
+                }
+            ],
+            "description": "Server files for Logalyzer - Build a log analyzer for anything.",
+            "time": "2018-01-15T00:00:00+00:00"
+        },
+        {
             "name": "sciactive/nymph-pubsub",
             "version": "3.0.0-beta.2",
             "source": {
@@ -874,16 +916,16 @@
         },
         {
             "name": "sciactive/nymph-server",
-            "version": "3.0.0-beta.6",
+            "version": "3.0.0-beta.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sciactive/nymph-server.git",
-                "reference": "0d503d2be2e0298986355287dfc577e2194c07b4"
+                "reference": "740c65e2e1dbea7ceee0165c37f5ca73f1cb6cbb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sciactive/nymph-server/zipball/0d503d2be2e0298986355287dfc577e2194c07b4",
-                "reference": "0d503d2be2e0298986355287dfc577e2194c07b4",
+                "url": "https://api.github.com/repos/sciactive/nymph-server/zipball/740c65e2e1dbea7ceee0165c37f5ca73f1cb6cbb",
+                "reference": "740c65e2e1dbea7ceee0165c37f5ca73f1cb6cbb",
                 "shasum": ""
             },
             "require-dev": {
@@ -923,19 +965,19 @@
                 "postgres",
                 "postgresql"
             ],
-            "time": "2018-01-08T00:00:00+00:00"
+            "time": "2018-01-11T00:00:00+00:00"
         },
         {
             "name": "sciactive/tilmeld",
             "version": "1.0.0-beta.11",
             "source": {
                 "type": "git",
-                "url": "https://github.com/sciactive/tilmeld.git",
+                "url": "https://github.com/sciactive/tilmeld-server.git",
                 "reference": "394a62c936ae59c8040219dd8c35215addcd27ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sciactive/tilmeld/zipball/394a62c936ae59c8040219dd8c35215addcd27ea",
+                "url": "https://api.github.com/repos/sciactive/tilmeld-server/zipball/394a62c936ae59c8040219dd8c35215addcd27ea",
                 "reference": "394a62c936ae59c8040219dd8c35215addcd27ea",
                 "shasum": ""
             },
@@ -1437,11 +1479,12 @@
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "beta",
+    "minimum-stability": "alpha",
     "stability-flags": {
         "sciactive/nymph-server": 10,
         "sciactive/nymph-pubsub": 10,
-        "sciactive/tilmeld": 10
+        "sciactive/tilmeld": 10,
+        "sciactive/logalyzer-server": 15
     },
     "prefer-stable": false,
     "prefer-lowest": false,

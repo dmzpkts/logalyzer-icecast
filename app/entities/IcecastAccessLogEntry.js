@@ -1,6 +1,6 @@
 import Nymph from "Nymph";
 import Entity from "NymphEntity";
-import LogEntry from "./LogEntry";
+import LogEntry from "LogEntry";
 
 export default class IcecastAccessLogEntry extends LogEntry {
 

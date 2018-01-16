@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="/node_modules/pform/css/pform-bootstrap.css">
 
   <!-- Entity JS -->
-  <script src="build/LogEntry.js"></script>
+  <script src="/node_modules/logalyzer-client/lib/Entities/LogEntry.js"></script>
   <script src="build/IcecastAccessLogEntry.js"></script>
 
   <!-- Locutus strtotime (have to load it manually) -->
@@ -75,15 +75,45 @@
   <script src="/node_modules/nymph-query-editor/lib/ValueEditor.js"></script>
   <script src="/node_modules/nymph-query-editor/lib/SelectorEditor.js"></script>
   <script src="/node_modules/nymph-query-editor/lib/QueryEditor.js"></script>
-  <script src="/build/LogalyzerApp.js"></script>
-  <script src="/build/MainApp.js"></script>
+  <script src="/node_modules/logalyzer-client/lib/Components/LogalyzerApp.js"></script>
+  <script src="/node_modules/logalyzer-client/lib/Components/MainApp.js"></script>
   <script type="text/javascript">
-    ((global, MainApp) => {
+    ((global, MainApp, IcecastAccessLogEntry) => {
+      IcecastAccessLogEntry = (IcecastAccessLogEntry && IcecastAccessLogEntry.__esModule) ? IcecastAccessLogEntry["default"] : IcecastAccessLogEntry;
       MainApp = (MainApp && MainApp.__esModule) ? MainApp["default"] : MainApp;
       const app = new MainApp({
-        target: document.querySelector('main')
+        target: document.querySelector('main'),
+        data: {
+          brand: 'IceCast',
+          brandLinkText: 'Logalyzer IceCast on GitHub',
+          brandLinkUrl: 'https://github.com/sciactive/logalyzer-icecast',
+          supportedClasses: [IcecastAccessLogEntry],
+          chartHeight: 700,
+          aggregateFunction: "totalListenersOverTime",
+          chartFunction: "timeSeriesSteppedAreaC3",
+          sort: "value",
+          options: {
+            "class": IcecastAccessLogEntry.class
+          },
+          selectors: [
+            {
+              "type": "&",
+              "strict": ["resource", "/stream"]
+            },
+            {
+              "type": "&",
+              "gte": ["timeEnd", null, "-1 week"],
+              "lte": ["timeStart", null, "now"]
+            },
+            {
+              "type": "&",
+              "gte": ["duration", 300],
+              "lte": ["duration", 86400]
+            }
+          ]
+        }
       });
-    })(this, MainApp);
+    })(this, MainApp, IcecastAccessLogEntry);
   </script>
 </body>
 </html>

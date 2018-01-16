@@ -6,9 +6,9 @@
     "sciactive/nymph-server": "^3.0@beta",
     "sciactive/nymph-pubsub": "^3.0@beta",
     "sciactive/tilmeld": "^1.0@beta",
-    "maxmind-db/reader": "~1.0"
+    "sciactive/logalyzer-server": "^0.0.1@alpha"
   },
-  "minimum-stability": "beta",
+  "minimum-stability": "alpha",
   "license": "Apache-2.0",
   "authors": [
     {
