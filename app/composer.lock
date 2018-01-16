@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "26d0f395ab0f48e0f8be460c37c9a4ce",
+    "content-hash": "bf83b47c2fadf248ccb95ed447b78b12",
     "packages": [
         {
             "name": "cboden/ratchet",
@@ -770,6 +770,69 @@
             "time": "2017-12-21T14:12:01+00:00"
         },
         {
+            "name": "respect/validation",
+            "version": "1.1.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Respect/Validation.git",
+                "reference": "ee9e69776a8e875ac1b5b00d8cf2d2c801c42181"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Respect/Validation/zipball/ee9e69776a8e875ac1b5b00d8cf2d2c801c42181",
+                "reference": "ee9e69776a8e875ac1b5b00d8cf2d2c801c42181",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4",
+                "symfony/polyfill-mbstring": "^1.2"
+            },
+            "require-dev": {
+                "egulias/email-validator": "~1.2",
+                "mikey179/vfsstream": "^1.5",
+                "phpunit/phpunit": "~4.0",
+                "symfony/validator": "~2.6.9",
+                "zendframework/zend-validator": "~2.3"
+            },
+            "suggest": {
+                "egulias/email-validator": "Strict (RFC compliant) email validation",
+                "ext-bcmath": "Arbitrary Precision Mathematics",
+                "ext-mbstring": "Multibyte String Functions",
+                "fabpot/php-cs-fixer": "Fix PSR2 and other coding style issues",
+                "symfony/validator": "Use Symfony validator through Respect\\Validation",
+                "zendframework/zend-validator": "Use Zend Framework validator through Respect\\Validation"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Respect\\Validation\\": "library/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD Style"
+            ],
+            "authors": [
+                {
+                    "name": "Respect/Validation Contributors",
+                    "homepage": "https://github.com/Respect/Validation/graphs/contributors"
+                }
+            ],
+            "description": "The most awesome validation engine ever created for PHP",
+            "homepage": "http://respect.github.io/Validation/",
+            "keywords": [
+                "respect",
+                "validation",
+                "validator"
+            ],
+            "time": "2018-01-02T21:47:22+00:00"
+        },
+        {
             "name": "sciactive/hookphp",
             "version": "2.0.2",
             "source": {
@@ -1021,6 +1084,62 @@
                 "user manager"
             ],
             "time": "2017-12-14T00:00:00+00:00"
+        },
+        {
+            "name": "sciactive/tilmeld-server",
+            "version": "1.0.0-beta.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sciactive/tilmeld-server.git",
+                "reference": "025e29b694a8b34302dcdb2cafae7efcc65f6a11"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sciactive/tilmeld-server/zipball/025e29b694a8b34302dcdb2cafae7efcc65f6a11",
+                "reference": "025e29b694a8b34302dcdb2cafae7efcc65f6a11",
+                "shasum": ""
+            },
+            "require": {
+                "respect/validation": "^1.1",
+                "sciactive/hookphp": "^2.0",
+                "sciactive/nymph-pubsub": "~3.0@beta",
+                "sciactive/nymph-server": "~3.0@beta",
+                "sciactive/umailphp": "^2.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Tilmeld\\": "src/"
+                },
+                "psr-4": {
+                    "Tilmeld\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Hunter Perrin",
+                    "email": "hperrin@gmail.com",
+                    "homepage": "https://github.com/hperrin",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Nymph user and group management with access controls.",
+            "homepage": "http://tilmeld.org/",
+            "keywords": [
+                "User management",
+                "Users",
+                "acl",
+                "group management",
+                "group manager",
+                "groups",
+                "nymph",
+                "user manager"
+            ],
+            "time": "2018-01-10T00:00:00+00:00"
         },
         {
             "name": "sciactive/umailphp",
@@ -1483,7 +1602,7 @@
     "stability-flags": {
         "sciactive/nymph-server": 10,
         "sciactive/nymph-pubsub": 10,
-        "sciactive/tilmeld": 10,
+        "sciactive/tilmeld-server": 10,
         "sciactive/logalyzer-server": 15
     },
     "prefer-stable": false,

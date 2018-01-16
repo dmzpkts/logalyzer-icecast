@@ -25,7 +25,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "logalyzer-client": "0.0.1-alpha.3",
-    "nymph-client": "^3.0.3"
+    "nymph-client": "^3.0.3",
+    "tilmeld-client": "^1.0.0-beta.13"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
