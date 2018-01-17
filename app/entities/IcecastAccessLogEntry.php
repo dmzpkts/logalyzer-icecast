@@ -100,6 +100,7 @@ class IcecastAccessLogEntry extends \Logalyzer\Entities\LogEntry {
     do {
       // Delete all
       // * 0 duration entries older than 7 days
+      // * no user agent entries older than 7 days
       // * all other entries older than 6 months.
       echo "Clearing ".count($entities)." IcecastAccessLogEntry\n";
       foreach ($entities as $guid) {
@@ -114,7 +115,13 @@ class IcecastAccessLogEntry extends \Logalyzer\Entities\LogEntry {
           ],
           ['|',
             ['&',
-              'strict' => ['duration', 0],
+              ['|',
+                'strict' => [
+                  ['duration', 0],
+                  ['userAgent', '-']
+                ],
+                '!isset' => 'userAgent'
+              ],
               'lt' => ['time', null, '-7 days']
             ],
             ['&',
