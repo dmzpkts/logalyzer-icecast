@@ -1,5 +1,7 @@
 <?php
 
+use Nymph\Nymph;
+
 /**
  * @property string $line The log entry's original log line.
  * @property string $remoteHost
