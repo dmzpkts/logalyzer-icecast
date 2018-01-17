@@ -181,6 +181,9 @@
         if (!options['dont-skip-metadata'] && resource === '/admin/metadata') {
           return false;
         }
+        if (options['skip-hosts'] && options['skip-hosts'].split(',').indexOf(remoteHost) !== -1) {
+          return false;
+        }
 
         // Parse user agent string.
         const uaParts = _this.parseUAString(userAgent);
