@@ -884,23 +884,23 @@
         },
         {
             "name": "sciactive/logalyzer-server",
-            "version": "0.0.1-alpha.1",
+            "version": "0.0.1-alpha.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sciactive/logalyzer-server.git",
-                "reference": "131568bfd04139db5fa068f2179a8d17f1c9f74d"
+                "reference": "d2783fe73b7da972f6ad0a492668113f581028e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sciactive/logalyzer-server/zipball/131568bfd04139db5fa068f2179a8d17f1c9f74d",
-                "reference": "131568bfd04139db5fa068f2179a8d17f1c9f74d",
+                "url": "https://api.github.com/repos/sciactive/logalyzer-server/zipball/d2783fe73b7da972f6ad0a492668113f581028e8",
+                "reference": "d2783fe73b7da972f6ad0a492668113f581028e8",
                 "shasum": ""
             },
             "require": {
                 "maxmind-db/reader": "~1.0",
                 "sciactive/nymph-pubsub": "^3.0@beta",
                 "sciactive/nymph-server": "^3.0@beta",
-                "sciactive/tilmeld": "^1.0@beta"
+                "sciactive/tilmeld-server": "^1.0@beta"
             },
             "type": "library",
             "autoload": {
@@ -922,7 +922,7 @@
                 }
             ],
             "description": "Server files for Logalyzer - Build a log analyzer for anything.",
-            "time": "2018-01-15T00:00:00+00:00"
+            "time": "2018-01-16T00:00:00+00:00"
         },
         {
             "name": "sciactive/nymph-pubsub",
@@ -1029,61 +1029,6 @@
                 "postgresql"
             ],
             "time": "2018-01-11T00:00:00+00:00"
-        },
-        {
-            "name": "sciactive/tilmeld",
-            "version": "1.0.0-beta.11",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sciactive/tilmeld-server.git",
-                "reference": "394a62c936ae59c8040219dd8c35215addcd27ea"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sciactive/tilmeld-server/zipball/394a62c936ae59c8040219dd8c35215addcd27ea",
-                "reference": "394a62c936ae59c8040219dd8c35215addcd27ea",
-                "shasum": ""
-            },
-            "require": {
-                "sciactive/hookphp": "^2.0",
-                "sciactive/nymph-pubsub": "~3.0@beta",
-                "sciactive/nymph-server": "~3.0@beta",
-                "sciactive/umailphp": "^2.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Tilmeld\\": "src/"
-                },
-                "psr-4": {
-                    "Tilmeld\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Hunter Perrin",
-                    "email": "hperrin@gmail.com",
-                    "homepage": "https://github.com/hperrin",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Nymph user and group management with access controls.",
-            "homepage": "http://tilmeld.org/",
-            "keywords": [
-                "User management",
-                "Users",
-                "acl",
-                "group management",
-                "group manager",
-                "groups",
-                "nymph",
-                "user manager"
-            ],
-            "time": "2017-12-14T00:00:00+00:00"
         },
         {
             "name": "sciactive/tilmeld-server",
