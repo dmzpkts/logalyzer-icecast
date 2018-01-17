@@ -94,4 +94,34 @@ class IcecastAccessLogEntry extends \Logalyzer\Entities\LogEntry {
   public function __construct($id = 0) {
     parent::__construct($id);
   }
+
+  public static function cron() {
+    $entities = [];
+    do {
+      // Delete all
+      // * 0 duration entries older than 7 days
+      // * all other entries older than 6 months.
+      echo "Clearing ".count($entities)." IcecastAccessLogEntry\n";
+      foreach ($entities as $guid) {
+        Nymph::deleteEntityByID($guid, self::ETYPE);
+      }
+      $entities = Nymph::getEntities(
+          [
+            'class' => 'IcecastAccessLogEntry',
+            'limit' => 800,
+            'return' => 'guid',
+            'skip_ac' => true
+          ],
+          ['|',
+            ['&',
+              'strict' => ['duration', 0],
+              'lt' => ['time', null, '-7 days']
+            ],
+            ['&',
+              'lt' => ['time', null, '-6 months']
+            ]
+          ]
+      );
+    } while ($entities);
+  }
 }
