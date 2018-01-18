@@ -884,16 +884,16 @@
         },
         {
             "name": "sciactive/logalyzer-server",
-            "version": "0.0.1-alpha.2",
+            "version": "0.0.1-alpha.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sciactive/logalyzer-server.git",
-                "reference": "d2783fe73b7da972f6ad0a492668113f581028e8"
+                "reference": "d35ea6c901ca56a083db41c902fa391d422a3a48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sciactive/logalyzer-server/zipball/d2783fe73b7da972f6ad0a492668113f581028e8",
-                "reference": "d2783fe73b7da972f6ad0a492668113f581028e8",
+                "url": "https://api.github.com/repos/sciactive/logalyzer-server/zipball/d35ea6c901ca56a083db41c902fa391d422a3a48",
+                "reference": "d35ea6c901ca56a083db41c902fa391d422a3a48",
                 "shasum": ""
             },
             "require": {
@@ -922,7 +922,7 @@
                 }
             ],
             "description": "Server files for Logalyzer - Build a log analyzer for anything.",
-            "time": "2018-01-16T00:00:00+00:00"
+            "time": "2018-01-17T00:00:00+00:00"
         },
         {
             "name": "sciactive/nymph-pubsub",

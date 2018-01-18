@@ -24,7 +24,7 @@
   "author": "Hunter Perrin <hperrin@gmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "logalyzer-client": "0.0.1-alpha.4",
+    "logalyzer-client": "0.0.1-alpha.5",
     "nymph-client": "^3.0.4",
     "tilmeld-client": "^1.0.0-beta.14"
   },
